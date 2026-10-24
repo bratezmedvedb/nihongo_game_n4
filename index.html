@@ -494,7 +494,7 @@
   <div class="games-list">
     
     <!-- 1. MegaQuiz (Клубника) -->
-    <div class="game-card theme-megaquiz" onclick="goTo('megaquiz.html')">
+    <div class="game-card theme-megaquiz" onclick="goTo('MegaQuiz.html')">
       <div class="game-left">
         <div class="game-icon-box">🍓</div>
         <div class="game-text">
@@ -517,4 +517,149 @@
 
     <!-- 3. Блоки (Матча) -->
     <div class="game-card theme-blocks" onclick="goTo('blocks_n4.html')">
-      <div class="g
+      <div class="game-left">
+        <div class="game-icon-box">🍵</div>
+        <div class="game-text">
+          <h2>Блоки</h2>
+        </div>
+      </div>
+      <div class="play-btn">Играть →</div>
+    </div>
+
+  </div>
+
+  <!-- Кнопка "Поддержать проект" -->
+  <div class="support-section">
+    <button type="button" class="support-trigger-btn" onclick="openSupportModal()">
+      <span>☕</span> Поддержать автора
+    </button>
+  </div>
+
+</div>
+
+<!-- Модальное окно: Донат / Реклама -->
+<div class="modal-backdrop" id="supportModalBackdrop" onclick="closeSupportModal()">
+  <div class="modal-card" onclick="event.stopPropagation()">
+    <div class="modal-header">
+      <div class="modal-icon">🍡</div>
+      <h3 class="modal-title">Поддержка N4</h3>
+    </div>
+    <div class="modal-desc">Тренажёры бесплатны. Вы можете помочь развитию проекта и добавлению новых уровней:</div>
+    
+    <div class="support-actions">
+      <button type="button" class="support-action-btn btn-ad" onclick="handleWatchAd()">
+        🎬 Посмотреть ролик
+      </button>
+
+      <button type="button" class="support-action-btn btn-donate" onclick="handleDonateCoffee()">
+        ☕ Угостить кофе (CloudTips)
+      </button>
+    </div>
+
+    <button type="button" class="modal-close-text" onclick="closeSupportModal()">Назад в меню</button>
+  </div>
+</div>
+
+<script>
+  // Инициализация Telegram WebApp
+  if (window.Telegram && window.Telegram.WebApp) {
+    const tg = window.Telegram.WebApp;
+    tg.ready();
+    tg.expand();
+    
+    if (tg.setHeaderColor) tg.setHeaderColor('#fbf8ee');
+    if (tg.setBackgroundColor) tg.setBackgroundColor('#fbf8ee');
+    if (tg.disableVerticalSwipes) tg.disableVerticalSwipes();
+
+    if (tg.onEvent) {
+      tg.onEvent('fullscreenChanged', () => {
+        const btn = document.getElementById('fsBtn');
+        if (tg.isFullscreen) {
+          document.body.classList.add('tg-fullscreen');
+          if (btn) btn.textContent = '✕ Свернуть';
+        } else {
+          document.body.classList.remove('tg-fullscreen');
+          if (btn) btn.textContent = '⛶ Экран';
+        }
+      });
+    }
+  }
+
+  const supportBackdrop = document.getElementById('supportModalBackdrop');
+
+  function goTo(url) {
+    window.location.href = url;
+  }
+
+  function openSupportModal() {
+    supportBackdrop.classList.add('show');
+  }
+
+  function closeSupportModal() {
+    supportBackdrop.classList.remove('show');
+  }
+
+  function toggleAppFullscreen() {
+    const btn = document.getElementById('fsBtn');
+
+    if (window.Telegram && window.Telegram.WebApp && window.Telegram.WebApp.requestFullscreen) {
+      try {
+        if (!window.Telegram.WebApp.isFullscreen) {
+          window.Telegram.WebApp.requestFullscreen();
+          document.body.classList.add('tg-fullscreen');
+          btn.textContent = '✕ Свернуть';
+        } else {
+          window.Telegram.WebApp.exitFullscreen();
+          document.body.classList.remove('tg-fullscreen');
+          btn.textContent = '⛶ Экран';
+        }
+        return;
+      } catch(e){}
+    }
+
+    if (!document.fullscreenElement) {
+      document.documentElement.requestFullscreen?.().then(() => {
+        document.body.classList.add('tg-fullscreen');
+        btn.textContent = '✕ Свернуть';
+      }).catch(() => {});
+    } else {
+      document.exitFullscreen?.().then(() => {
+        document.body.classList.remove('tg-fullscreen');
+        btn.textContent = '⛶ Экран';
+      }).catch(() => {});
+    }
+  }
+
+  // Реклама Adsgram
+  const AdController = window.Adsgram ? window.Adsgram.init({ blockId: "48319" }) : null;
+
+  function handleWatchAd() {
+    closeSupportModal();
+    if (!AdController) {
+      alert("Реклама временно недоступна. Попробуйте позже!");
+      return;
+    }
+    AdController.show()
+      .then(() => alert("Большое спасибо за просмотр! 🌸"))
+      .catch((err) => console.log("Реклама прервана", err));
+  }
+
+  function handleDonateCoffee() {
+    closeSupportModal();
+    const url = "https://pay.cloudtips.ru/p/63912644";
+    if (window.Telegram && window.Telegram.WebApp && window.Telegram.WebApp.openLink) {
+      window.Telegram.WebApp.openLink(url);
+    } else {
+      window.open(url, '_blank');
+    }
+  }
+
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+      closeSupportModal();
+    }
+  });
+</script>
+
+</body>
+</html>
