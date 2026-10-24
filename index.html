@@ -1,0 +1,741 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>JLPT N4 • Тренажёры</title>
+
+  <!-- Google Fonts: Японский округлый шрифт -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@400;500;700;800&family=Nunito:wght@600;700;800&display=swap" rel="stylesheet">
+
+  <!-- Telegram WebApp SDK -->
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+
+  <!-- Adsgram SDK -->
+  <script src="https://sad.adsgram.ai/js/sad.min.js"></script>
+
+  <!-- Проверка доступа и авто-раскрытие -->
+  <script>
+    const ALLOWED_USERS = [370567050, 669192721]; // Ваши Telegram ID
+
+    if (window.Telegram && window.Telegram.WebApp) {
+      const tg = window.Telegram.WebApp;
+      tg.ready();
+
+      const userId = tg.initDataUnsafe?.user?.id;
+
+      if (!ALLOWED_USERS.includes(userId)) {
+        document.addEventListener("DOMContentLoaded", () => {
+          document.body.style.cssText = "display:flex; justify-content:center; align-items:center; height:100vh; flex-direction:column; font-family:'M PLUS Rounded 1c', sans-serif; background:#fbf8ee; color:#4a3a36; margin:0; padding:20px; text-align:center;";
+          document.body.innerHTML = `
+            <div style="font-size: 42px; margin-bottom: 12px;">🔒</div>
+            <h1 style="color: #ec6f88; font-size: 22px; margin-bottom: 8px;">Доступ закрыт</h1>
+            <p style="color: #8f8478; font-size: 14px;">Приложение находится в стадии закрытого тестирования JLPT N4.</p>
+          `;
+        });
+      } else {
+        tg.expand();
+        if (tg.requestFullscreen) tg.requestFullscreen();
+        if (tg.disableVerticalSwipes) tg.disableVerticalSwipes();
+      }
+    }
+  </script>
+
+  <style>
+    :root {
+      --cream: #fbf8ee;
+      --paper: #ffffff;
+      --ink: #4a3a36;
+      --ink-soft: #8f8478;
+      
+      --strawberry: #ffc4d0;
+      --strawberry-deep: #ec6f88;
+      
+      --matcha: #d5e8b3;
+      --matcha-deep: #8db55a;
+      
+      --peach: #ffd8bb;
+      --peach-deep: #f0a06c;
+      
+      --pistachio: #cdeec4;
+      --pistachio-deep: #78bf74;
+      
+      --apricot: #ffe6cc;
+      --line: #f3e2d6;
+      --shadow: 0 6px 0 rgba(236, 111, 136, 0.2);
+      
+      --radius-xl: 24px;
+      --radius-lg: 18px;
+      --radius-md: 14px;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-tap-highlight-color: transparent;
+      user-select: none;
+    }
+
+    body {
+      background-color: var(--cream);
+      color: var(--ink);
+      font-family: 'M PLUS Rounded 1c', 'Nunito', -apple-system, BlinkMacSystemFont, sans-serif;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      padding: calc(65px + env(safe-area-inset-top, 0px)) 16px calc(40px + env(safe-area-inset-bottom, 0px));
+      transition: padding-top 0.2s ease;
+      background-image: 
+        radial-gradient(circle at 15% 15%, rgba(255, 196, 208, 0.35) 0%, transparent 40%),
+        radial-gradient(circle at 85% 85%, rgba(213, 232, 179, 0.35) 0%, transparent 40%);
+      background-attachment: fixed;
+    }
+
+    body.tg-fullscreen {
+      padding-top: calc(85px + env(safe-area-inset-top, 0px)) !important;
+    }
+
+    .wrap {
+      width: 100%;
+      max-width: 440px;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Верхняя панель */
+    .top-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+
+    .level-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: var(--paper);
+      color: var(--strawberry-deep);
+      border: 2px solid var(--strawberry);
+      font-size: 13px;
+      font-weight: 800;
+      padding: 5px 14px;
+      border-radius: 99px;
+      box-shadow: 0 3px 0 var(--strawberry);
+    }
+
+    .fullscreen-btn {
+      background: var(--paper);
+      border: 2px solid var(--line);
+      color: var(--ink);
+      font-size: 12.5px;
+      font-weight: 700;
+      padding: 6px 14px;
+      border-radius: 99px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      box-shadow: 0 3px 0 var(--line);
+      transition: all 0.15s ease;
+      font-family: inherit;
+    }
+    .fullscreen-btn:active {
+      transform: translateY(2px);
+      box-shadow: 0 1px 0 var(--line);
+    }
+
+    /* Главный хедер */
+    .header {
+      text-align: center;
+      margin-bottom: 24px;
+    }
+    .header-sub-tag {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--matcha-deep);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 4px;
+    }
+    h1 {
+      font-size: 28px;
+      font-weight: 800;
+      color: var(--ink);
+      margin-bottom: 6px;
+      line-height: 1.2;
+    }
+    .sub {
+      font-size: 14.5px;
+      color: var(--ink-soft);
+      font-weight: 500;
+    }
+
+    /* Карточки игр */
+    .games-list {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      width: 100%;
+    }
+
+    .game-card {
+      background: var(--paper);
+      border-radius: var(--radius-xl);
+      padding: 16px 16px 16px 14px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      text-decoration: none;
+      position: relative;
+      cursor: pointer;
+      transition: transform 0.15s ease, box-shadow 0.15s ease;
+    }
+
+    /* Темы карточек */
+    .game-card.theme-megaquiz {
+      border: 2.5px solid var(--strawberry);
+      box-shadow: 0 6px 0 var(--strawberry);
+    }
+    .game-card.theme-megaquiz:active {
+      transform: translateY(4px);
+      box-shadow: 0 2px 0 var(--strawberry);
+    }
+
+    .game-card.theme-anki {
+      border: 2.5px solid var(--peach);
+      box-shadow: 0 6px 0 var(--peach);
+    }
+    .game-card.theme-anki:active {
+      transform: translateY(4px);
+      box-shadow: 0 2px 0 var(--peach);
+    }
+
+    .game-card.theme-blocks {
+      border: 2.5px solid var(--matcha);
+      box-shadow: 0 6px 0 var(--matcha);
+    }
+    .game-card.theme-blocks:active {
+      transform: translateY(4px);
+      box-shadow: 0 2px 0 var(--matcha);
+    }
+
+    .game-left {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      min-width: 0;
+      flex: 1;
+    }
+
+    /* Кнопка "i" */
+    .info-btn {
+      width: 32px;
+      height: 32px;
+      flex-shrink: 0;
+      background: var(--cream);
+      border: 2px solid var(--line);
+      border-radius: 50%;
+      color: var(--ink-soft);
+      font-family: inherit;
+      font-size: 14px;
+      font-weight: 800;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+    .info-btn:hover {
+      background: var(--strawberry);
+      border-color: var(--strawberry-deep);
+      color: var(--strawberry-deep);
+      transform: scale(1.05);
+    }
+
+    /* Контейнер иконки */
+    .game-icon-box {
+      width: 52px;
+      height: 52px;
+      border-radius: var(--radius-md);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 26px;
+      flex-shrink: 0;
+    }
+    .theme-megaquiz .game-icon-box { background: #fff0f3; }
+    .theme-anki .game-icon-box { background: #fff5ec; }
+    .theme-blocks .game-icon-box { background: #f3f9e8; }
+
+    .game-text {
+      min-width: 0;
+      flex: 1;
+    }
+    .game-badge {
+      font-size: 10.5px;
+      font-weight: 800;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+      margin-bottom: 2px;
+      display: block;
+    }
+    .theme-megaquiz .game-badge { color: var(--strawberry-deep); }
+    .theme-anki .game-badge { color: var(--peach-deep); }
+    .theme-blocks .game-badge { color: var(--matcha-deep); }
+
+    .game-text h2 {
+      font-size: 17px;
+      font-weight: 800;
+      color: var(--ink);
+      margin: 0 0 2px 0;
+      line-height: 1.2;
+    }
+    .game-text p {
+      font-size: 12px;
+      color: var(--ink-soft);
+      font-weight: 600;
+      margin: 0;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    /* Кнопки "В игру" */
+    .play-btn {
+      color: #ffffff;
+      font-size: 13.5px;
+      font-weight: 800;
+      padding: 10px 16px;
+      border-radius: var(--radius-md);
+      white-space: nowrap;
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      transition: all 0.15s ease;
+    }
+    .theme-megaquiz .play-btn {
+      background: var(--strawberry-deep);
+      box-shadow: 0 3px 0 #c9546b;
+    }
+    .theme-anki .play-btn {
+      background: var(--peach-deep);
+      box-shadow: 0 3px 0 #cc7e4f;
+    }
+    .theme-blocks .play-btn {
+      background: var(--matcha-deep);
+      box-shadow: 0 3px 0 #6e9440;
+    }
+
+    /* Поддержка проекта */
+    .support-section {
+      margin-top: 28px;
+      text-align: center;
+      padding-bottom: 12px;
+    }
+    .support-trigger-btn {
+      background: var(--paper);
+      border: 2px dashed var(--peach-deep);
+      color: var(--peach-deep);
+      font-size: 14px;
+      font-weight: 800;
+      padding: 12px 24px;
+      border-radius: 99px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      box-shadow: 0 4px 0 rgba(240, 160, 108, 0.25);
+      font-family: inherit;
+      transition: all 0.15s ease;
+    }
+    .support-trigger-btn:active {
+      transform: translateY(2px);
+      box-shadow: 0 1px 0 rgba(240, 160, 108, 0.25);
+    }
+
+    /* Модальные окна */
+    .modal-backdrop {
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(74, 58, 54, 0.45);
+      backdrop-filter: blur(5px);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 18px;
+      z-index: 1000;
+      opacity: 0;
+      transition: opacity 0.2s ease;
+    }
+    .modal-backdrop.show {
+      display: flex;
+      opacity: 1;
+    }
+
+    .modal-card {
+      background: var(--paper);
+      border: 3px solid var(--line);
+      border-radius: var(--radius-xl);
+      width: 100%;
+      max-width: 400px;
+      padding: 24px;
+      box-shadow: 0 16px 32px rgba(74, 58, 54, 0.15);
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      transform: scale(0.95);
+      transition: transform 0.2s ease;
+    }
+    .modal-backdrop.show .modal-card {
+      transform: scale(1);
+    }
+
+    .modal-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      border-bottom: 2px dashed var(--line);
+      padding-bottom: 12px;
+    }
+    .modal-icon {
+      font-size: 32px;
+    }
+    .modal-title {
+      font-size: 19px;
+      font-weight: 800;
+      color: var(--ink);
+      margin: 0;
+    }
+    .modal-desc {
+      font-size: 14px;
+      line-height: 1.6;
+      color: var(--ink-soft);
+      white-space: pre-line;
+      font-weight: 500;
+    }
+
+    .modal-close-btn {
+      align-self: stretch;
+      background: var(--ink);
+      color: #fff;
+      border: none;
+      padding: 12px;
+      border-radius: var(--radius-md);
+      font-size: 14px;
+      font-weight: 800;
+      cursor: pointer;
+      font-family: inherit;
+      box-shadow: 0 4px 0 #281f1d;
+      transition: all 0.15s ease;
+    }
+    .modal-close-btn:active {
+      transform: translateY(2px);
+      box-shadow: 0 1px 0 #281f1d;
+    }
+
+    .support-actions {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-top: 6px;
+    }
+    .support-action-btn {
+      width: 100%;
+      padding: 14px;
+      border-radius: var(--radius-md);
+      font-size: 14px;
+      font-weight: 800;
+      cursor: pointer;
+      border: none;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      font-family: inherit;
+      transition: transform 0.15s ease;
+    }
+    .support-action-btn:active {
+      transform: translateY(2px);
+    }
+    .btn-ad {
+      background: var(--apricot);
+      color: var(--peach-deep);
+      border: 2px solid var(--peach);
+      box-shadow: 0 3px 0 var(--peach);
+    }
+    .btn-donate {
+      background: var(--strawberry-deep);
+      color: #ffffff;
+      box-shadow: 0 3px 0 #be4d64;
+    }
+
+    .modal-close-text {
+      background: none;
+      border: none;
+      color: var(--ink-soft);
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+      text-align: center;
+      padding: 4px;
+      font-family: inherit;
+    }
+  </style>
+</head>
+<body>
+
+<div class="wrap">
+  
+  <!-- Верхняя строка -->
+  <div class="top-bar">
+    <div class="level-badge">🌸 JLPT N4</div>
+    <button type="button" class="fullscreen-btn" id="fsBtn" onclick="toggleAppFullscreen()">⛶ Экран</button>
+  </div>
+
+  <!-- Шапка -->
+  <div class="header">
+    <div class="header-sub-tag">日本語トレーニング</div>
+    <h1>Тренажёры N4</h1>
+    <p class="sub">Грамматика, лексика и синтаксис</p>
+  </div>
+
+  <!-- Список игр под JLPT N4 -->
+  <div class="games-list">
+    
+    <!-- 1. MegaQuiz -->
+    <div class="game-card theme-megaquiz" onclick="goTo('megaquiz.html')">
+      <div class="game-left">
+        <button type="button" class="info-btn" onclick="event.stopPropagation(); openModal('megaquiz')" title="Инфо">i</button>
+        <div class="game-icon-box">🏆</div>
+        <div class="game-text">
+          <span class="game-badge">Грамматика & Частицы</span>
+          <h2>MegaQuiz</h2>
+          <p>Большой тест по всем темам N4</p>
+        </div>
+      </div>
+      <div class="play-btn">Старт →</div>
+    </div>
+
+    <!-- 2. Anki карточки -->
+    <div class="game-card theme-anki" onclick="goTo('anki.html')">
+      <div class="game-left">
+        <button type="button" class="info-btn" onclick="event.stopPropagation(); openModal('anki')" title="Инфо">i</button>
+        <div class="game-icon-box">🎴</div>
+        <div class="game-text">
+          <span class="game-badge">Интервальное запоминание</span>
+          <h2>Anki N4</h2>
+          <p>Словарь и кандзи с озвучкой</p>
+        </div>
+      </div>
+      <div class="play-btn">Учить →</div>
+    </div>
+
+    <!-- 3. Блоки предложений -->
+    <div class="game-card theme-blocks" onclick="goTo('blocks_n4.html')">
+      <div class="game-left">
+        <button type="button" class="info-btn" onclick="event.stopPropagation(); openModal('blocks')" title="Инфо">i</button>
+        <div class="game-icon-box">🧩</div>
+        <div class="game-text">
+          <span class="game-badge">Синтаксис & Порядок слов</span>
+          <h2>Блоки</h2>
+          <p>Сборка предложений N4 из фраз</p>
+        </div>
+      </div>
+      <div class="play-btn">Собрать →</div>
+    </div>
+
+  </div>
+
+  <!-- Кнопка "Поддержать проект" -->
+  <div class="support-section">
+    <button type="button" class="support-trigger-btn" onclick="openSupportModal()">
+      <span>☕</span> Поддержать автора
+    </button>
+  </div>
+
+</div>
+
+<!-- Модальное окно: Инфо об игре -->
+<div class="modal-backdrop" id="modalBackdrop" onclick="closeModal()">
+  <div class="modal-card" onclick="event.stopPropagation()">
+    <div class="modal-header">
+      <div class="modal-icon" id="modalIcon">🏆</div>
+      <h3 class="modal-title" id="modalTitle">MegaQuiz</h3>
+    </div>
+    <div class="modal-desc" id="modalDesc">Описание...</div>
+    <button type="button" class="modal-close-btn" onclick="closeModal()">Понятно ✨</button>
+  </div>
+</div>
+
+<!-- Модальное окно: Донат / Реклама -->
+<div class="modal-backdrop" id="supportModalBackdrop" onclick="closeSupportModal()">
+  <div class="modal-card" onclick="event.stopPropagation()">
+    <div class="modal-header">
+      <div class="modal-icon">🍡</div>
+      <h3 class="modal-title">Поддержка N4</h3>
+    </div>
+    <div class="modal-desc">Тренажёры бесплатны. Вы можете помочь развитию проекта и добавлению новых уровней:</div>
+    
+    <div class="support-actions">
+      <button type="button" class="support-action-btn btn-ad" onclick="handleWatchAd()">
+        🎬 Посмотреть ролик
+      </button>
+
+      <button type="button" class="support-action-btn btn-donate" onclick="handleDonateCoffee()">
+        ☕ Угостить кофе (CloudTips)
+      </button>
+    </div>
+
+    <button type="button" class="modal-close-text" onclick="closeSupportModal()">Назад в меню</button>
+  </div>
+</div>
+
+<script>
+  // Инициализация Telegram WebApp
+  if (window.Telegram && window.Telegram.WebApp) {
+    const tg = window.Telegram.WebApp;
+    tg.ready();
+    tg.expand();
+    
+    if (tg.setHeaderColor) tg.setHeaderColor('#fbf8ee');
+    if (tg.setBackgroundColor) tg.setBackgroundColor('#fbf8ee');
+    if (tg.disableVerticalSwipes) tg.disableVerticalSwipes();
+
+    if (tg.onEvent) {
+      tg.onEvent('fullscreenChanged', () => {
+        const btn = document.getElementById('fsBtn');
+        if (tg.isFullscreen) {
+          document.body.classList.add('tg-fullscreen');
+          if (btn) btn.textContent = '✕ Свернуть';
+        } else {
+          document.body.classList.remove('tg-fullscreen');
+          if (btn) btn.textContent = '⛶ Экран';
+        }
+      });
+    }
+  }
+
+  // Описания игр N4
+  const GAME_INFOS = {
+    megaquiz: {
+      icon: "🏆",
+      title: "MegaQuiz N4",
+      desc: "Комплексный квиз по всей грамматике уровня JLPT N4.\n\n• Отработка сложных частиц (で, に, を, と, より, ほど).\n• Конструкции намерений, условий (たら, ば, と, なら), пассивный и понудительный залоги.\n• Подробные комментарии с грамматическими правилами к каждому вопросу."
+    },
+    anki: {
+      icon: "🎴",
+      title: "Anki N4 Карточки",
+      desc: "Интервальное повторение всей лексики JLPT N4:\n\n• Более 600 ключевых слов уровня N4 с озвучкой диктором.\n• Переключение отображения: Кандзи / Фуригана / Перевод.\n• Умный алгоритм повторения ошибок для быстрого запоминания."
+    },
+    blocks: {
+      icon: "🧩",
+      title: "Блоки предложений",
+      desc: "Тренажёр сборки японских фраз и порядка слов:\n\n• Построение предложений с придаточными конструкциями N4.\n• Содержит ловушки-дистракторы для закрепления падежей.\n• Озвучка каждого блока и детальный разбор предложения после решения."
+    }
+  };
+
+  const backdrop = document.getElementById('modalBackdrop');
+  const modalIcon = document.getElementById('modalIcon');
+  const modalTitle = document.getElementById('modalTitle');
+  const modalDesc = document.getElementById('modalDesc');
+  const supportBackdrop = document.getElementById('supportModalBackdrop');
+
+  function goTo(url) {
+    window.location.href = url;
+  }
+
+  function openModal(gameKey) {
+    const info = GAME_INFOS[gameKey];
+    if (!info) return;
+
+    modalIcon.textContent = info.icon;
+    modalTitle.textContent = info.title;
+    modalDesc.textContent = info.desc;
+
+    backdrop.classList.add('show');
+  }
+
+  function closeModal() {
+    backdrop.classList.remove('show');
+  }
+
+  function openSupportModal() {
+    supportBackdrop.classList.add('show');
+  }
+
+  function closeSupportModal() {
+    supportBackdrop.classList.remove('show');
+  }
+
+  function toggleAppFullscreen() {
+    const btn = document.getElementById('fsBtn');
+
+    if (window.Telegram && window.Telegram.WebApp && window.Telegram.WebApp.requestFullscreen) {
+      try {
+        if (!window.Telegram.WebApp.isFullscreen) {
+          window.Telegram.WebApp.requestFullscreen();
+          document.body.classList.add('tg-fullscreen');
+          btn.textContent = '✕ Свернуть';
+        } else {
+          window.Telegram.WebApp.exitFullscreen();
+          document.body.classList.remove('tg-fullscreen');
+          btn.textContent = '⛶ Экран';
+        }
+        return;
+      } catch(e){}
+    }
+
+    if (!document.fullscreenElement) {
+      document.documentElement.requestFullscreen?.().then(() => {
+        document.body.classList.add('tg-fullscreen');
+        btn.textContent = '✕ Свернуть';
+      }).catch(() => {});
+    } else {
+      document.exitFullscreen?.().then(() => {
+        document.body.classList.remove('tg-fullscreen');
+        btn.textContent = '⛶ Экран';
+      }).catch(() => {});
+    }
+  }
+
+  // Реклама Adsgram
+  const AdController = window.Adsgram ? window.Adsgram.init({ blockId: "48319" }) : null;
+
+  function handleWatchAd() {
+    closeSupportModal();
+    if (!AdController) {
+      alert("Реклама временно недоступна. Попробуйте позже!");
+      return;
+    }
+    AdController.show()
+      .then(() => alert("Большое спасибо за просмотр! 🌸"))
+      .catch((err) => console.log("Реклама прервана", err));
+  }
+
+  function handleDonateCoffee() {
+    closeSupportModal();
+    const url = "https://pay.cloudtips.ru/p/63912644";
+    if (window.Telegram && window.Telegram.WebApp && window.Telegram.WebApp.openLink) {
+      window.Telegram.WebApp.openLink(url);
+    } else {
+      window.open(url, '_blank');
+    }
+  }
+
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+      closeModal();
+      closeSupportModal();
+    }
+  });
+</script>
+
+</body>
+</html>
