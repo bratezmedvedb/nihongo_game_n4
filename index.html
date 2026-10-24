@@ -92,18 +92,56 @@
         radial-gradient(circle at 15% 15%, rgba(255, 196, 208, 0.35) 0%, transparent 40%),
         radial-gradient(circle at 85% 85%, rgba(213, 232, 179, 0.35) 0%, transparent 40%);
       background-attachment: fixed;
+      position: relative;
     }
 
     body.tg-fullscreen {
       padding-top: calc(85px + env(safe-area-inset-top, 0px)) !important;
     }
 
+    /* Лепестки сакуры: фоновая анимация */
+    .petals { 
+      position: fixed; 
+      inset: 0; 
+      pointer-events: none; 
+      overflow: hidden; 
+      z-index: 0; 
+    }
+    .petals span {
+      position: absolute; 
+      top: -30px; 
+      width: 14px; 
+      height: 11px;
+      background: var(--strawberry); 
+      border-radius: 80% 0 80% 0; 
+      opacity: .75;
+      animation: fall 14s linear infinite;
+    }
+    .petals span:nth-child(1) { left: 8%;  animation-delay: 0s;   animation-duration: 15s; }
+    .petals span:nth-child(2) { left: 24%; animation-delay: -5s;  animation-duration: 18s; width: 10px; height: 8px; }
+    .petals span:nth-child(3) { left: 42%; animation-delay: -9s;  animation-duration: 16s; background: var(--peach); }
+    .petals span:nth-child(4) { left: 61%; animation-delay: -3s;  animation-duration: 20s; width: 12px; height: 9px; }
+    .petals span:nth-child(5) { left: 78%; animation-delay: -11s; animation-duration: 17s; background: var(--matcha); }
+    .petals span:nth-child(6) { left: 92%; animation-delay: -7s;  animation-duration: 19s; }
+    
+    @keyframes fall {
+      0%   { transform: translate(0, 0) rotate(0deg); }
+      50%  { transform: translate(28px, 55vh) rotate(180deg); }
+      100% { transform: translate(-12px, 110vh) rotate(360deg); }
+    }
+    
+    @media (prefers-reduced-motion: reduce) { 
+      .petals { display: none; } 
+    }
+
     .wrap {
       width: 100%;
-      max-width: 440px;
+      max-width: 520px;
       margin: 0 auto;
       display: flex;
       flex-direction: column;
+      position: relative;
+      z-index: 1;
     }
 
     /* Верхняя панель */
@@ -186,7 +224,7 @@
     .game-card {
       background: var(--paper);
       border-radius: var(--radius-xl);
-      padding: 16px 16px 16px 14px;
+      padding: 16px;
       display: flex;
       align-items: center;
       justify-content: space-between;
@@ -228,34 +266,9 @@
     .game-left {
       display: flex;
       align-items: center;
-      gap: 12px;
+      gap: 14px;
       min-width: 0;
       flex: 1;
-    }
-
-    /* Кнопка "i" */
-    .info-btn {
-      width: 32px;
-      height: 32px;
-      flex-shrink: 0;
-      background: var(--cream);
-      border: 2px solid var(--line);
-      border-radius: 50%;
-      color: var(--ink-soft);
-      font-family: inherit;
-      font-size: 14px;
-      font-weight: 800;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      cursor: pointer;
-      transition: all 0.15s ease;
-    }
-    .info-btn:hover {
-      background: var(--strawberry);
-      border-color: var(--strawberry-deep);
-      color: var(--strawberry-deep);
-      transform: scale(1.05);
     }
 
     /* Контейнер иконки */
@@ -277,36 +290,16 @@
       min-width: 0;
       flex: 1;
     }
-    .game-badge {
-      font-size: 10.5px;
-      font-weight: 800;
-      letter-spacing: 0.5px;
-      text-transform: uppercase;
-      margin-bottom: 2px;
-      display: block;
-    }
-    .theme-megaquiz .game-badge { color: var(--strawberry-deep); }
-    .theme-anki .game-badge { color: var(--peach-deep); }
-    .theme-blocks .game-badge { color: var(--matcha-deep); }
 
     .game-text h2 {
-      font-size: 17px;
+      font-size: 18px;
       font-weight: 800;
       color: var(--ink);
-      margin: 0 0 2px 0;
+      margin: 0;
       line-height: 1.2;
     }
-    .game-text p {
-      font-size: 12px;
-      color: var(--ink-soft);
-      font-weight: 600;
-      margin: 0;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
 
-    /* Кнопки "В игру" */
+    /* Кнопки запуска */
     .play-btn {
       color: #ffffff;
       font-size: 13.5px;
@@ -360,7 +353,7 @@
       box-shadow: 0 1px 0 rgba(240, 160, 108, 0.25);
     }
 
-    /* Модальные окна */
+    /* Модальное окно */
     .modal-backdrop {
       position: fixed;
       top: 0; left: 0; right: 0; bottom: 0;
@@ -421,25 +414,6 @@
       font-weight: 500;
     }
 
-    .modal-close-btn {
-      align-self: stretch;
-      background: var(--ink);
-      color: #fff;
-      border: none;
-      padding: 12px;
-      border-radius: var(--radius-md);
-      font-size: 14px;
-      font-weight: 800;
-      cursor: pointer;
-      font-family: inherit;
-      box-shadow: 0 4px 0 #281f1d;
-      transition: all 0.15s ease;
-    }
-    .modal-close-btn:active {
-      transform: translateY(2px);
-      box-shadow: 0 1px 0 #281f1d;
-    }
-
     .support-actions {
       display: flex;
       flex-direction: column;
@@ -491,6 +465,16 @@
 </head>
 <body>
 
+<!-- Падающие лепестки сакуры -->
+<div class="petals" aria-hidden="true">
+  <span></span>
+  <span></span>
+  <span></span>
+  <span></span>
+  <span></span>
+  <span></span>
+</div>
+
 <div class="wrap">
   
   <!-- Верхняя строка -->
@@ -509,233 +493,28 @@
   <!-- Список игр под JLPT N4 -->
   <div class="games-list">
     
-    <!-- 1. MegaQuiz -->
+    <!-- 1. MegaQuiz (Клубника) -->
     <div class="game-card theme-megaquiz" onclick="goTo('megaquiz.html')">
       <div class="game-left">
-        <button type="button" class="info-btn" onclick="event.stopPropagation(); openModal('megaquiz')" title="Инфо">i</button>
-        <div class="game-icon-box">🏆</div>
+        <div class="game-icon-box">🍓</div>
         <div class="game-text">
-          <span class="game-badge">Грамматика & Частицы</span>
           <h2>MegaQuiz</h2>
-          <p>Большой тест по всем темам N4</p>
         </div>
       </div>
-      <div class="play-btn">Старт →</div>
+      <div class="play-btn">Играть →</div>
     </div>
 
-    <!-- 2. Anki карточки -->
+    <!-- 2. Anki (Персик) -->
     <div class="game-card theme-anki" onclick="goTo('anki.html')">
       <div class="game-left">
-        <button type="button" class="info-btn" onclick="event.stopPropagation(); openModal('anki')" title="Инфо">i</button>
-        <div class="game-icon-box">🎴</div>
+        <div class="game-icon-box">🍑</div>
         <div class="game-text">
-          <span class="game-badge">Интервальное запоминание</span>
           <h2>Anki N4</h2>
-          <p>Словарь и кандзи с озвучкой</p>
         </div>
       </div>
-      <div class="play-btn">Учить →</div>
+      <div class="play-btn">Играть →</div>
     </div>
 
-    <!-- 3. Блоки предложений -->
+    <!-- 3. Блоки (Матча) -->
     <div class="game-card theme-blocks" onclick="goTo('blocks_n4.html')">
-      <div class="game-left">
-        <button type="button" class="info-btn" onclick="event.stopPropagation(); openModal('blocks')" title="Инфо">i</button>
-        <div class="game-icon-box">🧩</div>
-        <div class="game-text">
-          <span class="game-badge">Синтаксис & Порядок слов</span>
-          <h2>Блоки</h2>
-          <p>Сборка предложений N4 из фраз</p>
-        </div>
-      </div>
-      <div class="play-btn">Собрать →</div>
-    </div>
-
-  </div>
-
-  <!-- Кнопка "Поддержать проект" -->
-  <div class="support-section">
-    <button type="button" class="support-trigger-btn" onclick="openSupportModal()">
-      <span>☕</span> Поддержать автора
-    </button>
-  </div>
-
-</div>
-
-<!-- Модальное окно: Инфо об игре -->
-<div class="modal-backdrop" id="modalBackdrop" onclick="closeModal()">
-  <div class="modal-card" onclick="event.stopPropagation()">
-    <div class="modal-header">
-      <div class="modal-icon" id="modalIcon">🏆</div>
-      <h3 class="modal-title" id="modalTitle">MegaQuiz</h3>
-    </div>
-    <div class="modal-desc" id="modalDesc">Описание...</div>
-    <button type="button" class="modal-close-btn" onclick="closeModal()">Понятно ✨</button>
-  </div>
-</div>
-
-<!-- Модальное окно: Донат / Реклама -->
-<div class="modal-backdrop" id="supportModalBackdrop" onclick="closeSupportModal()">
-  <div class="modal-card" onclick="event.stopPropagation()">
-    <div class="modal-header">
-      <div class="modal-icon">🍡</div>
-      <h3 class="modal-title">Поддержка N4</h3>
-    </div>
-    <div class="modal-desc">Тренажёры бесплатны. Вы можете помочь развитию проекта и добавлению новых уровней:</div>
-    
-    <div class="support-actions">
-      <button type="button" class="support-action-btn btn-ad" onclick="handleWatchAd()">
-        🎬 Посмотреть ролик
-      </button>
-
-      <button type="button" class="support-action-btn btn-donate" onclick="handleDonateCoffee()">
-        ☕ Угостить кофе (CloudTips)
-      </button>
-    </div>
-
-    <button type="button" class="modal-close-text" onclick="closeSupportModal()">Назад в меню</button>
-  </div>
-</div>
-
-<script>
-  // Инициализация Telegram WebApp
-  if (window.Telegram && window.Telegram.WebApp) {
-    const tg = window.Telegram.WebApp;
-    tg.ready();
-    tg.expand();
-    
-    if (tg.setHeaderColor) tg.setHeaderColor('#fbf8ee');
-    if (tg.setBackgroundColor) tg.setBackgroundColor('#fbf8ee');
-    if (tg.disableVerticalSwipes) tg.disableVerticalSwipes();
-
-    if (tg.onEvent) {
-      tg.onEvent('fullscreenChanged', () => {
-        const btn = document.getElementById('fsBtn');
-        if (tg.isFullscreen) {
-          document.body.classList.add('tg-fullscreen');
-          if (btn) btn.textContent = '✕ Свернуть';
-        } else {
-          document.body.classList.remove('tg-fullscreen');
-          if (btn) btn.textContent = '⛶ Экран';
-        }
-      });
-    }
-  }
-
-  // Описания игр N4
-  const GAME_INFOS = {
-    megaquiz: {
-      icon: "🏆",
-      title: "MegaQuiz N4",
-      desc: "Комплексный квиз по всей грамматике уровня JLPT N4.\n\n• Отработка сложных частиц (で, に, を, と, より, ほど).\n• Конструкции намерений, условий (たら, ば, と, なら), пассивный и понудительный залоги.\n• Подробные комментарии с грамматическими правилами к каждому вопросу."
-    },
-    anki: {
-      icon: "🎴",
-      title: "Anki N4 Карточки",
-      desc: "Интервальное повторение всей лексики JLPT N4:\n\n• Более 600 ключевых слов уровня N4 с озвучкой диктором.\n• Переключение отображения: Кандзи / Фуригана / Перевод.\n• Умный алгоритм повторения ошибок для быстрого запоминания."
-    },
-    blocks: {
-      icon: "🧩",
-      title: "Блоки предложений",
-      desc: "Тренажёр сборки японских фраз и порядка слов:\n\n• Построение предложений с придаточными конструкциями N4.\n• Содержит ловушки-дистракторы для закрепления падежей.\n• Озвучка каждого блока и детальный разбор предложения после решения."
-    }
-  };
-
-  const backdrop = document.getElementById('modalBackdrop');
-  const modalIcon = document.getElementById('modalIcon');
-  const modalTitle = document.getElementById('modalTitle');
-  const modalDesc = document.getElementById('modalDesc');
-  const supportBackdrop = document.getElementById('supportModalBackdrop');
-
-  function goTo(url) {
-    window.location.href = url;
-  }
-
-  function openModal(gameKey) {
-    const info = GAME_INFOS[gameKey];
-    if (!info) return;
-
-    modalIcon.textContent = info.icon;
-    modalTitle.textContent = info.title;
-    modalDesc.textContent = info.desc;
-
-    backdrop.classList.add('show');
-  }
-
-  function closeModal() {
-    backdrop.classList.remove('show');
-  }
-
-  function openSupportModal() {
-    supportBackdrop.classList.add('show');
-  }
-
-  function closeSupportModal() {
-    supportBackdrop.classList.remove('show');
-  }
-
-  function toggleAppFullscreen() {
-    const btn = document.getElementById('fsBtn');
-
-    if (window.Telegram && window.Telegram.WebApp && window.Telegram.WebApp.requestFullscreen) {
-      try {
-        if (!window.Telegram.WebApp.isFullscreen) {
-          window.Telegram.WebApp.requestFullscreen();
-          document.body.classList.add('tg-fullscreen');
-          btn.textContent = '✕ Свернуть';
-        } else {
-          window.Telegram.WebApp.exitFullscreen();
-          document.body.classList.remove('tg-fullscreen');
-          btn.textContent = '⛶ Экран';
-        }
-        return;
-      } catch(e){}
-    }
-
-    if (!document.fullscreenElement) {
-      document.documentElement.requestFullscreen?.().then(() => {
-        document.body.classList.add('tg-fullscreen');
-        btn.textContent = '✕ Свернуть';
-      }).catch(() => {});
-    } else {
-      document.exitFullscreen?.().then(() => {
-        document.body.classList.remove('tg-fullscreen');
-        btn.textContent = '⛶ Экран';
-      }).catch(() => {});
-    }
-  }
-
-  // Реклама Adsgram
-  const AdController = window.Adsgram ? window.Adsgram.init({ blockId: "48319" }) : null;
-
-  function handleWatchAd() {
-    closeSupportModal();
-    if (!AdController) {
-      alert("Реклама временно недоступна. Попробуйте позже!");
-      return;
-    }
-    AdController.show()
-      .then(() => alert("Большое спасибо за просмотр! 🌸"))
-      .catch((err) => console.log("Реклама прервана", err));
-  }
-
-  function handleDonateCoffee() {
-    closeSupportModal();
-    const url = "https://pay.cloudtips.ru/p/63912644";
-    if (window.Telegram && window.Telegram.WebApp && window.Telegram.WebApp.openLink) {
-      window.Telegram.WebApp.openLink(url);
-    } else {
-      window.open(url, '_blank');
-    }
-  }
-
-  document.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape') {
-      closeModal();
-      closeSupportModal();
-    }
-  });
-</script>
-
-</body>
-</html>
+      <div class="g
