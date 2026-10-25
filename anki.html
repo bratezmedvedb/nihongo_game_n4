@@ -1,0 +1,3702 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+  <title>JLPT • Тренажёр</title>
+
+  <!-- Google Fonts: Японский округлый шрифт -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@400;500;700;800&family=Nunito:wght@600;700;800&display=swap" rel="stylesheet">
+
+  <!-- Telegram WebApp SDK -->
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+
+  <!-- Adsgram SDK -->
+  <script src="https://sad.adsgram.ai/js/sad.min.js"></script>
+
+  <!-- Авто-раскрытие Telegram -->
+  <script>
+    if (window.Telegram && window.Telegram.WebApp) {
+      const tg = window.Telegram.WebApp;
+      tg.ready();
+      tg.expand();
+      if (tg.requestFullscreen) tg.requestFullscreen();
+      if (tg.disableVerticalSwipes) tg.disableVerticalSwipes();
+    }
+  </script>
+
+  <style>
+    :root {
+      --cream: #fbf8ee;
+      --paper: #ffffff;
+      --ink: #4a3a36;
+      --ink-soft: #8f8478;
+
+      --strawberry: #ffc4d0;
+      --strawberry-deep: #ec6f88;
+
+      --matcha: #d5e8b3;
+      --matcha-deep: #8db55a;
+
+      --peach: #ffd8bb;
+      --peach-deep: #f0a06c;
+
+      --pistachio: #cdeec4;
+      --pistachio-deep: #78bf74;
+
+      --apricot: #ffe6cc;
+      --line: #ebdacf;
+      --line-subtle: #f3e9e2;
+
+      --danger-bg: #ffe4e6;
+      --danger-border: #fca5a5;
+      --danger-text: #be123c;
+
+      --shadow-sm: 0 3px 0 var(--line);
+      --shadow-card: 0 8px 24px rgba(74, 58, 54, 0.07);
+
+      --radius-xl: 26px;
+      --radius-lg: 18px;
+      --radius-md: 14px;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-tap-highlight-color: transparent;
+      user-select: none;
+    }
+
+    html, body {
+      width: 100%;
+      height: 100%;
+      height: 100dvh;
+      overflow: hidden;
+      background-color: var(--cream);
+      color: var(--ink);
+      font-family: 'M PLUS Rounded 1c', 'Nunito', -apple-system, BlinkMacSystemFont, sans-serif;
+      position: relative;
+    }
+
+    body {
+      background-image: 
+        radial-gradient(circle at 12% 15%, rgba(255, 196, 208, 0.35) 0%, transparent 40%),
+        radial-gradient(circle at 88% 85%, rgba(213, 232, 179, 0.35) 0%, transparent 40%);
+      background-attachment: fixed;
+    }
+
+    /* Анимация падающих лепестков сакуры */
+    .petals {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      overflow: hidden;
+      z-index: 0;
+    }
+    .petals span {
+      position: absolute;
+      top: -30px;
+      width: 14px;
+      height: 11px;
+      background: var(--strawberry);
+      border-radius: 80% 0 80% 0;
+      opacity: 0.75;
+      animation: fallSakura 14s linear infinite;
+    }
+    .petals span:nth-child(1) { left: 8%;  animation-delay: 0s;   animation-duration: 15s; }
+    .petals span:nth-child(2) { left: 24%; animation-delay: -5s;  animation-duration: 18s; width: 10px; height: 8px; }
+    .petals span:nth-child(3) { left: 42%; animation-delay: -9s;  animation-duration: 16s; background: var(--peach); }
+    .petals span:nth-child(4) { left: 61%; animation-delay: -3s;  animation-duration: 20s; width: 12px; height: 9px; }
+    .petals span:nth-child(5) { left: 78%; animation-delay: -11s; animation-duration: 17s; background: var(--matcha); }
+    .petals span:nth-child(6) { left: 92%; animation-delay: -7s;  animation-duration: 19s; }
+
+    @keyframes fallSakura {
+      0%   { transform: translate(0, 0) rotate(0deg); }
+      50%  { transform: translate(28px, 55vh) rotate(180deg); }
+      100% { transform: translate(-12px, 110vh) rotate(360deg); }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .petals { display: none; }
+    }
+
+    /* Контейнер приложения */
+    #app {
+      width: 100%;
+      height: 100%;
+      height: 100dvh;
+      max-width: 480px;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      z-index: 1;
+    }
+
+    body.desktop-device #app {
+      max-width: 600px !important;
+      width: 100% !important;
+    }
+
+    /* Верхняя панель сессий */
+    .session-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: calc(44px + env(safe-area-inset-top, 0px)) 16px 8px;
+      flex-shrink: 0;
+      width: 100%;
+      z-index: 10;
+    }
+
+    body.is-android .session-header {
+      padding-top: 75px !important;
+    }
+
+    .back-btn-pill {
+      background: var(--paper);
+      border: 2px solid var(--line);
+      color: var(--ink);
+      font-size: 0.85rem;
+      font-weight: 800;
+      padding: 7px 14px;
+      border-radius: 99px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      box-shadow: 0 3px 0 var(--line);
+      transition: all 0.15s ease;
+      font-family: inherit;
+    }
+    .back-btn-pill:active {
+      transform: translateY(2px);
+      box-shadow: 0 1px 0 var(--line);
+    }
+
+.session-progress-wrap {
+  flex: 1;
+  height: 10px;
+  background: var(--paper);
+  border: 2px solid var(--line);
+  border-radius: 8px;
+  margin: 0 12px;
+  overflow: hidden;
+}
+
+.progress-fill {
+  height: 100%;
+  width: 0%;
+  border-radius: 6px;
+  transition: width 0.35s ease;
+  background: repeating-linear-gradient(135deg, var(--strawberry) 0 10px, #ffe3e8 10px 20px);
+}
+
+    .session-counter-text {
+      font-size: 0.88rem;
+      font-weight: 800;
+      color: var(--ink-soft);
+      min-width: 45px;
+      text-align: right;
+    }
+
+.view {
+      display: none !important;
+      flex: 1;
+      min-height: 0;
+      flex-direction: column;
+      animation: fadeIn 0.18s ease-out;
+    }
+    .view.active {
+      display: flex !important;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: scale(0.99); }
+      to { opacity: 1; transform: scale(1); }
+    }
+
+    /* ==========================================================================
+       ЭКРАН 1: КАРТА
+       ========================================================================== */
+    #viewMap {
+      flex: 1 1 auto !important;
+      height: 100% !important;
+      min-height: 0 !important;
+      overflow-y: scroll !important;
+      overflow-x: hidden !important;
+      -webkit-overflow-scrolling: touch;
+      padding: calc(44px + env(safe-area-inset-top, 0px)) 12px calc(60px + env(safe-area-inset-bottom, 0px));
+      position: relative;
+    }
+
+    body.is-android #viewMap {
+      padding-top: 75px !important;
+    }
+
+    /* Кнопка звука в главном меню */
+    .map-sound-btn {
+      position: fixed;
+      top: calc(14px + env(safe-area-inset-top, 0px));
+      right: 16px;
+      z-index: 50;
+      background: var(--paper);
+      border: 2px solid var(--peach);
+      border-radius: 99px;
+      padding: 6px 14px;
+      font-size: 1rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-weight: 800;
+      color: var(--ink);
+      box-shadow: 0 3px 0 var(--peach);
+      transition: all 0.15s ease;
+    }
+    .map-sound-btn:active {
+      transform: translateY(2px);
+      box-shadow: 0 1px 0 var(--peach);
+    }
+    body.is-android .map-sound-btn {
+      top: 45px !important;
+    }
+
+    .snake-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 26px;
+      padding: 24px 0 90px;
+      position: relative;
+      min-height: 100%;
+    }
+
+ #snakeSvg {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 1;
+      overflow: visible !important;
+    }
+
+    .level-node-wrapper {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      position: relative;
+      z-index: 2;
+    }
+
+    .level-node {
+      width: 76px;
+      height: 76px;
+      border-radius: var(--radius-xl);
+      background: var(--paper);
+      border: 2.5px solid var(--line);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      cursor: pointer;
+      box-shadow: 0 5px 0 var(--line);
+      transition: all 0.12s ease;
+      position: relative;
+    }
+    .level-node:active {
+      transform: translateY(3px) scale(0.96);
+      box-shadow: 0 2px 0 var(--line);
+    }
+
+    .level-node.review-node {
+      background: #fff8f0;
+      border-color: var(--peach-deep);
+      box-shadow: 0 5px 0 var(--peach);
+      color: var(--peach-deep);
+      width: 80px;
+      height: 80px;
+    }
+
+    .level-node.active-unlocked {
+      background: var(--pistachio);
+      border-color: var(--pistachio-deep);
+      box-shadow: 0 6px 0 var(--pistachio-deep);
+      color: var(--ink);
+      transform: scale(1.06);
+    }
+    .level-node.active-unlocked:active {
+      transform: translateY(3px) scale(1.0);
+      box-shadow: 0 2px 0 var(--pistachio-deep);
+    }
+
+    .level-node.locked {
+      background: var(--paper);
+      border: 2px dashed var(--line);
+      color: var(--ink-soft);
+      cursor: not-allowed;
+      opacity: 1;
+      box-shadow: none;
+    }
+    .level-node.locked::after {
+      content: '🔒';
+      font-size: 11px;
+      position: absolute;
+      top: 6px;
+      right: 7px;
+      opacity: 0.6;
+    }
+
+    .node-num {
+      font-size: 1.35rem;
+      font-weight: 800;
+      line-height: 1;
+      color: var(--ink);
+    }
+
+    .node-progress {
+      font-size: 0.68rem;
+      font-weight: 800;
+      margin-top: 3px;
+      padding: 1px 7px;
+      border-radius: 99px;
+      background: var(--paper);
+      border: 1px solid var(--line);
+      color: var(--ink-soft);
+    }
+
+    .active-unlocked .node-progress {
+      border-color: var(--pistachio-deep);
+      color: var(--ink);
+    }
+
+    .pos-0 { transform: translateX(0); }
+    .pos-1 { transform: translateX(50px); }
+    .pos-2 { transform: translateX(0); }
+    .pos-3 { transform: translateX(-50px); }
+
+    body.desktop-device .pos-1 { transform: translateX(120px); }
+    body.desktop-device .pos-3 { transform: translateX(-120px); }
+
+    /* ==========================================================================
+       ЭКРАН 2: ANKI
+       ========================================================================== */
+    #viewAnki {
+      padding: 0 16px calc(18px + env(safe-area-inset-bottom, 0px));
+      justify-content: space-between;
+      width: 100%;
+      height: 100%;
+    }
+
+    .anki-toggle-mode {
+      display: flex;
+      background: var(--paper);
+      border: 2px solid var(--line);
+      padding: 3px;
+      border-radius: 99px;
+      margin: 0 auto 10px;
+      width: 130px;
+      gap: 4px;
+      flex-shrink: 0;
+      box-shadow: 0 2px 0 var(--line);
+    }
+
+    .anki-toggle-btn {
+      flex: 1;
+      border: none;
+      background: transparent;
+      padding: 6px 0;
+      font-size: 1rem;
+      border-radius: 99px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.15s ease;
+    }
+    .anki-toggle-btn.active {
+      background: var(--peach);
+      box-shadow: 0 2px 0 var(--peach-deep);
+    }
+
+    .presentation-card-anki {
+      flex: 1;
+      min-height: 0;
+      width: 100%;
+      background: var(--paper);
+      border: 2.5px solid var(--line);
+      border-radius: var(--radius-xl);
+      padding: 24px 18px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+      box-shadow: var(--shadow-card);
+      position: relative;
+      margin-bottom: 14px;
+    }
+
+    .card-badge {
+      position: absolute;
+      top: 14px;
+      right: 16px;
+      font-size: 0.72rem;
+      font-weight: 800;
+      padding: 4px 10px;
+      border-radius: 99px;
+      background: var(--cream);
+      color: var(--ink-soft);
+      border: 1.5px solid var(--line);
+    }
+
+    .card-question {
+      font-weight: 500;
+      color: var(--ink);
+      line-height: 1.15;
+      margin: auto 0;
+      width: 100%;
+      word-break: break-word;
+      transition: font-size 0.15s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .card-answer-block {
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      margin-top: 12px;
+      padding-top: 12px;
+      border-top: 2px dashed var(--line);
+      width: 100%;
+      position: relative;
+    }
+    .card-answer-block.revealed { display: flex; }
+
+    .card-reading-row {
+      position: relative;
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 6px;
+      min-height: 38px;
+    }
+
+    .card-reading {
+      font-size: clamp(1.3rem, 4.5vw, 1.8rem);
+      color: var(--ink-soft);
+      font-weight: 700;
+      line-height: 1.2;
+      text-align: center;
+      cursor: pointer;
+      padding: 0 44px;
+    }
+
+    .action-circle-voice-btn {
+      position: absolute;
+      right: 6px;
+      width: 38px;
+      height: 38px;
+      border-radius: 50%;
+      border: 2px solid var(--peach);
+      background: var(--paper);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.05rem;
+      cursor: pointer;
+      color: var(--ink);
+      box-shadow: 0 3px 0 var(--peach);
+      transition: all 0.15s ease;
+    }
+    .action-circle-voice-btn:active {
+      transform: translateY(2px);
+      box-shadow: 0 1px 0 var(--peach);
+    }
+
+    .card-translation {
+      font-size: clamp(1.15rem, 3.4vw, 1.45rem);
+      font-weight: 800;
+      color: var(--strawberry-deep);
+    }
+
+    .anki-actions-bottom {
+      flex-shrink: 0;
+      width: 100%;
+      max-width: 500px;
+      margin: 0 auto;
+    }
+
+    .btn-show-answer {
+      width: 100%;
+      height: 54px;
+      border-radius: var(--radius-lg);
+      background: var(--strawberry-deep);
+      color: #ffffff;
+      font-size: 1.05rem;
+      font-weight: 800;
+      border: none;
+      cursor: pointer;
+      box-shadow: 0 4px 0 #c9546b;
+      font-family: inherit;
+      transition: all 0.15s ease;
+    }
+    .btn-show-answer:active {
+      transform: translateY(3px);
+      box-shadow: 0 1px 0 #c9546b;
+    }
+
+    .anki-grade-group {
+      display: none;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 8px;
+    }
+
+    .btn-grade {
+      height: 54px;
+      border-radius: var(--radius-md);
+      border: 2px solid var(--line);
+      background: var(--paper);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      padding: 0 4px;
+      font-family: inherit;
+      box-shadow: 0 3px 0 var(--line);
+      transition: all 0.1s ease;
+    }
+    .btn-grade:active {
+      transform: translateY(2px);
+    }
+    .btn-grade .grade-label {
+      font-size: 0.95rem;
+      font-weight: 800;
+    }
+
+    .btn-grade.again {
+      background: var(--danger-bg);
+      border-color: var(--danger-border);
+      color: var(--danger-text);
+      box-shadow: 0 3px 0 var(--danger-border);
+    }
+    .btn-grade.hard {
+      background: #fff5ec;
+      border-color: var(--peach);
+      color: var(--peach-deep);
+      box-shadow: 0 3px 0 var(--peach);
+    }
+    .btn-grade.good {
+      background: #f3f9e8;
+      border-color: var(--matcha);
+      color: var(--matcha-deep);
+      box-shadow: 0 3px 0 var(--matcha);
+    }
+    .btn-grade.easy {
+      background: #eef7eb;
+      border-color: var(--pistachio);
+      color: var(--pistachio-deep);
+      box-shadow: 0 3px 0 var(--pistachio);
+    }
+
+    /* ==========================================================================
+       ЭКРАН 3: СТОПКА
+       ========================================================================== */
+    #viewStack {
+      padding: 0 12px calc(14px + env(safe-area-inset-bottom, 0px));
+      width: 100%;
+      height: 100%;
+      flex-direction: column;
+    }
+
+    .stack-sub-hint {
+      font-size: 0.8rem;
+      font-weight: 700;
+      color: var(--ink-soft);
+      text-align: center;
+      margin: 2px 0 10px;
+      flex-shrink: 0;
+    }
+
+    .stack-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      grid-template-rows: repeat(4, 1fr);
+      gap: 8px;
+      flex: 1;
+      min-height: 0;
+      width: 100%;
+      height: 100%;
+    }
+
+    .stack-tile {
+      background: var(--paper);
+      border: 2px solid var(--line);
+      border-radius: var(--radius-lg);
+      height: 100% !important;
+      width: 100% !important;
+      min-height: 0;
+      padding: 6px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+      cursor: pointer;
+      box-shadow: 0 4px 0 var(--line);
+      transition: all 0.15s ease;
+      position: relative;
+      overflow: hidden;
+    }
+    .stack-tile:active {
+      transform: translateY(2px);
+      box-shadow: 0 2px 0 var(--line);
+    }
+
+    .stack-tile.selected {
+      background: var(--apricot);
+      border-color: var(--peach-deep);
+      color: var(--ink);
+      box-shadow: 0 4px 0 var(--peach-deep);
+    }
+
+    .stack-tile.empty-slot {
+      visibility: hidden;
+      pointer-events: none;
+    }
+
+    .stack-tile.merge-pulse {
+      animation: pulseGreen 0.28s ease;
+    }
+    @keyframes pulseGreen {
+      0%, 100% { transform: scale(1); }
+      50% {
+        transform: scale(1.06);
+        background: #f3f9e8;
+        border-color: var(--matcha-deep);
+      }
+    }
+
+    .stack-tile.completed-burst {
+      animation: burstOut 0.3s forwards;
+    }
+    @keyframes burstOut {
+      0% { transform: scale(1); opacity: 1; }
+      50% { transform: scale(1.08); background: var(--pistachio); }
+      100% { transform: scale(0.2); opacity: 0; }
+    }
+
+    .stack-tile.error {
+      background: var(--danger-bg);
+      border-color: var(--danger-border);
+      color: var(--danger-text);
+      animation: shake 0.3s;
+    }
+    @keyframes shake {
+      0%, 100% { transform: translateX(0); }
+      25% { transform: translateX(-4px); }
+      75% { transform: translateX(4px); }
+    }
+
+    .tile-counter-badge {
+      position: absolute;
+      top: 4px;
+      right: 5px;
+      font-size: 0.62rem;
+      font-weight: 800;
+      background: var(--cream);
+      border: 1px solid var(--line);
+      color: var(--ink-soft);
+      padding: 1px 6px;
+      border-radius: 99px;
+    }
+
+    .tile-main-text {
+      font-weight: 800;
+      line-height: 1.15;
+      color: var(--ink);
+      word-break: break-word;
+      overflow-wrap: break-word;
+      hyphens: auto;
+      padding: 0 6px;
+      width: 100%;
+      text-align: center;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .tile-main-text.type-kanji {
+      font-size: clamp(2.4rem, 9.5vw, 3.2rem) !important;
+      font-weight: 500;
+    }
+    .tile-main-text.type-reading {
+      font-size: clamp(1.6rem, 6.8vw, 2.2rem);
+    }
+    .tile-main-text.type-translation {
+      font-weight: 800;
+      line-height: 1.18;
+      font-size: clamp(1.15rem, 4.8vw, 1.45rem);
+    }
+
+    .tile-main-text.size-sm {
+      font-size: clamp(0.85rem, 3.3vw, 1.05rem) !important;
+      line-height: 1.15;
+    }
+    .tile-main-text.size-xs {
+      font-size: clamp(0.75rem, 2.8vw, 0.9rem) !important;
+      line-height: 1.1;
+    }
+
+    .tile-sub-chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 3px;
+      justify-content: center;
+      margin-top: 4px;
+      max-width: 100%;
+    }
+
+    .chip-item {
+      font-size: 0.65rem;
+      font-weight: 800;
+      background: var(--cream);
+      color: var(--strawberry-deep);
+      border: 1px solid var(--strawberry);
+      padding: 1px 5px;
+      border-radius: 6px;
+      white-space: nowrap;
+      max-width: 80px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    /* ШТОРКА ВЫБОРА РЕЖИМА */
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(74, 58, 54, 0.45);
+      backdrop-filter: blur(5px);
+      -webkit-backdrop-filter: blur(5px);
+      display: none;
+      justify-content: center;
+      align-items: flex-end;
+      z-index: 100;
+    }
+    .modal-backdrop.open { display: flex; }
+
+    .modal-sheet {
+      background: var(--cream);
+      width: 100%;
+      max-width: 480px;
+      border-top-left-radius: 28px;
+      border-top-right-radius: 28px;
+      padding: 20px 18px calc(24px + env(safe-area-inset-bottom, 0px));
+      border: 2.5px solid var(--line);
+      border-bottom: none;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      box-shadow: 0 -8px 24px rgba(74, 58, 54, 0.1);
+    }
+
+    .modal-sheet-handle {
+      width: 40px;
+      height: 4px;
+      border-radius: 2px;
+      background: var(--line);
+      margin: 0 auto 6px;
+    }
+
+    .modal-title {
+      font-size: 1.25rem;
+      font-weight: 800;
+      text-align: center;
+      color: var(--ink);
+      margin-bottom: 4px;
+    }
+
+    .btn-pill {
+      height: 54px;
+      border-radius: var(--radius-lg);
+      border: 2px solid var(--line);
+      background: var(--paper);
+      font-size: 1rem;
+      font-weight: 800;
+      color: var(--ink);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      box-shadow: 0 4px 0 var(--line);
+      font-family: inherit;
+      transition: all 0.15s ease;
+    }
+    .btn-pill:active {
+      transform: translateY(2px);
+      box-shadow: 0 2px 0 var(--line);
+
+    }/* Панель выбора количества слов в повторении */
+    .review-batch-wrap {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+      margin-bottom: 4px;
+      background: var(--paper);
+      border: 2px dashed var(--line);
+      border-radius: var(--radius-lg);
+      padding: 10px 14px;
+    }
+    .review-batch-label {
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: var(--ink-soft);
+    }
+    .review-count-badge {
+      font-size: 1.3rem;
+      font-weight: 800;
+      color: var(--strawberry-deep);
+    }
+    .review-batch-btns {
+      display: flex;
+      gap: 8px;
+      width: 100%;
+      margin-top: 4px;
+    }
+    .batch-btn {
+      flex: 1;
+      height: 42px;
+      background: var(--cream);
+      border: 2px solid var(--line);
+      border-radius: var(--radius-md);
+      font-family: inherit;
+      font-weight: 800;
+      font-size: 1rem;
+      color: var(--ink);
+      cursor: pointer;
+      box-shadow: 0 3px 0 var(--line);
+      transition: all 0.12s ease;
+    }
+    .batch-btn:active {
+      transform: translateY(2px);
+      box-shadow: 0 1px 0 var(--line);
+    }
+    .batch-btn.all-btn {
+      background: var(--peach);
+      border-color: var(--peach-deep);
+      color: var(--ink);
+      box-shadow: 0 3px 0 var(--peach-deep);
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Падающие лепестки сакуры -->
+  <div class="petals" aria-hidden="true">
+    <span></span>
+    <span></span>
+    <span></span>
+    <span></span>
+    <span></span>
+    <span></span>
+  </div>
+
+  <div id="app">
+    <!-- ЭКРАН 1: КАРТА -->
+    <div id="viewMap" class="view active">
+      <button class="map-sound-btn" id="btnSoundToggle" onclick="toggleGameSound()">
+        <span id="soundIcon">🔊</span>
+      </button>
+
+      <div class="snake-container" id="snakeTree">
+        <svg id="snakeSvg"></svg>
+      </div>
+    </div>
+
+    <!-- ЭКРАН 2: ANKI -->
+    <div id="viewAnki" class="view">
+      <div class="session-header">
+        <button class="back-btn-pill btn-close" onclick="showMap()">← Меню</button>
+        <div class="session-progress-wrap">
+          <div class="progress-fill" id="ankiProgress"></div>
+        </div>
+        <span class="session-counter-text" id="ankiCounter">1/20</span>
+      </div>
+
+      <div class="anki-toggle-mode">
+        <button class="anki-toggle-btn active" id="btnModeJa" onclick="setAnkiMode('ja')">🇯🇵</button>
+        <button class="anki-toggle-btn" id="btnModeRu" onclick="setAnkiMode('ru')">🇷🇺</button>
+      </div>
+
+      <div class="presentation-card-anki" id="ankiCard">
+        <div class="card-badge" id="ankiCardBadge">Новое</div>
+        <div class="card-question" id="ankiQuestion">私</div>
+        
+        <div class="card-answer-block" id="ankiAnswerBlock">
+          <div class="card-reading-row">
+            <div class="card-reading" id="ankiReading" onclick="speakCurrentWord()">わたし</div>
+            <button class="action-circle-voice-btn" id="btnVoiceAnki" onclick="speakCurrentWord()" title="Озвучить">🔊</button>
+          </div>
+          <div class="card-translation" id="ankiTranslation">я</div>
+        </div>
+      </div>
+
+      <div class="anki-actions-bottom">
+        <button class="btn-show-answer" id="btnShowAnswer" onclick="revealAnkiAnswer()">Показать ответ</button>
+
+        <div class="anki-grade-group" id="ankiGradeGroup">
+          <button class="btn-grade again" onclick="handleAnkiGrade(1)">
+            <span class="grade-label">Снова</span>
+          </button>
+          <button class="btn-grade hard" onclick="handleAnkiGrade(2)">
+            <span class="grade-label">Трудно</span>
+          </button>
+          <button class="btn-grade good" onclick="handleAnkiGrade(3)">
+            <span class="grade-label">Хорошо</span>
+          </button>
+          <button class="btn-grade easy" onclick="handleAnkiGrade(4)">
+            <span class="grade-label">Легко</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ЭКРАН 3: СТОПКА -->
+    <div id="viewStack" class="view">
+      <div class="session-header">
+        <button class="back-btn-pill btn-close" onclick="showMap()">← Меню</button>
+        <div class="session-progress-wrap">
+          <div class="progress-fill" id="stackProgress"></div>
+        </div>
+        <span class="session-counter-text" id="stackCounter">0/20</span>
+      </div>
+      <div class="stack-sub-hint">
+        Собирайте карточки одного слова в стопку:
+      </div>
+      <div class="stack-grid" id="stackGrid"></div>
+    </div>
+
+<!-- ВСПЛЫВАЮЩАЯ ШТОРКА ВЫБОРА РЕЖИМА -->
+    <div class="modal-backdrop" id="modeModal" onclick="closeModal(event)">
+      <div class="modal-sheet">
+        <div class="modal-sheet-handle"></div>
+        <div class="modal-title" id="modalTitle">Уровень 1</div>
+
+        <!-- Блок выбора размера пачки для повторения -->
+        <div id="reviewBatchSelector" class="review-batch-wrap" style="display: none;">
+          <div class="review-batch-label">Слов для сессии:</div>
+          <div class="review-count-badge">
+            <span id="reviewCountDisplay">50</span> / <span id="reviewTotalDisplay">830</span>
+          </div>
+          <div class="review-batch-btns">
+            <button class="batch-btn" onclick="adjustReviewLimit(-50)">-50</button>
+            <button class="batch-btn" onclick="adjustReviewLimit(50)">+50</button>
+            <button class="batch-btn all-btn" onclick="setReviewLimitAll()">Все</button>
+          </div>
+        </div>
+
+        <button class="btn-pill" onclick="launchMode('anki')">
+          <span>Anki</span>
+        </button>
+        <button class="btn-pill" onclick="launchMode('stack')">
+          <span>Стопка</span>
+        </button>
+      </div>
+    </div>
+
+  <script>
+    // ОПРЕДЕЛЕНИЕ ПК / ТЕЛЕФОНА
+    function checkDevicePlatform() {
+      const platform = window.Telegram?.WebApp?.platform || '';
+      const isDesktopPlatform = ['tdesktop', 'macos', 'web', 'weba', 'webk'].includes(platform);
+      const isWideScreen = window.innerWidth >= 768;
+
+      if (isDesktopPlatform || isWideScreen) {
+        document.body.classList.add('desktop-device');
+      } else {
+        document.body.classList.remove('desktop-device');
+      }
+
+      if (navigator.userAgent.toLowerCase().includes('android')) {
+        document.body.classList.add('is-android');
+      }
+    }
+    window.addEventListener('resize', checkDevicePlatform);
+    checkDevicePlatform();
+
+// --- 1. ПОЛНАЯ БАЗА СЛОВ (830 СЛОВ / 42 УРОВНЯ) ---
+// =========================================================================
+  // --- 1. ПОЛНАЯ БАЗА СЛОВ JLPT N5 (830 СЛОВ / 42 УРОВНЯ) ---
+  // =========================================================================
+  const allWords = [];
+
+  const n5WordsData = [
+    // УРОВЕНЬ 1
+    ["私", "わたし", "я"],
+    ["—", "あなた", "ты / вы"],
+    ["あの人", "あのひと", "тот человек"],
+    ["あの方", "あのかた", "тот господин (вежливо)"],
+    ["—", "〜さん", "господин / госпожа (суффикс)"],
+    ["—", "〜ちゃん", "уменьшительный суффикс (к детям/друзьям)"],
+    ["〜人", "〜じん", "суффикс национальности"],
+    ["先生", "せんせい", "учитель / преподаватель"],
+    ["教師", "きょうし", "преподаватель (профессия)"],
+    ["学生", "がくせい", "студент"],
+    ["会社員", "かいしゃいん", "сотрудник фирмы / компании"],
+    ["社員", "しゃいん", "сотрудник (конкретной фирмы)"],
+    ["銀行員", "ぎんこういん", "сотрудник банка"],
+    ["医者", "いしゃ", "врач"],
+    ["研究者", "けんきゅうしゃ", "исследователь / ученый"],
+    ["大学", "だいがく", "университет"],
+    ["病院", "びょういん", "больница"],
+    ["—", "だれ", "кто"],
+    ["—", "どなた", "кто (вежливо)"],
+    ["〜歳", "〜さい", "суффикс возраста (лет)"],
+
+    // УРОВЕНЬ 2
+    ["何歳", "なんさい", "сколько лет?"],
+    ["—", "おいくつ", "сколько лет? (вежливо)"],
+    ["—", "はい", "да"],
+    ["—", "いいえ", "нет"],
+    ["—", "アメリカ", "Америка / США"],
+    ["—", "イギリス", "Англия / Великобритания"],
+    ["—", "インド", "Индия"],
+    ["—", "インドネシア", "Индонезия"],
+    ["韓国", "かんこく", "Южная Корея"],
+    ["—", "タイ", "Таиланд"],
+    ["中国", "ちゅうごく", "Китай"],
+    ["—", "ドイツ", "Германия"],
+    ["—", "ブラジル", "Бразилия"],
+    ["—", "はじめまして", "приятно познакомиться"],
+    ["〜から来ました", "〜からきました", "приехал из (страны)"],
+    ["—", "どうぞよろしくおねがいします", "прошу вашего расположения"],
+    ["失礼ですが", "しつれいですが", "извиняюсь, но..."],
+    ["—", "これ", "это (близко ко мне)"],
+    ["—", "それ", "это / то (близко к тебе)"],
+    ["—", "あれ", "то (далеко от обоих)"],
+
+    // УРОВЕНЬ 3
+    ["—", "この", "этот (предмет близко ко мне)"],
+    ["—", "その", "этот / тот (предмет у тебя)"],
+    ["—", "あの", "тот (предмет далеко от обоих)"],
+    ["本", "ほん", "книга"],
+    ["辞書", "じしょ", "словарь"],
+    ["雑誌", "ざっし", "журнал"],
+    ["新聞", "しんぶん", "газета"],
+    ["—", "ノート", "тетрадь"],
+    ["手帳", "てちょう", "записная книжка / блокнот"],
+    ["名刺", "めいし", "визитка / визитная карточка"],
+    ["—", "カード", "карточка (кредитная/скидочная)"],
+    ["鉛筆", "えんぴつ", "карандаш"],
+    ["—", "ボールペン", "шариковая ручка"],
+    ["—", "シャープペンシル", "механический карандаш"],
+    ["鍵", "かぎ", "ключ / ключи"],
+    ["時計", "とけい", "часы"],
+    ["傘", "かさ", "зонт"],
+    ["鞄", "かばん", "сумка / портфель"],
+    ["—", "テレビ", "телевизор"],
+    ["—", "ラジオ", "радио"],
+
+    // УРОВЕНЬ 4
+    ["—", "カメラ", "фотоаппарат / камера"],
+    ["—", "コンピューター", "компьютер"],
+    ["車", "くるま", "машина / автомобиль"],
+    ["机", "つくえ", "письменный стол"],
+    ["椅子", "いす", "стул"],
+    ["—", "チョコレート", "шоколад"],
+    ["—", "コーヒー", "кофе"],
+    ["お土産", "おみやげ", "сувенир / гостинец"],
+    ["英語", "えいご", "английский язык"],
+    ["日本語", "にほんご", "японский язык"],
+    ["何", "なん", "что"],
+    ["—", "だれの", "чей?"],
+    ["—", "そう", "так / именно так"],
+    ["—", "どうぞ", "пожалуйста (при предложении)"],
+    ["—", "どうもありがとうございます", "большое спасибо"],
+    ["—", "そうですか", "вот оно как / понятно"],
+    ["—", "ここ", "здесь / тут (близко ко мне)"],
+    ["—", "そこ", "там (у тебя / чуть дальше)"],
+    ["—", "あそこ", "вон там (далеко от обоих)"],
+    ["—", "どこ", "где? / куда?"],
+
+    // УРОВЕНЬ 5
+    ["—", "こちら", "здесь / в эту сторону (вежливо)"],
+    ["—", "そちら", "там / в ту сторону (вежливо)"],
+    ["—", "あちら", "вон там / в ту сторону (вежливо)"],
+    ["—", "どちら", "где? / в какую сторону? (вежливо)"],
+    ["教室", "きょうしつ", "аудитория / класс"],
+    ["食堂", "しょくどう", "столовая"],
+    ["事務所", "じむしょ", "офис / контора"],
+    ["会議室", "かいぎしつ", "зал совещаний / переговорная"],
+    ["受付", "うけつけ", "регистратура / ресепшн"],
+    ["—", "ロビー", "вестибюль / лобби"],
+    ["部屋", "へや", "комната"],
+    ["—", "トイレ", "туалет"],
+    ["お手洗い", "おてあらい", "туалет (вежливо) / уборная"],
+    ["階段", "かいだん", "лестница"],
+    ["—", "エレベーター", "лифт"],
+    ["—", "エスカレーター", "эскалатор"],
+    ["自動販売機", "じどうはんばいき", "автомат по продаже (вендинг)"],
+    ["電話", "でんわ", "телефон / телефонный звонок"],
+    ["国", "くに", "страна / родина"],
+    ["家", "うち", "дом (свой) / семья"],
+
+    // УРОВЕНЬ 6
+    ["靴", "くつ", "обувь / туфли"],
+    ["—", "ネクタイ", "галстук"],
+    ["—", "ワイン", "вино"],
+    ["売り場", "うりば", "прилавок / торговый отдел"],
+    ["地下", "ちか", "подвал / подземный этаж"],
+    ["何階", "なんがい", "какой этаж?"],
+    ["円", "えん", "иена (валюта)"],
+    ["—", "いくら", "сколько стоит?"],
+    ["百", "ひゃく", "100 / сто"],
+    ["千", "せん", "1000 / тысяча"],
+    ["万", "まん", "10 000 / десять тысяч"],
+    ["—", "すみません", "извините / прошу прощения"],
+    ["—", "どうも", "спасибо (кратко)"],
+    ["—", "いらっしゃいませ", "добро пожаловать"],
+    ["起きます", "おきます", "просыпаться / вставать"],
+    ["寝ます", "ねます", "ложиться спать / спать"],
+    ["働きます", "はたらきます", "работать"],
+    ["休みます", "やすみます", "отдыхать"],
+    ["勉強します", "べんきょうします", "заниматься / учиться"],
+    ["終わります", "おわります", "заканчиваться / завершаться"],
+
+    // УРОВЕНЬ 7
+    ["—", "デパート", "универмаг"],
+    ["銀行", "ぎんこう", "банк"],
+    ["郵便局", "ゆうびんきょく", "почтовое отделение / почта"],
+    ["図書館", "としょかん", "библиотека"],
+    ["美術館", "びじゅつかん", "художественный музей / галерея"],
+    ["番号", "ばんごう", "номер (телефона, дома и т.д.)"],
+    ["今", "いま", "сейчас"],
+    ["何時", "なんじ", "который час? / сколько времени?"],
+    ["何分", "なんぷん", "сколько минут?"],
+    ["午前", "ごぜん", "утро (до полудня / a.m.)"],
+    ["午後", "ごご", "день/вечер (после полудня / p.m.)"],
+    ["朝", "あさ", "утро"],
+    ["昼", "ひる", "день (середина дня)"],
+    ["晩", "ばん", "вечер"],
+    ["夜", "よる", "ночь / поздний вечер"],
+    ["一昨日", "おととい", "позавчера"],
+    ["昨日", "きのう", "вчера"],
+    ["今日", "きょう", "сегодня"],
+    ["明日", "あした", "завтра"],
+    ["明後日", "あさって", "послезавтра"],
+
+    // УРОВЕНЬ 8
+    ["今朝", "けさ", "сегодня утром"],
+    ["今晩", "こんばん", "сегодня вечером"],
+    ["休み", "やすみ", "отдых / выходной"],
+    ["昼休み", "ひるやすみ", "обеденный перерыв"],
+    ["試験", "しけん", "экзамен / тест"],
+    ["会議", "かいぎ", "совещание / собрание"],
+    ["映画", "えいが", "фильм / кино"],
+    ["毎朝", "まいあさ", "каждое утро"],
+    ["毎晩", "まいばん", "каждый вечер"],
+    ["毎日", "まいにち", "каждый день"],
+    ["月曜日", "げつようび", "понедельник"],
+    ["火曜日", "かようび", "вторник"],
+    ["水曜日", "すいようび", "среда"],
+    ["木曜日", "もくようび", "четверг"],
+    ["金曜日", "きんようび", "пятница"],
+    ["土曜日", "どようび", "суббота"],
+    ["日曜日", "にちようび", "воскресенье"],
+    ["何曜日", "なんようび", "какой день недели?"],
+    ["大変ですね", "たいへんですね", "тяжело вам приходится"],
+    ["行きます", "いきます", "идти / ехать"],
+
+    // УРОВЕНЬ 9
+    ["来ます", "きます", "приходить / приезжать"],
+    ["帰ります", "かえります", "возвращаться (домой)"],
+    ["学校", "がっこう", "школа"],
+    ["—", "スーパー", "супермаркет"],
+    ["駅", "えき", "станция / вокзал"],
+    ["飛行機", "ひこうき", "самолет"],
+    ["船", "ふね", "корабль / судно"],
+    ["電車", "でんしゃ", "поезд / электричка"],
+    ["地下鉄", "ちかてつ", "метро"],
+    ["新幹線", "しんかんせん", "синкансэн (скоростной поезд)"],
+    ["—", "バス", "автобус"],
+    ["—", "タクシー", "такси"],
+    ["自転車", "じてんしゃ", "велосипед"],
+    ["歩いて", "あるいて", "пешком"],
+    ["人", "ひと", "человек"],
+    ["友達", "ともだち", "друг"],
+    ["彼", "かれ", "он / парень (бойфренд)"],
+    ["彼女", "かのじょ", "она / девушка (подруга)"],
+    ["家族", "かぞく", "семья"],
+    ["一人で", "ひとりで", "один / самостоятельно"],
+
+    // УРОВЕНЬ 10
+    ["普通", "ふつう", "обычный (поезд со всеми остановками)"],
+    ["急行", "きゅうこう", "экспресс (поезд)"],
+    ["特急", "とっきゅう", "скорый поезд"],
+    ["先週", "せんしゅう", "прошлая неделя"],
+    ["今週", "こんしゅう", "эта неделя"],
+    ["来週", "らいしゅう", "следующая неделя"],
+    ["先月", "せんげつ", "прошлый месяц"],
+    ["今月", "こんげつ", "этот месяц"],
+    ["来月", "らいげつ", "следующий месяц"],
+    ["去年", "きょねん", "прошлый год"],
+    ["今年", "ことし", "этот год"],
+    ["来年", "らいねん", "следующий год"],
+    ["何年", "なんねん", "какой год?"],
+    ["何月", "なんがつ", "какой месяц?"],
+    ["何日", "なんにち", "какой день месяца? / сколько дней?"],
+    ["—", "いつ", "когда?"],
+    ["誕生日", "たんじょうび", "день рождения"],
+    ["一日", "ついたち", "1-е число месяца"],
+    ["二日", "ふつか", "2-е число месяца / 2 дня"],
+    ["三日", "みっか", "3-е число месяца / 3 дня"],
+
+    // УРОВЕНЬ 11
+    ["四日", "よっか", "4-е число месяца / 4 дня"],
+    ["五日", "いつか", "5-е число месяца / 5 дней"],
+    ["六日", "むいか", "6-е число месяца / 6 дней"],
+    ["七日", "なのか", "7-е число месяца / 7 дней"],
+    ["八日", "ようか", "8-е число месяца / 8 дней"],
+    ["九日", "ここのか", "9-е число месяца / 9 дней"],
+    ["十日", "とおか", "10-е число месяца / 10 дней"],
+    ["十一日", "じゅういちにち", "11-е число месяца / 11 дней"],
+    ["十四日", "じゅうよっか", "14-е число месяца / 14 дней"],
+    ["二十日", "はつか", "20-е число месяца / 20 дней"],
+    ["二十四日", "にじゅうよっか", "24-е число месяца / 24 дня"],
+    ["—", "そうですね", "да, это так / и вправду"],
+    ["—", "どういたしまして", "не за что / пожалуйста"],
+    ["食べます", "たべます", "есть / кушать"],
+    ["飲みます", "のみます", "пить"],
+    ["吸います", "すいます", "курить (табак) / вдыхать"],
+    ["見ます", "みます", "смотреть / видеть"],
+    ["聞きます", "ききます", "слушать / слышать"],
+    ["読みます", "よみます", "читать"],
+    ["書きます", "かきます", "писать / рисовать"],
+
+    // УРОВЕНЬ 12
+    ["買います", "かいます", "покупать"],
+    ["撮ります", "とります", "фотографировать / снимать"],
+    ["—", "します", "делать / совершать"],
+    ["会います", "あいます", "встречать / встречаться"],
+    ["ご飯", "ごはん", "еда / вареный рис"],
+    ["朝ごはん", "あさごはん", "завтрак"],
+    ["昼ごはん", "ひるごはん", "обед"],
+    ["晩ごはん", "ばんごはん", "ужин"],
+    ["—", "パン", "хлеб"],
+    ["卵", "たまご", "яйцо"],
+    ["肉", "にく", "мясо"],
+    ["魚", "さかな", "рыба"],
+    ["野菜", "やさい", "овощи"],
+    ["果物", "くだもの", "фрукты"],
+    ["水", "みず", "вода"],
+    ["お茶", "おちゃ", "чай / зеленый чай"],
+    ["紅茶", "こうちゃ", "черный чай"],
+    ["牛乳", "ぎゅうにゅう", "молоко"],
+    ["—", "ジュース", "сок"],
+    ["—", "ビール", "пиво"],
+
+    // УРОВЕНЬ 13
+    ["お酒", "おさけ", "алкоголь / саке"],
+    ["—", "たばこ", "сигареты / табак"],
+    ["手紙", "てがみ", "письмо"],
+    ["—", "レポート", "отчет / доклад / реферат"],
+    ["写真", "しゃしん", "фотография"],
+    ["—", "ビデオ", "видео"],
+    ["店", "みせ", "магазин / лавка"],
+    ["庭", "にわ", "двор / сад"],
+    ["宿題", "しゅくだい", "домашнее задание"],
+    ["—", "テニス", "теннис"],
+    ["—", "サッカー", "футбол"],
+    ["何", "なに", "что?"],
+    ["—", "いっしょに", "вместе"],
+    ["—", "ちょっと", "немного / чуть-чуть"],
+    ["—", "いつも", "всегда / всё время"],
+    ["—", "ときどき", "иногда / время от времени"],
+    ["—", "それから", "после чего / затем"],
+    ["—", "ええ", "да (разговорное/согласие)"],
+    ["—", "いいですね", "хорошо / отлично"],
+    ["—", "じゃまたあした", "пока, до завтра"],
+
+    // УРОВЕНЬ 14
+    ["切ります", "きります", "резать / нарезать"],
+    ["送ります", "おくります", "посылать / отправлять"],
+    ["—", "あげます", "давать / дарить"],
+    ["—", "もらいます", "получать / принимать"],
+    ["教えます", "おしえます", "обучать / преподавать"],
+    ["習います", "ならいます", "обучаться / перенимать опыт"],
+    ["貸します", "かします", "давать в долг / одалживать"],
+    ["借ります", "かります", "брать в долг / одалживать"],
+    ["かけます", "かけます", "звонить (по телефону)"],
+    ["手", "て", "рука / кисть руки"],
+    ["箸", "はし", "палочки для еды"],
+    ["—", "スプーン", "ложка"],
+    ["—", "ナイフ", "нож"],
+    ["—", "フォーク", "вилка"],
+    ["鋏", "はさみ", "ножницы"],
+    ["—", "パソコン", "персональный компьютер"],
+    ["—", "ケータイ", "мобильный телефон"],
+    ["—", "メール", "электронная почта / e-mail"],
+    ["—", "パンチ", "дырокол"],
+    ["—", "ホッチキス", "степлер"],
+
+    // УРОВЕНЬ 15
+    ["—", "セロテープ", "скотч / клейкая лента"],
+    ["消しゴム", "けしゴム", "ластик / стирательная резинка"],
+    ["紙", "かみ", "бумага"],
+    ["花", "はな", "цветок / цветы"],
+    ["—", "シャツ", "рубашка"],
+    ["—", "プレゼント", "подарок"],
+    ["荷物", "にもつ", "багаж / груз / посылка"],
+    ["お金", "おかね", "деньги"],
+    ["切符", "きっぷ", "билет (на поезд/автобус)"],
+    ["—", "クリスマス", "Рождество"],
+    ["父", "ちち", "(мой) папа / отец"],
+    ["母", "はは", "(моя) мама / мать"],
+    ["お父さん", "おとうさん", "(чужой) отец / папа"],
+    ["お母さん", "おかあさん", "(чужая) мать / мама"],
+    ["—", "もう", "уже"],
+    ["—", "まだ", "еще не / пока еще"],
+    ["—", "これから", "с этого момента / скоро"],
+    ["—", "いらっしゃい", "добро пожаловать"],
+    ["失礼します", "しつれいします", "извините за беспокойство"],
+    ["—", "いかがですか", "как насчет...? / не желаете ли?"],
+
+    // УРОВЕНЬ 16
+    ["—", "いただきます", "приятного аппетита"],
+    ["—", "ごちそうさまでした", "спасибо за еду"],
+    ["—", "ハンサム", "привлекательный / красивый"],
+    ["綺麗", "きれい", "красивый / чистый"],
+    ["静か", "しずか", "тихий / спокойный"],
+    ["賑やか", "にぎやか", "оживленный / шумный"],
+    ["有名", "ゆうめい", "знаменитый / известный"],
+    ["親切", "しんせつ", "доброжелательный / добрый"],
+    ["元気", "げんき", "бодрый / здоровый"],
+    ["暇", "ひま", "свободный (о времени)"],
+    ["便利", "べんり", "удобный"],
+    ["素敵", "すてき", "замечательный / восхитительный"],
+    ["大きい", "おおきい", "большой"],
+    ["小さい", "ちいさい", "маленький"],
+    ["新しい", "あたらしい", "новый"],
+    ["古い", "ふるい", "старый (о предметах)"],
+    ["良い", "いい", "хороший"],
+    ["悪い", "わるい", "плохой"],
+    ["暑い", "あつい", "горячий / жаркий"],
+    ["寒い", "さむい", "холодный (о погоде)"],
+
+    // УРОВЕНЬ 17
+    ["冷たい", "つめたい", "холодный (на ощупь)"],
+    ["難しい", "むずかしい", "трудный / сложный"],
+    ["易しい", "やさしい", "легкий / простой / добрый"],
+    ["高い", "たかい", "высокий / дорогой"],
+    ["安い", "やすい", "дешёвый"],
+    ["低い", "ひくい", "низкий"],
+    ["面白い", "おもしろい", "интересный / забавный"],
+    ["美味しい", "おいしい", "вкусный"],
+    ["忙しい", "いそがしい", "занятой (нет времени)"],
+    ["楽しい", "たのしい", "веселый / радостный"],
+    ["白い", "しろい", "белый"],
+    ["黒い", "くろい", "чёрный"],
+    ["赤い", "あかい", "красный"],
+    ["青い", "あおい", "синий / голубой"],
+    ["桜", "さくら", "сакура / вишня"],
+    ["山", "やま", "гора"],
+    ["町", "まち", "город / городок"],
+    ["食べ物", "たべもの", "еда / продукты питания"],
+    ["所", "ところ", "место"],
+    ["寮", "りょう", "общежитие"],
+
+    // УРОВЕНЬ 18
+    ["—", "レストラン", "ресторан"],
+    ["生活", "せいかつ", "жизнь / быт"],
+    ["仕事", "しごと", "работа / занятие"],
+    ["—", "とても", "очень"],
+    ["—", "あまり", "не очень / не особо"],
+    ["—", "そして", "к тому же / и / затем"],
+    ["結構です", "けっこうです", "нет, спасибо / достаточно"],
+    ["分かります", "わかります", "понимать / знать"],
+    ["—", "あります", "быть / иметься (неодуш.)"],
+    ["好き", "すき", "любимый / нравящийся"],
+    ["嫌い", "きらい", "нелюбимый / ненавистный"],
+    ["上手", "じょうず", "умелый / искусный"],
+    ["下手", "へた", "неумелый / плохой"],
+    ["飲み物", "のみもの", "напиток / напитки"],
+    ["料理", "りょうり", "блюдо / кулинария / еда"],
+    ["—", "スポーツ", "спорт"],
+    ["野球", "やきゅう", "бейсбол"],
+    ["—", "ダンス", "танцы / танец"],
+    ["旅行", "りょこう", "путешествие / поездка"],
+    ["音楽", "おんがく", "музыка"],
+
+    // УРОВЕНЬ 19
+    ["歌", "うた", "песня"],
+    ["—", "コンサート", "концерт"],
+    ["—", "カラオケ", "караоке"],
+    ["歌舞伎", "かぶき", "театр Кабуки"],
+    ["絵", "え", "картина / рисунок"],
+    ["字", "じ", "буква / знак / почерк"],
+    ["細かいお金", "こまかいおかね", "мелкие деньги / мелочь"],
+    ["—", "チケット", "билет (на концерт/в кино)"],
+    ["時間", "じかん", "время"],
+    ["用事", "ようじ", "дело / занятость"],
+    ["約束", "やくそく", "обещание / договоренность"],
+    ["—", "アルバイト", "подработка"],
+    ["ご主人", "ごしゅじん", "(чужой) муж / супруг"],
+    ["夫", "おっと", "(мой) муж"],
+    ["主人", "しゅじん", "(мой) муж / хозяин"],
+    ["奥さん", "おくさん", "(чужая) жена / супруга"],
+    ["妻", "つま", "(моя) жена"],
+    ["家内", "かない", "(моя) жена (традиц.)"],
+    ["子供", "こども", "ребенок / дети"],
+    ["—", "よく", "хорошо / часто"],
+
+    // УРОВЕНЬ 20
+    ["—", "だいたい", "в основном / примерно"],
+    ["—", "たくさん", "много"],
+    ["少し", "すこし", "мало / немного"],
+    ["全然", "ぜんぜん", "совсем нет (с отриц.)"],
+    ["早く", "はやく", "быстро / рано"],
+    ["—", "どうして", "почему? / отчего?"],
+    ["残念です", "ざんねんです", "очень жаль / обидно"],
+    ["—", "あります", "быть / находиться (неодуш.)"],
+    ["—", "います", "быть / находиться (одуш.)"],
+    ["色々", "いろいろ", "различный / разнообразный"],
+    ["男の人", "おとこのひと", "мужчина"],
+    ["女の人", "おんなのひと", "женщина"],
+    ["男の子", "おとこのこ", "мальчик"],
+    ["女の子", "おんなのこ", "девочка"],
+    ["犬", "いぬ", "собака"],
+    ["猫", "ねこ", "кошка / кот"],
+    ["象", "ぞう", "слон"],
+    ["木", "き", "дерево / древесина"],
+    ["物", "もの", "вещь / предмет"],
+    ["電池", "でんち", "батарейка / батарейки"],
+
+    // УРОВЕНЬ 21
+    ["箱", "はこ", "коробка / ящик"],
+    ["—", "スイッチ", "выключатель / переключатель"],
+    ["冷蔵庫", "れいぞうこ", "холодильник"],
+    ["—", "テーブル", "обеденный стол"],
+    ["—", "ベッド", "кровать"],
+    ["棚", "たな", "полка"],
+    ["—", "ドア", "дверь"],
+    ["窓", "まど", "окно"],
+    ["—", "ポスト", "почтовый ящик"],
+    ["—", "ビル", "здание / билдинг"],
+    ["—", "コンビニ", "круглосуточный магазин"],
+    ["公園", "こうえん", "парк"],
+    ["喫茶店", "きっさてん", "кафе / кофейня"],
+    ["〜屋", "〜や", "магазин / лавка (суффикс)"],
+    ["乗り場", "のりば", "остановка / место посадки"],
+    ["上", "うえ", "верх / на / над"],
+    ["下", "した", "низ / под"],
+    ["前", "まえ", "перед / спереди"],
+    ["後ろ", "うしろ", "зад / сзади / позади"],
+    ["右", "みぎ", "право / справа"],
+
+    // УРОВЕНЬ 22
+    ["左", "ひだり", "лево / слева"],
+    ["中", "なか", "внутри / середина"],
+    ["外", "そと", "снаружи / улица"],
+    ["隣", "となり", "рядом / соседний"],
+    ["近く", "ちかく", "недалеко / поблизости"],
+    ["間", "あいだ", "между"],
+    ["—", "かかります", "требоваться (время/деньги)"],
+    ["一つ", "ひとつ", "один / одна штука"],
+    ["二つ", "ふたつ", "два / две штуки"],
+    ["三つ", "みっつ", "три / три штуки"],
+    ["四つ", "よっつ", "четыре / четыре штуки"],
+    ["五つ", "いつつ", "пять / пять штук"],
+    ["六つ", "むっつ", "шесть / шесть штук"],
+    ["七つ", "ななつ", "семь / семь штук"],
+    ["八つ", "やっつ", "восемь / восемь штук"],
+    ["九つ", "ここのつ", "девять / девять штук"],
+    ["十", "とお", "десять / десять штук"],
+    ["—", "いくつ", "сколько штук?"],
+    ["一人", "ひとり", "один человек"],
+    ["二人", "ふたり", "два человека"],
+
+    // УРОВЕНЬ 23
+    ["〜人", "〜にん", "счетный суффикс людей"],
+    ["〜台", "〜だい", "счетный суффикс техники"],
+    ["〜枚", "〜まい", "счетный суффикс плоских предм."],
+    ["〜回", "〜かい", "счетный суффикс раз"],
+    ["—", "りんご", "яблоко"],
+    ["—", "みかん", "мандарин"],
+    ["—", "サンドイッチ", "сэндвич / бутерброд"],
+    ["—", "アイス", "мороженое"],
+    ["切手", "きって", "почтовая марка"],
+    ["葉書", "はがき", "почтовая открытка"],
+    ["封筒", "ふうとう", "конверт"],
+    ["両親", "りょうしん", "родители"],
+    ["兄弟", "きょうだい", "братья и сестры"],
+    ["兄", "あに", "(мой) старший брат"],
+    ["お兄さん", "おにいさん", "(чужой) старший брат"],
+    ["姉", "あね", "(моя) старшая сестра"],
+    ["お姉さん", "おねえさん", "(чужая) старшая сестра"],
+    ["弟", "おとうと", "(мой) младший брат"],
+    ["弟さん", "おとうとさん", "(чужой) младший брат"],
+    ["妹", "いもうと", "(моя) младшая сестра"],
+
+    // УРОВЕНЬ 24
+    ["妹さん", "いもうとさん", "(чужая) младшая сестра"],
+    ["外国", "がいこく", "заграница / другие страны"],
+    ["留学生", "りゅうがくせい", "иностранный студент"],
+    ["—", "クラス", "класс / группа"],
+    ["〜時間", "〜じかん", "суффикс: часов (промежуток)"],
+    ["〜週間", "〜しゅうかん", "суффикс: недель (промежуток)"],
+    ["〜か月", "〜かげつ", "суффикс: месяцев (промежуток)"],
+    ["〜年", "〜ねん", "суффикс: лет (промежуток)"],
+    ["—", "〜ぐらい", "примерно / около"],
+    ["—", "どのくらい", "сколько потребуется?"],
+    ["—", "みんな", "все / всё вместе"],
+    ["—", "だけ", "только / лишь"],
+    ["—", "かしこまりました", "слушаюсь / принято"],
+    ["—", "いってらっしゃい", "счастливого пути"],
+    ["—", "いってきます", "я пошел / ухожу"],
+    ["簡単", "かんたん", "простой / несложный / легкий"],
+    ["近い", "ちかい", "близкий (по расстоянию)"],
+    ["遠い", "とおい", "далекий"],
+    ["速い", "はやい", "быстрый / ранний"],
+    ["遅い", "おそい", "медленный / поздний"],
+
+    // УРОВЕНЬ 25
+    ["多い", "おおい", "многочисленный / много"],
+    ["少ない", "すくない", "малочисленный / мало"],
+    ["暖かい", "あたたかい", "теплый (климат / предмет)"],
+    ["涼しい", "すずしい", "прохладный (приятно)"],
+    ["甘い", "あまい", "сладкий"],
+    ["辛い", "からい", "острый / пряный"],
+    ["重い", "おもい", "тяжелый (по весу)"],
+    ["軽い", "かるい", "легкий (по весу)"],
+    ["季節", "きせつ", "время года / сезон"],
+    ["春", "はる", "весна"],
+    ["夏", "なつ", "лето"],
+    ["秋", "あき", "осень"],
+    ["冬", "ふゆ", "зима"],
+    ["天気", "てんき", "погода"],
+    ["雨", "あめ", "дождь"],
+    ["雪", "ゆき", "снег"],
+    ["曇り", "くもり", "облачная / пасмурная погода"],
+    ["—", "ホテル", "отель / гостиница"],
+    ["空港", "くうこう", "аэропорт"],
+    ["海", "うみ", "море"],
+
+    // УРОВЕНЬ 26
+    ["世界", "せかい", "мир / свет"],
+    ["—", "パーティー", "вечеринка / праздник"],
+    ["祭り", "まつり", "фестиваль / праздник"],
+    ["すき焼き", "すきやき", "сукияки (мясное блюдо)"],
+    ["刺身", "さしみ", "сасими (сырая рыба)"],
+    ["寿司", "すし", "суси / суши"],
+    ["天ぷら", "てんぷら", "тэмпура (в кляре)"],
+    ["豚肉", "ぶたにく", "свинина"],
+    ["牛肉", "ぎゅうにく", "говядина"],
+    ["生け花", "いけばな", "икэбана (аранжировка цветов)"],
+    ["紅葉", "もみじ", "красные кленовые листья"],
+    ["一番", "いちばん", "самый / номер один"],
+    ["—", "ずっと", "гораздо / намного"],
+    ["初めて", "はじめて", "впервые / в первый раз"],
+    ["—", "ただいま", "я дома! / я вернулся!"],
+    ["お帰りなさい", "おかえりなさい", "с возвращением!"],
+    ["遊びます", "あそびます", "играть / развлекаться"],
+    ["泳ぎます", "およぎます", "плавать"],
+    ["迎えます", "むかえます", "встречать (гостей)"],
+    ["疲れます", "つかれます", "уставать / утомляться"],
+
+    // УРОВЕНЬ 27
+    ["結婚します", "けっこんします", "жениться / выходить замуж"],
+    ["買い物します", "かいものします", "делать покупки"],
+    ["食事します", "しょくじします", "кушать / принимать пищу"],
+    ["散歩します", "さんぽします", "гулять / совершать прогулку"],
+    ["大変", "たいへん", "трудный / тяжелый"],
+    ["欲しい", "ほしい", "желаемый / хотеть (вещь)"],
+    ["広い", "ひろい", "широкий / просторный"],
+    ["狭い", "せまい", "узкий / тесный"],
+    ["—", "プール", "бассейн"],
+    ["川", "かわ", "река"],
+    ["美術", "びじゅつ", "изобразительное искусство"],
+    ["釣り", "つり", "рыбалка / рыбная ловля"],
+    ["—", "スキー", "лыжи / катание на лыжах"],
+    ["週末", "しゅうまつ", "выходные (конец недели)"],
+    ["正月", "しょうがつ", "Новый год (праздник)"],
+    ["—", "〜ごろ", "примерно / около (времени)"],
+    ["何か", "なにか", "что-то / что-нибудь"],
+    ["—", "どこか", "где-то / куда-то"],
+    ["喉が渇きました", "のどがかわきました", "хочу пить"],
+    ["お腹が空きました", "おなかがすきました", "проголодался / хочу есть"],
+
+    // УРОВЕНЬ 28
+    ["点けます", "つけます", "включать (свет/прибор)"],
+    ["消します", "けします", "выключать (свет) / гасить"],
+    ["開けます", "あけます", "открывать (дверь/окно)"],
+    ["閉めます", "しめます", "закрывать (дверь/окно)"],
+    ["急ぎます", "いそぎます", "торопиться / спешить"],
+    ["待ちます", "まちます", "ждать"],
+    ["持ちます", "もちます", "держать / иметь при себе"],
+    ["取ります", "とります", "брать / передавать"],
+    ["手伝います", "てつだいます", "помогать"],
+    ["呼びます", "よびます", "звать / вызывать (такси)"],
+    ["話します", "はなします", "разговаривать / рассказывать"],
+    ["使います", "つかいます", "использовать / пользоваться"],
+    ["止めます", "とめます", "останавливать (машину)"],
+    ["見せます", "みせます", "показывать"],
+    ["教えます", "おしえます", "объяснять (адрес) / сообщать"],
+    ["座ります", "すわります", "садиться"],
+    ["立ちます", "たちます", "вставать / стоять"],
+    ["入ります", "はいります", "входить (в)"],
+    ["出ます", "でます", "выходить (из)"],
+    ["降ります", "ふります", "выпадать / идти (осадки)"],
+
+    // УРОВЕНЬ 29
+    ["—", "コピーします", "делать копии / ксерокопировать"],
+    ["電気", "でんき", "электричество / свет"],
+    ["—", "エアコン", "кондиционер"],
+    ["—", "パスポート", "загранпаспорт"],
+    ["名前", "なまえ", "имя"],
+    ["住所", "じゅうしょ", "адрес"],
+    ["地図", "ちず", "карта"],
+    ["塩", "しお", "соль"],
+    ["砂糖", "さとう", "сахар"],
+    ["問題", "もんだい", "вопрос / задача / проблема"],
+    ["答え", "こたえ", "ответ"],
+    ["〜方", "〜かた", "способ / манера делать что-то"],
+    ["—", "まっすぐ", "прямо"],
+    ["—", "ゆっくり", "медленно / не спеша"],
+    ["—", "すぐ", "сразу / немедленно"],
+    ["—", "また", "снова / опять / также"],
+    ["後で", "あとで", "после / позже / потом"],
+    ["もう少し", "もうすこし", "еще немного"],
+    ["置きます", "おきます", "класть / ставить / помещать"],
+    ["作ります", "つくります", "делать / производить"],
+
+    // УРОВЕНЬ 30
+    ["売ります", "うります", "продавать"],
+    ["知ります", "しります", "знать / узнавать"],
+    ["住みます", "すみます", "жить / проживать (где-то)"],
+    ["研究します", "けんきゅうします", "исследовать / изучать"],
+    ["資料", "しりょう", "материалы / данные / документы"],
+    ["時刻表", "じこくひょう", "расписание транспорта"],
+    ["服", "ふく", "одежда"],
+    ["製品", "せいひん", "товар / продукция / изделие"],
+    ["経済", "けいざい", "экономика"],
+    ["市役所", "しやくしょ", "мэрия / администрация"],
+    ["高校", "こうこう", "старшая школа"],
+    ["歯医者", "はいしゃ", "зубной врач / стоматолог"],
+    ["独身", "どくしん", "холостой / не замужем"],
+    ["乗ります", "のります", "садиться (в транспорт)"],
+    ["降ります", "おります", "выходить (из транспорта)"],
+    ["乗り換えます", "のりかえます", "пересаживаться"],
+    ["浴びます", "あびます", "обливаться / принимать (душ)"],
+    ["入れます", "いれます", "вкладывать / вставлять / наливать"],
+    ["出します", "だします", "доставать / сдавать / отправлять"],
+    ["下ろします", "おろします", "снимать (деньги) / спускать"],
+
+    // УРОВЕНЬ 31
+    ["入ります", "はいります", "поступать (в университет)"],
+    ["出ます", "でます", "выпускаться (из университета)"],
+    ["押します", "おします", "нажимать / давить / толкать"],
+    ["始めます", "はじめます", "начинать"],
+    ["見学します", "けんがくします", "посещать с экскурсией"],
+    ["若い", "わかい", "молодой"],
+    ["長い", "ながい", "длинный / долгий"],
+    ["短い", "みじかい", "короткий"],
+    ["明るい", "あかるい", "светлый / яркий"],
+    ["暗い", "くらい", "темный / мрачный"],
+    ["体", "からだ", "тело / здоровье"],
+    ["頭", "あたま", "голова / ум"],
+    ["髪", "かみ", "волосы"],
+    ["顔", "かお", "лицо"],
+    ["目", "め", "глаз / глаза"],
+    ["耳", "みみ", "ухо / уши"],
+    ["鼻", "はな", "нос"],
+    ["口", "くち", "рот"],
+    ["歯", "は", "зуб / зубы"],
+    ["お腹", "おなか", "живот"],
+
+    // УРОВЕНЬ 32
+    ["足", "あし", "нога / ноги / ступня"],
+    ["背", "せ", "рост / спина"],
+    ["—", "サービス", "сервис / обслуживание"],
+    ["—", "ジョギング", "пробежка / джоггинг"],
+    ["—", "シャワー", "душ"],
+    ["緑", "みどり", "зелень / зеленый цвет"],
+    ["お寺", "おてら", "буддийский храм"],
+    ["神社", "じんじゃ", "синтоистское святилище"],
+    ["〜番", "〜ばん", "номер (суффикс)"],
+    ["—", "どうやって", "как? / каким образом?"],
+    ["—", "どの", "который? (из 3+)"],
+    ["—", "どれ", "который? (сам по себе)"],
+    ["覚えます", "おぼえます", "запоминать / помнить"],
+    ["忘れます", "わすれます", "забывать"],
+    ["—", "なくします", "терять (вещь)"],
+    ["払います", "はらいます", "платить / оплачивать"],
+    ["返します", "かえします", "возвращать (долг/вещь)"],
+    ["出かけます", "でかけます", "выходить / отправляться"],
+    ["脱ぎます", "ぬぎます", "снимать (одежду/обувь)"],
+    ["持って行きます", "もっていきます", "уносить / брать с собой"],
+
+    // УРОВЕНЬ 33
+    ["持って来ます", "もってきます", "приносить / приносить с собой"],
+    ["心配します", "しんぱいします", "беспокоиться / волноваться"],
+    ["残業します", "ざんぎょうします", "работать сверхурочно"],
+    ["出張します", "しゅっちょうします", "уезжать в командировку"],
+    ["大切", "たいせつ", "важный / ценный"],
+    ["大丈夫", "だいじょうぶ", "все в порядке / нормально"],
+    ["危ない", "あぶない", "опасный"],
+    ["禁煙", "きんえん", "не курить / запрещено"],
+    ["保険証", "ほけんしょう", "страховой полис"],
+    ["熱", "ねつ", "жар / температура"],
+    ["病気", "びょうき", "болезнь / заболевание"],
+    ["薬", "くすり", "лекарство / медикаменты"],
+    ["風呂", "ふろ", "ванна (японская)"],
+    ["上着", "うわぎ", "верхняя одежда / куртка"],
+    ["下着", "したぎ", "нижнее белье"],
+    ["—", "までに", "до / к (дедлайн)"],
+    ["—", "どうしましたか", "что случилось? / в чем дело?"],
+    ["喉", "のど", "горло"],
+    ["風邪", "かぜ", "простуда"],
+    ["—", "それから", "к тому же / еще / а также"],
+
+    // УРОВЕНЬ 34
+    ["お大事に", "おだいじに", "выздоравливайте!"],
+    ["—", "できます", "мочь / уметь"],
+    ["洗います", "あらいます", "мыть / стирать / умывать"],
+    ["弾きます", "ひきます", "играть (на пианино/струнных)"],
+    ["歌います", "うたいます", "петь"],
+    ["集めます", "あつめます", "собирать / коллекционировать"],
+    ["捨てます", "すてます", "выбрасывать (мусор)"],
+    ["換えます", "かえます", "менять / обменивать"],
+    ["運転します", "うんてんします", "водить (машину) / управлять"],
+    ["予約します", "よやくします", "заказывать / бронировать"],
+    ["—", "ピアノ", "пианино / фортепиано"],
+    ["現金", "げんきん", "наличные деньги"],
+    ["趣味", "しゅみ", "хобби / увлечение"],
+    ["日記", "にっき", "дневник"],
+    ["お祈り", "おいのり", "молитва"],
+    ["課長", "かちょう", "начальник отдела"],
+    ["部長", "ぶちょう", "начальник департамента"],
+    ["社長", "しゃちょう", "президент компании"],
+    ["動物", "どうぶつ", "животное"],
+    ["馬", "うま", "лошадь / конь"],
+
+    // УРОВЕНЬ 35
+    ["—", "インターネット", "интернет"],
+    ["特に", "とくに", "особенно / в частности"],
+    ["—", "なかなか", "никак (с отриц.) / с трудом"],
+    ["—", "ぜひ", "обязательно / непременно"],
+    ["登ります", "のぼります", "взбираться / подниматься"],
+    ["泊まります", "とまります", "останавливаться на ночь"],
+    ["掃除します", "そうじします", "делать уборку / убираться"],
+    ["洗濯します", "せんたくします", "стирать (одежду)"],
+    ["—", "なります", "становиться / делаться"],
+    ["眠い", "ねむい", "сонный"],
+    ["強い", "つよい", "сильный / крепкий"],
+    ["弱い", "よわい", "слабый"],
+    ["練習", "れんしゅう", "тренировка / практика"],
+    ["—", "ゴルフ", "гольф"],
+    ["相撲", "すもう", "сумо (борьба)"],
+    ["お茶", "おちゃ", "чай / чайная церемония"],
+    ["調子", "ちょうし", "состояние / самочувствие"],
+    ["一度", "いちど", "один раз / однажды"],
+    ["一度も", "いちども", "ни разу / никогда (с отриц.)"],
+    ["—", "だんだん", "постепенно / шаг за шагом"],
+
+    // УРОВЕНЬ 36
+    ["—", "もうすぐ", "скоро / вот-вот"],
+    ["—", "おかげさまで", "благодаря вашей заботе"],
+    ["乾杯", "かんぱい", "до дна! / за здоровье!"],
+    ["無理", "むり", "невозможный / чрезмерный"],
+    ["要ります", "いります", "быть нужным / требоваться"],
+    ["調べます", "しらべます", "изучать / проверять"],
+    ["修理します", "しゅうりします", "чинить / ремонтировать"],
+    ["僕", "ぼく", "я (мужское, разг.)"],
+    ["君", "きみ", "ты (разг. / к близким)"],
+    ["〜君", "〜くん", "суффикс (к мальчикам/младшим)"],
+    ["—", "うん", "ага / да (разговорное)"],
+    ["—", "ううん", "не-а / нет (разговорное)"],
+    ["言葉", "ことば", "слово / речь / язык"],
+    ["着物", "きもの", "кимоно"],
+    ["—", "ビザ", "виза"],
+    ["始め", "はじめ", "начало"],
+    ["終わり", "おわり", "конец / окончание"],
+    ["—", "こっち", "сюда / здесь (разг.)"],
+    ["—", "そっち", "туда / там (разг.)"],
+    ["—", "あっち", "вон туда (разг.)"],
+
+    // УРОВЕНЬ 37
+    ["—", "どっち", "куда? / который из двух? (разг.)"],
+    ["—", "みんなで", "все вместе"],
+    ["—", "けど", "но / однако (разговорное)"],
+    ["色々", "いろいろ", "разное / разнообразное"],
+    ["お腹いっぱい", "おなかいっぱい", "сыт / наелся"],
+    ["思います", "おもいます", "думать / считать / полагать"],
+    ["言います", "いいます", "говорить / сказать"],
+    ["勝ちます", "かちます", "побеждать / выигрывать"],
+    ["負けます", "まけます", "проигрывать"],
+    ["役に立ちます", "やくにたちます", "быть полезным"],
+    ["動きます", "うごきます", "двигаться / работать"],
+    ["—", "やめます", "прекращать / бросать (работу)"],
+    ["気をつけます", "きをつけます", "быть осторожным"],
+    ["留学します", "りゅうがくします", "учиться за границей"],
+    ["無駄", "むだ", "бесполезный / напрасный"],
+    ["不便", "ふべん", "неудобный"],
+    ["—", "すごい", "отличный / потрясающий"],
+    ["本当", "ほんとう", "правда / истина"],
+    ["嘘", "うそ", "ложь / неправда"],
+    ["自動車", "じどうしゃ", "автомобиль / машина"],
+
+    // УРОВЕНЬ 38
+    ["交通", "こうつう", "транспорт / дорожное движение"],
+    ["物価", "ぶっか", "цены / стоимость жизни"],
+    ["放送", "ほうそう", "трансляция / вещание"],
+    ["—", "ニュース", "новости"],
+    ["—", "アニメ", "аниме (мультипликация)"],
+    ["—", "マンガ", "манга (комиксы)"],
+    ["—", "デザイン", "дизайн"],
+    ["夢", "ゆめ", "мечта / сон"],
+    ["天才", "てんさい", "гений"],
+    ["試合", "しあい", "матч / соревнование / игра"],
+    ["意見", "いけん", "мнение / точка зрения"],
+    ["話", "はなし", "разговор / рассказ / речь"],
+    ["地球", "ちきゅう", "Земля (планета)"],
+    ["月", "つき", "Луна / месяц"],
+    ["最近", "さいきん", "недавно / в последнее время"],
+    ["—", "たぶん", "наверное / возможно"],
+    ["—", "きっと", "обязательно / непременно"],
+    ["本当に", "ほんとうに", "действительно / правда"],
+    ["—", "そんなに", "не так уж (с отриц.)"],
+    ["—", "〜について", "о / про / по поводу"],
+
+    // УРОВЕНЬ 39
+    ["久しぶり", "ひさしぶり", "давно не виделись!"],
+    ["—", "もちろん", "конечно / разумеется"],
+    ["着ます", "きます", "надевать (выше пояса)"],
+    ["—", "はきます", "надевать (ниже пояса / обувь)"],
+    ["—", "かぶります", "надевать (шапку/шляпу)"],
+    ["—", "かけます", "надевать (очки)"],
+    ["生まれます", "うまれます", "рождаться / родиться"],
+    ["私たち", "わたしたち", "мы"],
+    ["—", "コート", "пальто / плащ"],
+    ["—", "セーター", "свитер / джемпер"],
+    ["—", "スーツ", "деловой костюм"],
+    ["帽子", "ぼうし", "шляпа / шапка / кепка"],
+    ["眼鏡", "めがね", "очки"],
+    ["—", "ケーキ", "торт / пирожное"],
+    ["お弁当", "おべんとう", "бэнто (готовый обед)"],
+    ["—", "ロボット", "робот"],
+    ["都合", "つごう", "обстоятельства (по времени)"],
+    ["—", "よく", "часто"],
+    ["—", "おめでとう", "поздравляю!"],
+    ["和室", "わしつ", "комната в японском стиле"],
+
+    // УРОВЕНЬ 40
+    ["押し入れ", "おしいれ", "стенной шкаф"],
+    ["布団", "ふとん", "футон (японский матрас)"],
+    ["聞きます", "ききます", "спрашивать / задавать вопрос"],
+    ["回します", "まわします", "крутить / поворачивать"],
+    ["引きます", "ひきます", "тянуть / дергать"],
+    ["変えます", "かえます", "менять / изменять"],
+    ["触ります", "さわります", "трогать / прикасаться"],
+    ["歩きます", "あるきます", "ходить пешком / шагать"],
+    ["渡ります", "わたります", "переходить (через мост)"],
+    ["曲がります", "まがります", "поворачивать"],
+    ["寂しい", "さびしい", "грустный / одинокий"],
+    ["お湯", "おゆ", "горячая вода / кипяток"],
+    ["音", "おと", "звук / шум"],
+    ["—", "サイズ", "размер"],
+    ["故障", "こしょう", "поломка / неисправность"],
+    ["道", "みち", "дорога / путь / улица"],
+    ["交差点", "こうさてん", "перекресток"],
+    ["信号", "しんごう", "светофор / сигнал"],
+    ["角", "かど", "угол (улицы/комнаты)"],
+    ["橋", "はし", "мост"],
+
+    // УРОВЕНЬ 41
+    ["駐車場", "ちゅうしゃじょう", "парковка / автостоянка"],
+    ["建物", "たてもの", "здание / строение"],
+    ["何回も", "なんかいも", "много раз / неоднократно"],
+    ["—", "くれます", "давать / дарить (мне)"],
+    ["直します", "なおします", "исправлять / чинить"],
+    ["連れて行きます", "つれていきます", "брать с собой / вести"],
+    ["連れて来ます", "つれてきます", "приводить с собой"],
+    ["送ります", "おくります", "провожать / подвозить"],
+    ["紹介します", "しょうかいします", "представлять / знакомить"],
+    ["案内します", "あんないします", "показывать дорогу / экскурсию"],
+    ["説明します", "せつめいします", "объяснять / разъяснять"],
+    ["—", "おじいさん", "дедушка / пожилой мужчина"],
+    ["—", "おじいちゃん", "дедуля / дедушка (ласково)"],
+    ["—", "おばあさん", "бабушка / пожилая женщина"],
+    ["—", "おばあちゃん", "бабуля / бабушка (ласково)"],
+    ["準備", "じゅんび", "подготовка / приготовления"],
+    ["引っ越し", "ひっこし", "переезд (на новое жилье)"],
+    ["お菓子", "おかし", "сладости / выпечка"],
+    ["—", "ホームステイ", "проживание в семье"],
+    ["全部", "ぜんぶ", "всё / целиком"],
+
+    // УРОВЕНЬ 42 (10 слов, завершающих N5)
+    ["自分で", "じぶんで", "сам / самостоятельно"],
+    ["考えます", "かんがえます", "думать / размышлять"],
+    ["着きます", "つきます", "прибывать / приезжать"],
+    ["年を取ります", "としをとります", "становиться старше / стареть"],
+    ["足ります", "たります", "хватать / быть достаточным"],
+    ["田舎", "いなか", "деревня / сельская местность"],
+    ["—", "チャンス", "шанс / возможность"],
+    ["億", "おく", "100 миллионов (100 000 000)"],
+    ["—", "もし", "если (в начале условия)"],
+    ["意味", "いみ", "смысл / значение"]
+  ];
+
+  // Генерация базы N5 (id: 1..830, level_id: 1..42)
+  n5WordsData.forEach(([kanji, reading, translation], idx) => {
+    allWords.push({
+      id: idx + 1,
+      level_id: Math.floor(idx / 20) + 1,
+      kanji,
+      reading,
+      translation
+    });
+  });
+  // =========================================================================
+  // --- БАЗА СЛОВ JLPT N4 (УРОВНИ 43–73, 611 СЛОВ БЕЗ ПОВТОРОВ) ---
+  // =========================================================================
+
+  const START_N4_ID = 831; 
+  const START_N4_LEVEL = 43;
+
+  const n4WordsData = [
+    // УРОВЕНЬ 43
+    ["探します", "さがします", "искать"],
+    ["遅れます", "おくれます", "опаздывать"],
+    ["間に合います", "まにあいます", "успевать"],
+    ["—", "やります", "делать"],
+    ["参加します", "さんかします", "участвовать"],
+    ["申し込みます", "もうしこみます", "подавать заявку"],
+    ["片付きます", "かたづきます", "наводиться (о порядке), быть приведённым в порядок"],
+    ["燃えます", "もえます", "гореть"],
+    ["都合", "つごう", "обстоятельства, удобство (со временем)"],
+    ["気分", "きぶん", "самочувствие, настроение"],
+    ["場所", "ばしょ", "место"],
+    ["～弁", "～べん", "диалект, говор"],
+    ["今度", "こんど", "в следующий раз"],
+    ["随分", "ずいぶん", "очень, значительно, весьма"],
+    ["直接", "ちょくせつ", "напрямую, непосредственно"],
+    ["—", "いつでも", "когда угодно, в любое время"],
+    ["—", "どこでも", "где угодно, везде"],
+    ["—", "だれでも", "кто угодно, всякий"],
+    ["—", "なんでも", "что угодно, всё что угодно"],
+    ["置き場", "おきば", "место складирования/хранения"],
+
+    // УРОВЕНЬ 44
+    ["横", "よこ", "сторона, сбоку, в стороне"],
+    ["瓶", "びん", "бутылка"],
+    ["缶", "かん", "банка (жестяная)"],
+    ["お湯", "おゆ", "горячая вода, кипяток"],
+    ["宇宙", "うちゅう", "космос"],
+    ["怖い", "こわい", "страшный"],
+    ["飼います", "かいます", "содержать (домашнее животное)"],
+    ["建てます", "たてます", "строить (дом)"],
+    ["走ります", "はしります", "бежать, ехать/вести машину (по дороге を)"],
+    ["見えます", "みえます", "виднеться (с частицей が)"],
+    ["聞こえます", "きこえます", "слышаться (с частицей が)"],
+    ["出来ます", "できます", "мочь, быть готовым / сделанным"],
+    ["開きます", "ひらきます", "открывать, основывать (дело, курсы)"],
+    ["—", "ペット", "домашнее животное, питомец"],
+    ["鳥", "とり", "птица"],
+    ["声", "こえ", "голос"],
+    ["波", "なみ", "волна"],
+    ["花火", "はなび", "фейерверк"],
+    ["景色", "けしき", "пейзаж, вид"],
+    ["昼間", "ひるま", "дневное время, день"],
+
+    // УРОВЕНЬ 45
+    ["昔", "むかし", "прошлое, старые времена"],
+    ["道具", "どうぐ", "инструмент"],
+    ["—", "マンション", "многоквартирный дом"],
+    ["台所", "だいどころ", "кухня"],
+    ["他", "ほか", "другой, кроме"],
+    ["—", "はっきり", "ясно, чётко"],
+    ["—", "ほとんど", "почти, практически"],
+    ["素晴らしい", "すばらしい", "прекрасный, замечательный"],
+    ["主人公", "しゅじんこう", "главный герой (книги, аниме и т. д.)"],
+    ["形", "かたち", "форма"],
+    ["—", "ロボット", "робот"],
+    ["不思議「な」", "ふしぎ「な」", "странный, таинственный, чудесный"],
+    ["—", "ポケット", "карман"],
+    ["例えば", "たとえば", "например"],
+    ["自由に", "じゆうに", "свободно"],
+    ["空", "そら", "небо"],
+    ["飛びます", "とびます", "летать"],
+    ["将来", "しょうらい", "будущее"],
+    ["売れます", "うれます", "продаваться (хорошо продаваться)"],
+    ["踊ります", "おどります", "танцевать"],
+
+    // УРОВЕНЬ 46
+    ["噛みます", "かみます", "кусать, жевать"],
+    ["選びます", "えらびます", "выбирать"],
+    ["通います", "かよいます", "регулярно посещать, ходить"],
+    ["—", "メモします", "делать заметки"],
+    ["真面目「な」", "まじめ「な」", "серьёзный, ответственный, добросовестный"],
+    ["熱心「な」", "ねっしん「な」", "усердный, ревностный"],
+    ["偉い", "えらい", "выдающийся, великий"],
+    ["ちょうど良い", "ちょうどいい", "как раз, в самый раз"],
+    ["経験", "けいけん", "опыт"],
+    ["力", "ちから", "сила"],
+    ["人気", "にんき", "популярность"],
+    ["色", "いろ", "цвет"],
+    ["味", "あじ", "вкус"],
+    ["—", "ガム", "жевательная резинка"],
+    ["—", "ゲーム", "игра"],
+    ["品物", "しなもの", "товар"],
+    ["値段", "ねだん", "цена"],
+    ["給料", "きゅうりょう", "зарплата"],
+    ["—", "ボーナス", "бонус, премия"],
+    ["番組", "ばんぐみ", "передача (тв/радио)"],
+
+    // УРОВЕНЬ 47
+    ["—", "ドラマ", "дорама, телесериал"],
+    ["小説", "しょうせつ", "роман, повесть"],
+    ["小説家", "しょうせつか", "писатель"],
+    ["歌手", "かしゅ", "певец"],
+    ["息子", "むすこ", "сын"],
+    ["娘", "むすめ", "дочь"],
+    ["美容院", "びよういん", "салон красоты, парикмахерская"],
+    ["—", "しばらく", "некоторое время, недолго"],
+    ["—", "たいてい", "обычно, в основном"],
+    ["—", "それに", "к тому же, кроме того"],
+    ["—", "それで", "поэтому, затем"],
+    ["お知らせ", "おしらせ", "объявление, информационное сообщение"],
+    ["日にち", "ひにち", "дата, назначенный день"],
+    ["無料", "むりょう", "бесплатно, бесплатный"],
+    ["開きます", "あきます", "открываться (о двери и т. п.)"],
+    ["開けます", "あけます", "открывать (дверь и т. п.)"],
+    ["閉まります", "しまります", "закрываться (о двери)"],
+    ["閉めます", "しめます", "закрывать (дверь)"],
+    ["点きます", "つきます", "включаться, зажигаться (о свете)"],
+    ["点けます", "つけます", "включать, зажигать (свет)"],
+
+    // УРОВЕНЬ 48
+    ["消えます", "きえます", "выключаться, гаснуть, исчезать"],
+    ["消します", "けします", "выключать, гасить, стирать"],
+    ["込みます", "こみます", "быть переполненным, быть людным"],
+    ["割れます", "われます", "разбиваться (о стакане, посуде)"],
+    ["割ります", "わります", "разбивать, раскалывать"],
+    ["折れます", "おれます", "ломаться, переламываться (о дереве, ветке)"],
+    ["折ります", "おります", "ломать, сгибать"],
+    ["破れます", "やぶれます", "рваться (о бумаге, ткани)"],
+    ["破ります", "やぶります", "рвать (бумагу, ткань)"],
+    ["汚れます", "よごれます", "пачкаться, загрязняться"],
+    ["付きます", "つきます", "быть прикреплённым / пришитым (о кармане)"],
+    ["外れます", "はずれます", "быть расстёгнутым, отстегнуться (о пуговице)"],
+    ["止まります", "とまります", "останавливаться (о машине, лифте)"],
+    ["止めます", "とめます", "останавливать, парковать (машину)"],
+    ["間違えます", "まちがえます", "ошибаться, путать"],
+    ["落とします", "おとします", "ронять, терять"],
+    ["掛かります", "かかります", "быть закрытым (на ключ: かぎが～)"],
+    ["皿", "さら (おさら)", "тарелка"],
+    ["茶碗", "ちゃわん (おちゃわん)", "пиала, миска для риса"],
+    ["—", "コップ", "стакан, кружка"],
+
+    // УРОВЕНЬ 49
+    ["—", "ガラス", "стекло"],
+    ["袋", "ふくろ", "мешок, пакет, сумка"],
+    ["財布", "さいふ", "кошелёк"],
+    ["枝", "えだ", "ветвь, ветка"],
+    ["この辺", "このへん", "здесь поблизости, в этих краях"],
+    ["—", "このくらい", "примерно столько, вот такой примерно"],
+    ["良かった", "よかった！", "Слава Богу! Отлично! (Какое счастье!)"],
+    ["忘れ物", "わすれもの", "забытая вещь"],
+    ["確か", "たしか", "вроде бы, если мне не изменяет память"],
+    ["地震", "じしん", "землетрясение"],
+    ["壁", "かべ", "стена"],
+    ["針", "はり", "стрелка (часов), игла"],
+    ["指します", "さします", "указывать (стрелкой, пальцем)"],
+    ["倒れます", "たおれます", "падать, опрокидываться"],
+    ["貼ります", "はります", "наклеивать, клеить"],
+    ["掛けます", "かけます", "вешать (на стену, на вешалку)"],
+    ["飾ります", "かざります", "украшать, декорировать"],
+    ["並べます", "ならべます", "выстраивать, расставлять"],
+    ["植えます", "うえます", "сажать, растить (испр.: 2-е спр.)"],
+    ["戻します", "もどします", "возвращать, ставить на место"],
+
+    // УРОВЕНЬ 50
+    ["纏めます", "まとめます", "собирать, обобщать, приводить в систему"],
+    ["仕舞います", "しまいます", "убирать, прятать (на место)"],
+    ["決めます", "きめます", "решать, определять"],
+    ["予習します", "よしゅうします", "готовить урок (предварительно)"],
+    ["復習します", "ふくしゅうします", "повторять урок (пройденное)"],
+    ["—", "そのままにします", "оставлять как есть"],
+    ["授業", "じゅぎょう", "занятия, урок"],
+    ["講座", "こうざ", "курс лекций, лекция"],
+    ["—", "ミーティング", "собрание, митинг"],
+    ["予定", "よてい", "план, расписание"],
+    ["案内書", "あんないしょ", "путеводитель, справочник"],
+    ["—", "カレンダー", "календарь"],
+    ["—", "ポスター", "плакат, постер"],
+    ["ゴミ箱", "ごみばこ", "мусорное ведро, урна"],
+    ["人形", "にんぎょう", "кукла"],
+    ["花瓶", "かびん", "ваза для цветов"],
+    ["鏡", "かがみ", "зеркало"],
+    ["引き出し", "ひきだし", "выдвижной ящик"],
+    ["玄関", "げんかん", "прихожая, вход в дом"],
+    ["廊下", "ろうか", "коридор"],
+
+    // УРОВЕНЬ 51
+    ["池", "いけ", "пруд"],
+    ["元の", "もとの", "прежний, исходный, первоначальный"],
+    ["周り", "まわり", "вокруг, окружение"],
+    ["真ん中", "まんなか", "самая середина, центр"],
+    ["隅", "すみ", "угол (внутренний)"],
+    ["—", "まだ", "ещё (не), пока"],
+    ["—", "～とか～とか", "и..., и... (например ... и ...)"],
+    ["—", "ガイドブック", "гид, путеводитель"],
+    ["非常", "ひじょう", "чрезвычайная ситуация, экстренный случай"],
+    ["非常袋", "ひじょうぶくろ", "аварийный комплект / сумка на случай ЧС"],
+    ["—", "リュック", "рюкзак"],
+    ["懐中電灯", "かいちゅうでんとう", "карманный фонарик"],
+    ["生活", "せいかつ", "жизнь, быт"],
+    ["丸い", "まるい", "круглый"],
+    ["或る", "ある～", "некий, какой-то, определенный"],
+    ["地球", "ちきゅう", "Земля (планета)"],
+    ["嬉しい", "うれしい", "радостный, счастливый"],
+    ["嫌「な」", "いや「な」", "неприятный, противный"],
+    ["目が覚めます", "めがさめます", "просыпаться, открывать глаза"],
+    ["続けます", "つづけます", "продолжать"],
+
+    // УРОВЕНЬ 52
+    ["見つけます", "みつけます", "находить, отыскивать"],
+    ["受けます", "うけます", "принимать, сдавать (экзамен)"],
+    ["休憩します", "きゅうけいします", "делать перерыв, отдыхать"],
+    ["連休", "れんきゅう", "череда выходных / праздников подряд"],
+    ["作文", "さくぶん", "сочинение"],
+    ["展覧会", "てんらんかい", "выставка"],
+    ["結婚式", "けっこんしき", "свадебная церемония, свадьба"],
+    ["[お]葬式", "[お]そうしき", "похороны"],
+    ["式", "しき", "церемония, обряд"],
+    ["本社", "ほんしゃ", "главный офис, головная контора"],
+    ["支店", "してん", "филиал, отделение"],
+    ["教会", "きょうかい", "церковь"],
+    ["大学院", "だいがくいん", "магистратура, аспирантура"],
+    ["動物園", "どうぶつえん", "зоопарк"],
+    ["温泉", "おんせん", "горячие источники, онсэн"],
+    ["発表", "はっぴょう", "объявление, доклад, публикация"],
+    ["入学", "にゅうがく", "поступление (в учебное заведение)"],
+    ["お子さん", "おこさん", "ребёнок (чужой, вежл.)"],
+    ["—", "ずっと", "всё время, постоянно, гораздо"],
+    ["残ります", "のこります", "оставаться"],
+
+    // УРОВЕНЬ 53
+    ["村", "むら", "деревня, село"],
+    ["映画館", "えいがかん", "кинотеатр"],
+    ["都会", "とかい", "большой город, мегаполис"],
+    ["世界中", "せかいじゅう", "по всему миру, весь мир"],
+    ["素晴らしさ", "すばらしさ", "великолепие, прелесть, красота"],
+    ["運動します", "うんどうします", "делать физические упражнения, тренироваться"],
+    ["成功します", "せいこうします", "увенчаться успехом, удаваться"],
+    ["失敗します", "しっぱいします", "потерпеть неудачу, провалиться"],
+    ["合格します", "ごうかくします", "успешно сдать (экзамен), пройти отбор"],
+    ["止みます", "やみます", "прекращаться, переставать (о дожде, снеге)"],
+    ["晴れます", "はれます", "проясняться (о погоде)"],
+    ["曇ります", "くもります", "хмуриться, становиться пасмурным"],
+    ["続きます", "つづきます", "продолжаться, длиться"],
+    ["風邪を引きます", "かぜをひきます", "простудиться, подхватить простуду"],
+    ["冷やします", "ひやします", "охлаждать, остужать"],
+    ["十分", "じゅうぶん", "достаточно, вполне"],
+    ["可笑しい", "おかしい", "странный, подозрительный, смешной"],
+    ["煩い", "うるさい", "шумный, надоедливый"],
+    ["火傷", "やけど", "ожог"],
+    ["怪我", "けが", "рана, травма, ушиб"],
+
+    // УРОВЕНЬ 54
+    ["咳", "せき", "кашель"],
+    ["—", "インフルエンザ", "грипп"],
+    ["太陽", "たいよう", "солнце"],
+    ["星", "ほし", "звезда"],
+    ["風", "かぜ", "ветер"],
+    ["北", "きた", "север"],
+    ["南", "みなみ", "юг"],
+    ["西", "にし", "запад"],
+    ["東", "ひがし", "восток"],
+    ["水道", "すいどう", "водопровод"],
+    ["—", "エンジン", "двигатель, мотор"],
+    ["—", "チーム", "команда"],
+    ["今夜", "こんや", "сегодня вечером / ночью"],
+    ["夕方", "ゆうがた", "вечер, сумерки"],
+    ["胃", "い", "желудок"],
+    ["星占い", "ほしうらない", "гороскоп, астрология"],
+    ["宝くじ", "たからくじ", "лотерея, лотерейный билет"],
+    ["恋愛", "れんあい", "любовь, романтические отношения"],
+    ["恋人", "こいびと", "возлюбленный / возлюбленная"],
+    ["[お]金持ち", "[お]かねもち", "богач, состоятельный человек"],
+
+    // УРОВЕНЬ 55
+    ["逃げます", "にげます", "убегать, сбегать"],
+    ["騒ぎます", "さわぎます", "шуметь, поднимать шум"],
+    ["諦めます", "あきらめます", "сдаваться, отказываться от мысли"],
+    ["投げます", "なげます", "бросать, кидать"],
+    ["守ります", "まもります", "защищать, соблюдать (правила)"],
+    ["伝えます", "つたえます", "передавать (сообщение, информацию)"],
+    ["注意します", "ちゅういします", "быть внимательным, предостерегать"],
+    ["外します", "はずします", "отлучаться, покидать (место [席を～])"],
+    ["始まります", "はじまります", "начинаться"],
+    ["出席します", "しゅっせきします", "присутствовать, посещать"],
+    ["戻ります", "もどります", "возвращаться"],
+    ["駄目「な」", "だめ「な」", "нельзя, непригодный, бесполезный"],
+    ["席", "せき", "место (для сидения)"],
+    ["—", "マーク", "знак, метка, символ"],
+    ["—", "ボール", "мяч"],
+    ["規則", "きそく", "правила, регламент"],
+    ["使用禁止", "しようきんし", "«Использование запрещено»"],
+    ["立入禁止", "たちいりきんし", "«Вход воспрещён»"],
+    ["入口", "いりぐち", "вход"],
+    ["出口", "でぐち", "выход"],
+
+    // УРОВЕНЬ 56
+    ["非常口", "ひじょうぐち", "запасной / аварийный выход"],
+    ["使用中", "しようちゅう", "«Занято», «Используется»"],
+    ["～中", "～ちゅう", "в процессе..., во время..."],
+    ["危険「な」", "きけん「な」", "опасный"],
+    ["同じ", "おなじ", "одинаковый, такой же"],
+    ["—", "リサイクル", "переработка отходов, рециклинг"],
+    ["割引", "わりびき", "скидка"],
+    ["徐行", "じょこう", "тихий ход, снижение скорости"],
+    ["飲み放題", "のみほうだい", "безлимитные напитки («пей сколько хочешь»)"],
+    ["募集", "ぼしゅう", "набор, приём (на работу, конкурс и т. д.)"],
+    ["締め切り", "しめきり", "крайний срок, дедлайн"],
+    ["—", "どういう", "какой, какого рода"],
+    ["—", "もう", "уже, больше (не)"],
+    ["後", "あと", "ещё (осталось), после"],
+    ["—", "いくら～ても", "сколько бы ни..."],
+    ["程", "～ほど", "настолько, до такой степени, около"],
+    ["駐車違反", "ちゅうしゃいはん", "нарушение правил парковки"],
+    ["警察", "けいさつ", "полиция"],
+    ["罰金", "ばっきん", "штраф"],
+    ["電報", "でんぽう", "телеграмма"],
+
+    // УРОВЕНЬ 57
+    ["人々", "ひとびと", "люди"],
+    ["急用", "きゅうよう", "срочное дело"],
+    ["出来るだけ", "できるだけ", "насколько возможно, по возможности"],
+    ["留守", "るす", "отсутствие дома"],
+    ["[お]祝い", "[お]いわい", "поздравление, празднование, подарок"],
+    ["悲しみ", "かなしみ", "печаль, грусть"],
+    ["利用します", "りようします", "использовать, утилизировать"],
+    ["磨きます", "みがきます", "чистить (зубы), полировать"],
+    ["組み立てます", "くみたてます", "собирать, монтировать"],
+    ["気がつきます", "きがつきます", "замечать, обращать внимание"],
+    ["付けます", "つけます", "макать, прикладывать, добавлять (соус)"],
+    ["見つかります", "みつかります", "находиться, быть найденным"],
+    ["説明書", "せつめいしょ", "инструкция, руководство"],
+    ["図", "ず", "рисунок, чертёж, схема"],
+    ["線", "せん", "линия, черта"],
+    ["矢印", "やじるし", "стрелка (указатель)"],
+    ["紺", "こん", "тёмно-синий цвет"],
+    ["黄色", "きいろ", "жёлтый цвет"],
+    ["茶色", "ちゃいろ", "коричневый цвет"],
+    ["醤油", "しょうゆ", "соевый соус"],
+
+    // УРОВЕНЬ 58
+    ["—", "ソース", "соус"],
+    ["昨夜 / 夕べ", "ゆうべ", "вчера вечером"],
+    ["—", "さっき", "недавно, только что"],
+    ["材料", "ざいりょう", "ингредиенты, материалы"],
+    ["玉ねぎ", "たまねぎ", "репчатый лук"],
+    ["調味料", "ちょうみりょう", "приправы, специи"],
+    ["煮ます", "にます", "варить, тушить"],
+    ["煮えます", "にえます", "вариться, доходить до готовности"],
+    ["咲きます", "さきます", "цвести (о цветах)"],
+    ["変わります", "かわります", "меняться, изменяться"],
+    ["困ります", "こまります", "быть в затруднении, испытывать неудобство"],
+    ["治ります / 直ります", "なおります", "налаживаться, чиниться / выздоравливать"],
+    ["正しい", "ただしい", "правильный, верный"],
+    ["向こう", "むこう", "там, с другой стороны, напротив"],
+    ["島", "しま", "остров"],
+    ["港", "みなと", "порт, гавань"],
+    ["近所", "きんじょ", "по соседству, окрестности"],
+    ["屋上", "おくじょう", "крыша (открытая площадка на крыше)"],
+    ["海外", "かいがい", "заграница, за рубежом"],
+    ["山登り", "やまのぼり", "восхождение на гору, альпинизм"],
+
+    // УРОВЕНЬ 59
+    ["機会", "きかい", "удобный случай, шанс, возможность"],
+    ["許可", "きょか", "разрешение, позволение"],
+    ["丸", "まる", "круг, кружок"],
+    ["設備", "せつび", "оборудование, оснащение"],
+    ["—", "カーテン", "штора, занавеска"],
+    ["紐", "ひも", "верёвка, шнур, тесьма"],
+    ["葉", "は", "лист (растения, дерева)"],
+    ["—", "レバー", "рычаг, рукоятка"],
+    ["—", "キー", "ключ, клавиша"],
+    ["歴史", "れきし", "история"],
+    ["—", "クリック", "клик (мыши)"],
+    ["入力", "にゅうりょく", "ввод (данных на компьютере)"],
+    ["炊飯器", "すいはんき", "рисоварка"],
+    ["振り仮名", "ふりがな", "фуригана (подстрочные знаки чтения)"],
+    ["—", "もっと", "ещё больше, более"],
+    ["初めに", "はじめに", "в начале, сначала, сперва"],
+    ["詳しい", "くわしい", "подробный, детальный"],
+    ["諺", "ことわざ", "пословица, поговорка"],
+    ["必要「な」", "ひつよう「な」", "нужный, необходимый"],
+    ["貯金", "ちょきん", "сбережения, банковский вклад"],
+
+    // УРОВЕНЬ 60
+    ["過ぎます", "すぎます", "проходить, миновать (о времени)"],
+    ["慣れます", "なれます", "привыкать, осваиваться"],
+    ["工場", "こうじょう", "завод, фабрика"],
+    ["—", "やっと", "наконец-то, еле-еле"],
+    ["—", "かなり", "довольно, значительно, весьма"],
+    ["必ず", "かならず", "обязательно, непременно"],
+    ["絶対に", "ぜったいに", "непременно, абсолютно, категорически"],
+    ["—", "このごろ", "в последнее время, недавно"],
+    ["乗り物", "のりもの", "транспортное средство, транспорт"],
+    ["世紀", "せいき", "век, столетие"],
+    ["汽車", "きしゃ", "поезд, паровоз"],
+    ["汽船", "きせん", "пароход, теплоход"],
+    ["大勢の人", "おおぜいのひと", "много людей, толпа"],
+    ["安全「な」", "あんぜん「な」", "безопасный"],
+    ["褒めます", "ほめます", "хвалить"],
+    ["叱ります", "しかります", "ругать, отчитывать"],
+    ["誘います", "さそいます", "приглашать, звать с собой"],
+    ["招待します", "しょうたいします", "приглашать (официально / в гости)"],
+    ["頼みます", "たのみます", "просить, заказывать"],
+    ["踏みます", "ふみます", "наступать ногой"],
+
+    // УРОВЕНЬ 61
+    ["壊します", "こわします", "ломать, разрушать"],
+    ["汚します", "よごします", "пачкать, загрязнять"],
+    ["行います", "おこないます", "проводить (мероприятие, церемонию)"],
+    ["輸出します", "ゆしゅつします", "экспортировать"],
+    ["輸入します", "ゆにゅうします", "импортировать"],
+    ["翻訳します", "ほんやくします", "переводить (письменно)"],
+    ["発明します", "はつめいします", "изобретать"],
+    ["発見します", "はっけんします", "делать открытие, обнаруживать"],
+    ["米", "こめ", "рис (зерно, крупа)"],
+    ["麦", "むぎ", "пшеница, ячмень, зерновые"],
+    ["原料", "げんりょう", "сырьё, исходные материалы"],
+    ["—", "デート", "свидание"],
+    ["泥棒", "どろぼう", "вор, грабитель"],
+    ["警官", "けいかん", "полицейский"],
+    ["建築家", "けんちくか", "архитектор"],
+    ["科学者", "かがくしゃ", "учёный"],
+    ["豪華「な」", "ごうか「な」", "роскошный, пышный"],
+    ["彫刻", "ちょうこく", "скульптура, резьба, гравировка"],
+    ["一生懸命", "いっしょうけんめい", "изо всех сил, усердно"],
+    ["鼠", "ねずみ", "мышь, крыса"],
+
+    // УРОВЕНЬ 62
+    ["育てます", "そだてます", "воспитывать, растить"],
+    ["運びます", "はこびます", "перевозить, переносить, возить"],
+    ["入院します", "にゅういんします", "ложиться в больницу, госпитализироваться"],
+    ["退院します", "たいいんします", "выписываться из больницы"],
+    ["赤ちゃん", "あかちゃん", "младенец, грудной ребёнок"],
+    ["海岸", "かいがん", "морское побережье, берег моря"],
+    ["電源", "でんげん", "электропитание, источник питания"],
+    ["村", "むら", "деревня, село"],
+    ["習慣", "しゅうかん", "обычай, привычка"],
+    ["健康", "けんこう", "здоровье"],
+    ["一昨年", "おととし", "позапрошлый год"],
+    ["法律", "ほうりつ", "закон"],
+    ["指輪", "ゆびわ", "кольцо, перстень"],
+    ["—", "きちんと", "как следует, аккуратно, точно"],
+    ["整理します", "せいりします", "приводить в порядок, сортировать"],
+    ["双子", "ふたご", "близнецы, двойня"],
+    ["性格", "せいかく", "характер, натура"],
+    ["大人しい", "おとなしい", "спокойный, смирный, тихий"],
+    ["答えます", "こたえます", "отвечать"],
+    ["質問に答えます", "しつもんにこたえます", "отвечать на вопрос"],
+
+    // УРОВЕНЬ 63
+    ["ビルが倒れます", "ビルがたおれます", "здание рушится / падает"],
+    ["通ります", "とおります", "проходить (через, по)"],
+    ["道を通ります", "みちをとおります", "проходить по дороге"],
+    ["死にます", "しにます", "умирать"],
+    ["—", "びっくりします", "удивляться, пугаться"],
+    ["—", "がっかりします", "разочаровываться, падать духом"],
+    ["安心します", "あんしんします", "успокаиваться, чувствовать облегчение"],
+    ["遅刻します", "ちこくします", "опаздывать (на работу, урок и т. д.)"],
+    ["早退します", "そうたいします", "уходить раньше положенного (с работы/урока)"],
+    ["喧嘩します", "けんかします", "ссориться, драться"],
+    ["離婚します", "りこんします", "разводиться"],
+    ["太ります", "ふとります", "толстеть, полнеть"],
+    ["痩せます", "やせます", "худеть"],
+    ["複雑「な」", "ふくざつ「な」", "сложный, запутанный"],
+    ["邪魔「な」", "じゃま「な」", "мешающий, лишний"],
+    ["汚い", "きたない", "грязный"],
+    ["悲しい", "かなしい", "грустный, печальный"],
+    ["恥ずかしい", "はずかしい", "стыдный, смущающий"],
+    ["軟らかい / 柔らかい", "やわらかい", "мягкий, нежный"],
+    ["硬い / 固い", "かたい", "твёрдый, жёсткий"],
+
+    // УРОВЕНЬ 64
+    ["台風", "たいふう", "тайфун"],
+    ["火事", "かじ", "пожар"],
+    ["事故", "じこ", "авария, происшествие, ДТП"],
+    ["首相", "しゅしょう", "премьер-министр"],
+    ["操作", "そうさ", "управление, манипуляция, операция (на технике)"],
+    ["汗", "あせ", "пот"],
+    ["—", "タオル", "полотенце"],
+    ["石鹸", "せっけん", "мыло"],
+    ["数えます", "かぞえます", "считать, подсчитывать"],
+    ["測ります / 量ります", "はかります", "измерять, взвешивать"],
+    ["確かめます", "たしかめます", "удостоверяться, проверять"],
+    ["出発します", "しゅっぱつします", "отправляться"],
+    ["到着します", "とうちゃくします", "прибывать, приезжать"],
+    ["酔います", "よいます", "напиваться, пьянеть; укачиваться"],
+    ["上手くいきます", "うまくいきます", "идти хорошо, ладиться, получаться"],
+    ["相談します", "そうだんします", "советоваться, консультироваться"],
+    ["忘年会", "ぼうねんかい", "проводы старого года (вечеринка)"],
+    ["新年会", "しんねんかい", "новогодняя вечеринка (в новом году)"],
+    ["二次会", "にじかい", "автопати, продолжение вечеринки"],
+    ["大会", "たいかい", "турнир, чемпионат, съезд"],
+
+    // УРОВЕНЬ 65
+    ["—", "コンテスト", "конкурс"],
+    ["表", "おもて", "лицевая сторона, фасад"],
+    ["裏", "うら", "обратная / изнаночная сторона"],
+    ["—", "ズボン", "брюки, штаны"],
+    ["～便", "～びん", "рейс (номер рейса самолёта)"],
+    ["～本", "～ほん (～ぽん, ～ぼん)", "сч. суф. для продолговатых предметов"],
+    ["～杯", "～はい (～ぱい, ～ばい)", "сч. суф. для чашек, стаканов, бокалов"],
+    ["—", "キロ", "кило (килограмм или километр)"],
+    ["—", "グラム", "грамм"],
+    ["—", "センチ", "сантиметр"],
+    ["—", "ミリ", "милли (миллиметр / миллиграмм)"],
+    ["以上", "いじょう", "не менее, свыше, более"],
+    ["以下", "いか", "не более, менее, ниже"],
+    ["—", "テスト", "тест, экзамен"],
+    ["様子", "ようす", "вид, состояние, положение дел"],
+    ["事件", "じけん", "происшествие, инцидент, дело"],
+    ["爆弾", "ばくだん", "бомба"],
+    ["犯人", "はんにん", "преступник, виновник"],
+    ["頂きます", "いただきます", "получать, принимать (вежл. о себе)"],
+    ["下さいます", "くださいます", "давать (мне / нам, вежл. о собеседнике)"],
+
+    // УРОВЕНЬ 66
+    ["遣ります", "やります", "давать (младшим, животным, растениям)"],
+    ["苛めます", "いじめます", "обижать, дразнить, издеваться"],
+    ["暮らします", "くらします", "жить, вести образ жизни"],
+    ["お年玉", "おとしだま", "новогодний денежный подарок (детям)"],
+    ["[お]見舞い", "[お]みまい", "посещение больного, выражение сочувствия"],
+    ["興味", "きょうみ", "интерес"],
+    ["情報", "じょうほう", "информация, сведения"],
+    ["発音", "はつおん", "произношение"],
+    ["猿", "さる", "обезьяна"],
+    ["餌", "えさ", "корм, наживка, пища для животных"],
+    ["玩具", "おもちゃ", "игрушка"],
+    ["—", "ドライバー", "отвёртка (также: водитель)"],
+    ["—", "ハンカチ", "носовой платок"],
+    ["靴下", "くつした", "носки"],
+    ["手袋", "てぶくろ", "перчатки, варежки"],
+    ["—", "バッグ", "сумка"],
+    ["暖房", "だんぼう", "отопление, обогрев"],
+    ["冷房", "れいぼう", "кондиционирование, охлаждение"],
+    ["幼稚園", "ようちえん", "детский сад"],
+    ["祖父", "そふ", "дедушка (свой)"],
+
+    // УРОВЕНЬ 67
+    ["祖母", "そぼ", "бабушка (своя)"],
+    ["孫", "まご", "внук, внучка (свои)"],
+    ["伯父 / 叔父", "おじ", "дядя (свой)"],
+    ["伯母 / 叔母", "おば", "тётя (своя)"],
+    ["包みます", "つつみます", "заворачивать, упаковывать"],
+    ["沸かします", "わかします", "кипятить, нагревать (воду, ванну)"],
+    ["混ぜます", "まぜます", "смешивать, перемешивать"],
+    ["計算します", "けいさんします", "считать, вычислять, рассчитывать"],
+    ["並びます", "ならびます", "выстраиваться в ряд, стоять в очереди"],
+    ["弁護士", "べんごし", "адвокат, юрист"],
+    ["教育", "きょういく", "образование, воспитание"],
+    ["文化", "ぶんか", "культура"],
+    ["社会", "しゃかい", "общество"],
+    ["戦争", "せんそう", "война"],
+    ["平和", "へいわ", "мир (покой, отсутствие войны)"],
+    ["目的", "もくてき", "цель"],
+    ["論文", "ろんぶん", "дипломная работа, статья, трактат"],
+    ["薬缶", "やかん", "чайник"],
+    ["缶詰", "かんづめ", "консервы"],
+    ["風呂敷", "ふろしき", "фуросики (платок для заворачивания вещей)"],
+
+    // УРОВЕНЬ 68
+    ["体温計", "たいおんけい", "градусник, медицинский термометр"],
+    ["何故", "なぜ", "почему, отчего"],
+    ["丈夫「な」", "じょうぶ「な」", "крепкий, прочный, здоровый"],
+    ["—", "アパート", "квартира (в малоэтажном доме)"],
+    ["自然", "しぜん", "природа / естественный"],
+    ["政治", "せいじ", "политика"],
+    ["蓋", "ふた", "крышка"],
+    ["—", "ローン", "заём, кредит, ссуда"],
+    ["増えます", "ふえます", "увеличиваться, расти"],
+    ["減ります", "へります", "уменьшаться, сокращаться"],
+    ["上がります", "あがります", "подниматься, повышаться (о цене, температуре)"],
+    ["下がります", "さがります", "опускаться, снижаться"],
+    ["切れます", "きれます", "рваться (о нити, верёвке), обрываться"],
+    ["取れます", "とれます", "отрываться, отпадать (о пуговице)"],
+    ["無くなります", "なくなります", "кончаться, пропадать, теряться"],
+    ["変「な」", "へん「な」", "странный, необычный"],
+    ["幸せ「な」", "しあわせ「な」", "счастливый"],
+    ["適当「な」", "てきとう「な」", "подходящий, соответствующий"],
+    ["上手い / 旨い", "うまい", "вкусный, умелый, мастерский"],
+    ["不味い", "まずい", "невкусный, неприятный"],
+
+    // УРОВЕНЬ 69
+    ["詰まらない", "つまらない", "неинтересный, скучный, пустяковый"],
+    ["—", "ガソリン", "бензин"],
+    ["—", "センス", "чувство, вкус (стиля, юмора)"],
+    ["年齢", "ねんれい", "возраст"],
+    ["—", "ぴったり", "точно подходящий, как раз, впору"],
+    ["収入", "しゅうにゅう", "доход, поступления"],
+    ["今にも", "いまにも", "вот-вот, с минуты на минуту"],
+    ["泣きます", "なきます", "плакать"],
+    ["笑います", "わらいます", "смеяться, улыбаться"],
+    ["乾きます", "かわきます", "сохнуть, высыхать"],
+    ["濡れます", "ぬれます", "промокать, мокнуть"],
+    ["滑ります", "すべります", "скользить, поскальзываться"],
+    ["丁寧「な」", "ていねい「な」", "вежливый, учтивый, аккуратный"],
+    ["細かい", "こまかい", "мелкий, подробный"],
+    ["濃い", "こい", "густой, крепкий, тёмный (о цвете)"],
+    ["薄い", "うすい", "слабый, некрепкий, тонкий, светлый"],
+    ["空気", "くうき", "воздух, атмосфера"],
+    ["涙", "なみだ", "слёзы"],
+    ["和食", "わしょく", "японская кухня / еда"],
+    ["洋食", "ようしょく", "европейская / западная кухня"],
+
+    // УРОВЕНЬ 70
+    ["お数", "おかず", "закуска, гарнир (блюдо к рису)"],
+    ["量", "りょう", "количество, объём"],
+    ["半分", "はんぶん", "половина"],
+    ["箪笥", "たんす", "комод, шкаф с выдвижными ящиками"],
+    ["洗濯物", "せんたくもの", "стирка, бельё (для стирки или постиранное)"],
+    ["理由", "りゆう", "причина, повод"],
+    ["謝ります", "あяまります", "извиняться, просить прощения"],
+    ["信じます", "しんじます", "верить, доверять"],
+    ["用意します", "よういします", "подготавливать, делать приготовления"],
+    ["—", "キャンセルします", "отменять (бронь, заказ)"],
+    ["保証書", "ほしょうしょ", "гарантийное свидетельство, талон"],
+    ["領収書", "りょうしゅうしょ", "квитанция, расписка, чек"],
+    ["贈り物", "おくりもの", "подарок"],
+    ["—", "キャンプ", "кемпинг, лагерь"],
+    ["係", "かかり", "ответственный, дежурный"],
+    ["中止", "ちゅうし", "отмена, приостановка"],
+    ["—", "ちゃんと", "как следует, аккуратно, должным образом"],
+    ["急に", "きゅうに", "внезапно, вдруг"],
+    ["焼きます", "やきます", "жарить, печь, выпекать"],
+    ["渡します", "わたします", "передавать, вручать"],
+
+    // УРОВЕНЬ 71
+    ["宅配便", "たくはいびん", "служба доставки, курьерская доставка"],
+    ["原因", "げんいん", "причина, фактор"],
+    ["注射", "ちゅうしゃ", "укол, инъекция"],
+    ["食欲", "しょくよく", "аппетит"],
+    ["知識", "ちしき", "знания"],
+    ["集まります", "あつまります", "собираться (вместе)"],
+    ["別れます", "わかれます", "расставаться, разделяться"],
+    ["長生きします", "ながいきします", "долго жить, быть долгожителем"],
+    ["酷い", "ひどい", "ужасный, жестокий, сильный"],
+    ["実験", "じっけん", "эксперимент, опыт"],
+    ["人口", "じんこう", "население, численность населения"],
+    ["科学", "かがく", "наука"],
+    ["文学", "ぶんがく", "литература"],
+    ["—", "パトカー", "патрульная машина (полиции)"],
+    ["救急車", "きゅうきゅうしゃ", "машина скорой помощи"],
+    ["賛成", "さんせい", "согласие, одобрение"],
+    ["反対", "はんたい", "несогласие, возражение, противоположность"],
+    ["男性", "だんせい", "мужчина, мужской пол"],
+    ["女性", "じょせい", "женщина, женский пол"],
+    ["—", "どうも", "похоже, судя по всему; почему-то"],
+
+    // УРОВЕНЬ 72
+    ["化粧", "けしょう", "макияж, косметика"],
+    ["博士", "はかせ (はくし)", "доктор наук, профессор, учёный"],
+    ["降ろします / 下ろします", "おろします", "опускать, сгружать, высаживать (пассажиров)"],
+    ["届けます", "とどけます", "доставлять, вручать, подавать (заявление)"],
+    ["塾", "じゅく", "подготовительные / репетиторские курсы"],
+    ["—", "スケジュール", "расписание, график"],
+    ["生徒", "せいと", "ученик, школьник"],
+    ["芸", "げい", "трюк, фокус, артистическое мастерство"],
+    ["姿", "すがた", "фигура, облик, образ"],
+    ["勤めます", "つとめます", "служить, работать (в компании)"],
+    ["過ごします", "すごします", "проводить время"],
+    ["挨拶", "あいさつ", "приветствие"],
+    ["灰皿", "はいざら", "пепельница"],
+    ["旅館", "りょかん", "рёкан (традиционная японская гостиница)"],
+    ["会場", "かいじょう", "место проведения, зал"],
+    ["バス停", "バスてい", "автобусная остановка"],
+    ["貿易", "ぼうえき", "внешняя торговля"],
+    ["偶に", "たまに", "иногда, изредка, редко"],
+    ["—", "ちっとも", "совсем не, ничуть не (с отриц.)"],
+    ["遠慮なく", "えんりょなく", "без стеснения, свободно, не стесняясь"],
+
+    // УРОВЕНЬ 73 (Финальные 11 слов)
+    ["私", "わたくし", "я (официально / подчеркнуто вежливо)"],
+    ["—", "ガイド", "гид, экскурсовод"],
+    ["お宅", "おたく", "ваш дом / ваша семья (вежливо)"],
+    ["郊外", "こうがい", "пригород, окраина"],
+    ["最初に", "さいしょに", "в начале, сперва, сначала"],
+    ["最後に", "さいごに", "в конце, напоследок"],
+    ["ただ今 / 只今", "ただいま", "сейчас, в настоящий момент"],
+    ["緊張します", "きんちょうします", "нервничать, волноваться, напрягаться"],
+    ["放送", "ほうそう", "трансляция, вещание, передача"],
+    ["感謝", "かんしゃ", "благодарность, признательность"],
+    ["迷惑", "めいわく", "беспокойство, неудобство, стеснение"]
+  ];
+
+  // Автоматически разворачиваем данные в объекты и добавляем в allWords:
+  n4WordsData.forEach(([kanji, reading, translation], idx) => {
+    allWords.push({
+      id: START_N4_ID + idx,
+      level_id: START_N4_LEVEL + Math.floor(idx / 20),
+      kanji,
+      reading,
+      translation
+    });
+  });
+
+  const TOTAL_LEVELS = 73;
+  let userProgress = {};
+
+// =========================================================================
+    // --- 0. КОНСТАНТЫ SRS И НАСТРОЙКИ (ОБЪЯВЛЕНЫ ДО ХРАНИЛИЩА) ---
+    // =========================================================================
+    const CARD_STATE = { NEW: 0, LEARNING: 1, REVIEW: 2, RELEARNING: 3 };
+
+    const ANKI_CONFIG = {
+      learningSteps: [1, 10],
+      graduatingInterval: 1,
+      easyInterval: 4,
+      startingEase: 2.50,
+      minEase: 1.30,
+      easyBonus: 1.30,
+      hardIntervalFactor: 1.20
+    };
+
+    // =========================================================================
+    // --- 1. АУДИОДВИЖОК С ПРЕДЗАГРУЗКОЙ (0 мс ЗАДЕРЖКИ) ---
+    // =========================================================================
+    let isSoundMuted = localStorage.getItem('japandi_sound_muted') === 'true';
+    const audioCache = new Map();
+    let currentPlayingAudio = null;
+
+    function updateSoundBtnUI() {
+      const icon = document.getElementById('soundIcon');
+      if (icon) icon.innerText = isSoundMuted ? '🔇' : '🔊';
+    }
+
+    function toggleGameSound() {
+      isSoundMuted = !isSoundMuted;
+      localStorage.setItem('japandi_sound_muted', isSoundMuted ? 'true' : 'false');
+      if (isSoundMuted && currentPlayingAudio) {
+        currentPlayingAudio.pause();
+      }
+      updateSoundBtnUI();
+    }
+
+    function preloadWordAudio(wordId) {
+      if (isSoundMuted || !wordId || audioCache.has(wordId)) return;
+      try {
+        const audio = new Audio();
+        audio.preload = 'auto';
+        audio.src = `audio/${wordId}.mp3`;
+        audioCache.set(wordId, audio);
+      } catch (e) {}
+    }
+
+    function speakKyoko(wordId) {
+      if (isSoundMuted || !wordId) return;
+      try {
+        let audio = audioCache.get(wordId);
+        if (!audio) {
+          audio = new Audio(`audio/${wordId}.mp3`);
+          audioCache.set(wordId, audio);
+        }
+        
+        if (currentPlayingAudio && currentPlayingAudio !== audio) {
+          currentPlayingAudio.pause();
+          currentPlayingAudio.currentTime = 0;
+        }
+
+        audio.currentTime = 0;
+        currentPlayingAudio = audio;
+        const playPromise = audio.play();
+        if (playPromise !== undefined) {
+          playPromise.catch(() => {});
+        }
+      } catch (e) {
+        console.error('Audio error:', e);
+      }
+    }
+
+    function preloadCurrentAudio(wordId) {
+      preloadWordAudio(wordId);
+    }
+
+    // =========================================================================
+    // --- 2. ОБЛАЧНОЕ СОХРАНЕНИЕ V2 (ДИФФ-СИНХРОНИЗАЦИЯ, МИГРАЦИЯ, SM-2) ---
+    // =========================================================================
+    const CHUNK_SIZE = 120; // 120 слов гарантированно занимают ~2.5 КБ при лимите 4096 байт
+    const BASE_EPOCH = 1735689600000; // 2025-01-01
+    const lastSyncedChunks = new Map();
+
+    const CloudStorage = {
+      setItem(key, value) {
+        return new Promise((resolve, reject) => {
+          if (!window.Telegram?.WebApp?.CloudStorage) return resolve(false);
+          const size = new Blob([value]).size;
+          if (size > 4096) {
+            console.error(`[CloudStorage] ${key} size ${size}B > 4096B`);
+            return reject(new Error(`Size limit exceeded: ${size} bytes`));
+          }
+          window.Telegram.WebApp.CloudStorage.setItem(key, value, (err, success) => {
+            if (err || !success) reject(err || new Error('Write failed'));
+            else resolve(true);
+          });
+        });
+      },
+      getItems(keys) {
+        return new Promise((resolve, reject) => {
+          if (!window.Telegram?.WebApp?.CloudStorage) return resolve({});
+          window.Telegram.WebApp.CloudStorage.getItems(keys, (err, res) => {
+            if (err) reject(err);
+            else resolve(res || {});
+          });
+        });
+      },
+      removeItems(keys) {
+        return new Promise(resolve => {
+          if (!window.Telegram?.WebApp?.CloudStorage || !keys.length) return resolve();
+          window.Telegram.WebApp.CloudStorage.removeItems(keys, () => resolve());
+        });
+      }
+    };
+
+    function serializeCard(id, p) {
+      const r = p.reps || 0;
+      const i = p.interval || 0;
+      const e = Math.round((p.easeFactor || ANKI_CONFIG.startingEase) * 100);
+      const dueDays = p.dueDate ? Math.max(0, Math.floor((p.dueDate - BASE_EPOCH) / 86400000)) : 0;
+      const lapses = p.lapses || 0;
+      const state = p.state !== undefined ? p.state : (p.stacked ? CARD_STATE.REVIEW : CARD_STATE.NEW);
+      const step = p.step || 0;
+      const flags = (p.stacked ? 1 : 0) | (p.ankiMastered ? 2 : 0);
+
+      return `${id}:${r}:${i}:${e}:${dueDays}:${lapses}:${state}:${step}:${flags}`;
+    }
+
+    function deserializeCard(str) {
+      if (!str || typeof str !== 'string') return null;
+      const parts = str.split(':');
+      if (parts.length < 9) return null;
+
+      const [id, r, i, e, dueDays, lapses, state, step, flags] = parts.map(Number);
+      if (!Number.isFinite(id) || id <= 0) return null;
+
+      return {
+        id,
+        reps: r || 0,
+        interval: i || 0,
+        easeFactor: e ? e / 100 : ANKI_CONFIG.startingEase,
+        dueDate: dueDays ? BASE_EPOCH + (dueDays * 86400000) : 0,
+        lapses: lapses || 0,
+        state: state !== undefined ? state : CARD_STATE.NEW,
+        step: step || 0,
+        stacked: Boolean(flags & 1),
+        ankiMastered: Boolean(flags & 2)
+      };
+    }
+
+    let saveDebounceTimer = null;
+    function saveState() {
+      try {
+        localStorage.setItem('japandi_backup_data', JSON.stringify(userProgress));
+      } catch (e) {
+        console.error('LocalStorage write error:', e);
+      }
+
+      clearTimeout(saveDebounceTimer);
+      saveDebounceTimer = setTimeout(syncToCloudStorage, 1500);
+    }
+
+    async function syncToCloudStorage() {
+      if (!window.Telegram?.WebApp?.CloudStorage) return;
+
+      try {
+        const dirtyCards = [];
+        for (const [idStr, p] of Object.entries(userProgress)) {
+          const id = Number(idStr);
+          if (p.stacked || p.ankiMastered || p.reps > 0 || p.interval > 0 || (p.state && p.state > 0)) {
+            dirtyCards.push(serializeCard(id, p));
+          }
+        }
+
+        const chunks = [];
+        for (let i = 0; i < dirtyCards.length; i += CHUNK_SIZE) {
+          chunks.push(dirtyCards.slice(i, i + CHUNK_SIZE).join(';'));
+        }
+
+        const writePromises = [];
+        let modifiedChunksCount = 0;
+
+        chunks.forEach((chunkStr, idx) => {
+          const key = `tg_v2_c${idx}`;
+          if (lastSyncedChunks.get(key) !== chunkStr) {
+            writePromises.push(
+              CloudStorage.setItem(key, chunkStr).then(() => {
+                lastSyncedChunks.set(key, chunkStr);
+              })
+            );
+            modifiedChunksCount++;
+          }
+        });
+
+        if (modifiedChunksCount > 0 || !lastSyncedChunks.has('tg_v2_meta')) {
+          const metaStr = JSON.stringify({
+            v: 2,
+            chunks: chunks.length,
+            total: dirtyCards.length,
+            updatedAt: Date.now()
+          });
+          writePromises.push(
+            CloudStorage.setItem('tg_v2_meta', metaStr).then(() => {
+              lastSyncedChunks.set('tg_v2_meta', metaStr);
+            })
+          );
+        }
+
+        if (writePromises.length > 0) {
+          await Promise.all(writePromises);
+          console.log(`[CloudStorage] Synced ${modifiedChunksCount} chunks (${dirtyCards.length} words total)`);
+        }
+      } catch (err) {
+        console.error('[CloudStorage] Sync error:', err);
+      }
+    }
+
+    async function loadState(callback) {
+      let loadedFromLocal = false;
+
+      try {
+        const local = localStorage.getItem('japandi_backup_data');
+        if (local) {
+          userProgress = JSON.parse(local);
+          loadedFromLocal = true;
+
+          if (!localStorage.getItem('japandi_v1_migrated')) {
+            localStorage.setItem('japandi_v1_emergency_backup', local);
+            localStorage.setItem('japandi_v1_migrated', 'true');
+          }
+        }
+      } catch (e) {
+        console.error('LocalStorage load error:', e);
+        userProgress = {};
+      }
+
+      renderMap();
+
+      if (!window.Telegram?.WebApp?.CloudStorage) {
+        if (callback) callback();
+        return;
+      }
+
+      try {
+        const metaRes = await CloudStorage.getItems(['tg_v2_meta']);
+        let shouldCleanLegacy = false;
+
+        if (metaRes.tg_v2_meta) {
+          const meta = JSON.parse(metaRes.tg_v2_meta);
+          if (meta.chunks > 0) {
+            const chunkKeys = Array.from({ length: meta.chunks }, (_, i) => `tg_v2_c${i}`);
+            const chunksData = await CloudStorage.getItems(chunkKeys);
+
+            for (const key of chunkKeys) {
+              const raw = chunksData[key];
+              if (raw) {
+                lastSyncedChunks.set(key, raw);
+                raw.split(';').forEach(cardStr => {
+                  const card = deserializeCard(cardStr);
+                  if (card) {
+                    const existing = userProgress[card.id];
+                    if (!existing || (card.reps >= (existing.reps || 0))) {
+                      userProgress[card.id] = card;
+                    }
+                  }
+                });
+              }
+            }
+          }
+        } else if (!loadedFromLocal) {
+          console.log('[CloudStorage] Migrating legacy tg_p1..3...');
+          const legacyData = await CloudStorage.getItems(['tg_p1', 'tg_p2', 'tg_p3']);
+
+          const unpackLegacyChunk = (rawStr) => {
+            if (!rawStr) return;
+            rawStr.split(';').forEach(item => {
+              if (!item) return;
+              const [id, r, i, s, a] = item.split(':').map(Number);
+              if (id) {
+                const reps = r || 0;
+                const interval = i || 0;
+                userProgress[id] = {
+                  id,
+                  reps,
+                  interval,
+                  easeFactor: ANKI_CONFIG.startingEase,
+                  dueDate: interval > 0 ? Date.now() + (interval * 86400000) : 0,
+                  lapses: 0,
+                  state: reps > 0 ? (interval >= 1 ? CARD_STATE.REVIEW : CARD_STATE.LEARNING) : CARD_STATE.NEW,
+                  step: 0,
+                  stacked: s === 1,
+                  ankiMastered: a === 1
+                };
+              }
+            });
+          };
+
+          if (legacyData.tg_p1) unpackLegacyChunk(legacyData.tg_p1);
+          if (legacyData.tg_p2) unpackLegacyChunk(legacyData.tg_p2);
+          if (legacyData.tg_p3) unpackLegacyChunk(legacyData.tg_p3);
+
+          shouldCleanLegacy = true;
+        }
+
+        await syncToCloudStorage();
+
+        if (shouldCleanLegacy) {
+          await CloudStorage.removeItems(['tg_p1', 'tg_p2', 'tg_p3']);
+          console.log('[CloudStorage] Cleaned up legacy keys tg_p1..3');
+        }
+
+        try {
+          localStorage.setItem('japandi_backup_data', JSON.stringify(userProgress));
+        } catch (e) {}
+
+        renderMap();
+      } catch (err) {
+        console.error('[CloudStorage] Load error:', err);
+      } finally {
+        if (callback) callback();
+      }
+    }
+
+    function getWordData(wordId) {
+      if (!userProgress[wordId]) {
+        userProgress[wordId] = {
+          id: wordId,
+          reps: 0,
+          interval: 0,
+          easeFactor: ANKI_CONFIG.startingEase,
+          dueDate: 0,
+          lapses: 0,
+          state: CARD_STATE.NEW,
+          step: 0,
+          stacked: false,
+          ankiMastered: false
+        };
+      }
+      return userProgress[wordId];
+    }
+
+    function isWordMastered(wId) {
+      const p = userProgress[wId];
+      if (!p) return false;
+      const ankiDone = Boolean(p.ankiMastered || (p.reps && p.reps >= 1) || (p.interval && p.interval >= 1));
+      const stackDone = Boolean(p.stacked);
+      return ankiDone || stackDone;
+    }
+
+    function getLevelWords(lvl) {
+      return allWords.filter(w => w.level_id === lvl);
+    }
+
+    function getLevelMasteredCount(lvl) {
+      return getLevelWords(lvl).filter(w => isWordMastered(w.id)).length;
+    }
+
+    function getCurrentUnlockedLevel() {
+      for (let lvl = 1; lvl <= TOTAL_LEVELS; lvl++) {
+        if (getLevelMasteredCount(lvl) < 20) return lvl;
+      }
+      return TOTAL_LEVELS;
+    }
+
+    // =========================================================================
+    // --- 3. РЕНДЕР КАРТЫ ---
+    // =========================================================================
+    function renderMap() {
+      const tree = document.getElementById('snakeTree');
+      if (!tree) return;
+      tree.innerHTML = '<svg id="snakeSvg"></svg>';
+
+      const currentLvl = getCurrentUnlockedLevel();
+
+      if (currentLvl > 1) {
+        const masteredTotal = allWords.filter(w => isWordMastered(w.id)).length;
+        const wrapRev = document.createElement('div');
+        wrapRev.className = `level-node-wrapper pos-0`;
+        wrapRev.innerHTML = `
+          <div class="level-node review-node" onclick="openReviewMenu()">
+            <span style="font-size: 11px; font-weight: 800; margin-top:2px;">Повтор</span>
+            <span class="node-progress">${masteredTotal}</span>
+          </div>
+        `;
+        tree.appendChild(wrapRev);
+      }
+
+      const currentDone = getLevelMasteredCount(currentLvl);
+      const wrapCur = document.createElement('div');
+      wrapCur.className = `level-node-wrapper pos-${(currentLvl - 1) % 4}`;
+      wrapCur.innerHTML = `
+        <div class="level-node active-unlocked" onclick="openLevelModal(${currentLvl})">
+          <span class="node-num">${currentLvl}</span>
+          <span class="node-progress">${currentDone}</span>
+        </div>
+      `;
+      tree.appendChild(wrapCur);
+
+      for (let lvl = currentLvl + 1; lvl <= TOTAL_LEVELS; lvl++) {
+        const wrapLock = document.createElement('div');
+        wrapLock.className = `level-node-wrapper pos-${(lvl - 1) % 4}`;
+        wrapLock.innerHTML = `
+          <div class="level-node locked">
+            <span class="node-num">${lvl}</span>
+          </div>
+        `;
+        tree.appendChild(wrapLock);
+      }
+
+      requestAnimationFrame(() => {
+        drawSnakePath();
+      });
+    }
+
+    // =========================================================================
+    // --- РАСЧЁТ ПУНКТИРНОЙ ТРОПИНКИ (ИДЕАЛЬНОЕ ПОПАДАНИЕ ВО ВСЕ 73 УРОВНЯ) ---
+    // =========================================================================
+    function drawSnakePath() {
+      const svg = document.getElementById('snakeSvg');
+      const container = document.getElementById('snakeTree');
+      if (!svg || !container) return;
+
+      const wrappers = container.querySelectorAll('.level-node-wrapper');
+      if (wrappers.length < 2) return;
+
+      const fullHeight = container.scrollHeight;
+      const fullWidth = container.offsetWidth;
+
+      // Жёстко задаём размеры и систему координат холста SVG
+      svg.style.width = fullWidth + 'px';
+      svg.style.height = fullHeight + 'px';
+      svg.setAttribute('width', fullWidth);
+      svg.setAttribute('height', fullHeight);
+      svg.setAttribute('viewBox', `0 0 ${fullWidth} ${fullHeight}`);
+      svg.style.overflow = 'visible';
+
+      const isDesktop = document.body.classList.contains('desktop-device');
+      const shiftX = isDesktop ? 120 : 50;
+      const centerX = fullWidth / 2;
+
+      const points = [];
+
+      // Берём точные координаты центра каждого кубика без погрешностей экрана
+      wrappers.forEach(wrap => {
+        const node = wrap.querySelector('.level-node');
+        if (!node) return;
+
+        let dx = 0;
+        if (wrap.classList.contains('pos-1')) dx = shiftX;
+        else if (wrap.classList.contains('pos-3')) dx = -shiftX;
+
+        const x = centerX + dx;
+        const y = wrap.offsetTop + node.offsetTop + (node.offsetHeight / 2);
+        points.push({ x, y });
+      });
+
+      let pathD = '';
+      for (let i = 0; i < points.length; i++) {
+        if (i === 0) {
+          pathD += `M ${points[i].x} ${points[i].y}`;
+        } else {
+          const p0 = points[i - 1];
+          const p1 = points[i];
+          const cy = (p0.y + p1.y) / 2;
+          pathD += ` C ${p0.x} ${cy}, ${p1.x} ${cy}, ${p1.x} ${p1.y}`;
+        }
+      }
+
+      svg.innerHTML = `
+        <path d="${pathD}" fill="none" stroke="var(--strawberry-deep, #ec6f88)" stroke-width="3.5" stroke-dasharray="8,8" stroke-linecap="round" opacity="0.6" />
+      `;
+    }
+
+    // =========================================================================
+    // --- УПРАВЛЕНИЕ УРОВНЯМИ И ПОВТОРЕНИЕМ (+50 / -50 / ВСЕ) ---
+    // =========================================================================
+    let activeLevel = 1;
+    let isReviewMode = false;
+    let reviewLimit = 50; // Комфортный стартовый размер пачки
+
+    function openLevelModal(lvl) {
+      activeLevel = lvl;
+      isReviewMode = false;
+      document.getElementById('modalTitle').innerText = `Уровень ${lvl}`;
+      
+      const batchSel = document.getElementById('reviewBatchSelector');
+      if (batchSel) batchSel.style.display = 'none';
+
+      document.getElementById('modeModal').classList.add('open');
+    }
+
+    function openReviewMenu() {
+      activeLevel = 1;
+      isReviewMode = true;
+      document.getElementById('modalTitle').innerText = `Повторение`;
+
+      const totalMastered = allWords.filter(w => isWordMastered(w.id)).length;
+      reviewLimit = Math.min(50, totalMastered > 0 ? totalMastered : 50);
+      updateReviewLimitUI(totalMastered);
+
+      const batchSel = document.getElementById('reviewBatchSelector');
+      if (batchSel) batchSel.style.display = 'flex';
+
+      document.getElementById('modeModal').classList.add('open');
+    }
+
+    function adjustReviewLimit(delta) {
+      const totalMastered = allWords.filter(w => isWordMastered(w.id)).length;
+      if (totalMastered === 0) return;
+      reviewLimit = Math.max(10, Math.min(totalMastered, reviewLimit + delta));
+      updateReviewLimitUI(totalMastered);
+    }
+
+    function setReviewLimitAll() {
+      const totalMastered = allWords.filter(w => isWordMastered(w.id)).length;
+      reviewLimit = totalMastered;
+      updateReviewLimitUI(totalMastered);
+    }
+
+    function updateReviewLimitUI(total) {
+      const countEl = document.getElementById('reviewCountDisplay');
+      const totalEl = document.getElementById('reviewTotalDisplay');
+      if (countEl) countEl.innerText = reviewLimit;
+      if (totalEl) totalEl.innerText = total;
+    }
+
+    function closeModal(e) {
+      if (e.target.id === 'modeModal') {
+        document.getElementById('modeModal').classList.remove('open');
+      }
+    }
+
+    function switchView(id) {
+      document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+      document.getElementById(id).classList.add('active');
+    }
+
+    function showMap() {
+      switchView('viewMap');
+      renderMap();
+    }
+
+    function launchMode(mode) {
+      document.getElementById('modeModal').classList.remove('open');
+      
+      let pool = [];
+      if (isReviewMode) {
+        const mastered = allWords.filter(w => isWordMastered(w.id));
+        // Приоритет словам с меньшим интервалом (которые забываются в первую очередь)
+        mastered.sort((a, b) => {
+          const srsA = initCardSRS(a.id);
+          const srsB = initCardSRS(b.id);
+          return (srsA.interval || 0) - (srsB.interval || 0);
+        });
+        pool = mastered.slice(0, reviewLimit);
+      } else {
+        const unlearned = getLevelWords(activeLevel).filter(w => !isWordMastered(w.id));
+        pool = unlearned.length > 0 ? unlearned : getLevelWords(activeLevel);
+      }
+
+      if (pool.length === 0) {
+        alert('Пока нет слов для тренировки!');
+        return;
+      }
+
+      if (mode === 'anki') startAnki(pool);
+      else startStackGame(pool);
+    }
+
+    // =========================================================================
+    // --- 4. ДВИЖОК ANKI ---
+    // =========================================================================
+    let ankiQueue = [];
+    let currentAnkiCard = null;
+    let ankiMode = 'ja';
+    let ankiTotalBatchSize = 0;
+    let ankiGraduatedIds = new Set();
+
+    function setAnkiMode(m) {
+      ankiMode = m;
+      document.getElementById('btnModeJa').classList.toggle('active', m === 'ja');
+      document.getElementById('btnModeRu').classList.toggle('active', m === 'ru');
+      if (currentAnkiCard) renderAnkiCard();
+    }
+
+    function initCardSRS(wId) {
+      const card = getWordData(wId);
+      if (card.state === undefined) {
+        card.state = card.stacked ? CARD_STATE.REVIEW : CARD_STATE.NEW;
+        card.step = 0;
+        card.easeFactor = card.easeFactor || ANKI_CONFIG.startingEase;
+        card.interval = card.interval || 0;
+        card.reps = card.reps || 0;
+        card.lapses = card.lapses || 0;
+      }
+      return card;
+    }
+
+  function startAnki(words) {
+      ankiGraduatedIds.clear();
+      ankiTotalBatchSize = words.length;
+
+      // Заполняем шкалу только для обычных уровней (1..73).
+      // В режиме повторения шкала всегда стартует с 0!
+      if (!isReviewMode) {
+        words.forEach(w => {
+          const srs = initCardSRS(w.id);
+          if (srs.state === CARD_STATE.REVIEW && srs.interval >= 1) {
+            ankiGraduatedIds.add(w.id);
+          }
+        });
+      }
+
+      if (isReviewMode) {
+        ankiQueue = [...words].sort((a, b) => {
+          const srsA = initCardSRS(a.id);
+          const srsB = initCardSRS(b.id);
+          return (srsA.interval || 0) - (srsB.interval || 0);
+        });
+      } else {
+        ankiQueue = [...words].sort(() => Math.random() - 0.5);
+      }
+
+      switchView('viewAnki');
+      nextAnkiCard();
+    }
+
+    function nextAnkiCard() {
+      if (ankiQueue.length === 0) {
+        saveState();
+        setTimeout(() => {
+          alert('🎉 Сессия Anki успешно завершена!');
+          showMap();
+        }, 200);
+        return;
+      }
+
+      currentAnkiCard = ankiQueue.shift();
+      renderAnkiCard();
+    }
+
+    function renderAnkiCard() {
+      const w = currentAnkiCard;
+      const srs = initCardSRS(w.id);
+
+      const qEl = document.getElementById('ankiQuestion');
+      const ansBlock = document.getElementById('ankiAnswerBlock');
+      const readingEl = document.getElementById('ankiReading');
+      const transEl = document.getElementById('ankiTranslation');
+      const readingRow = document.querySelector('.card-reading-row');
+
+      // Сбрасываем кнопки
+      document.getElementById('btnShowAnswer').style.display = 'block';
+      document.getElementById('ankiGradeGroup').style.display = 'none';
+
+      // Бейдж состояния SRS
+      const badge = document.getElementById('ankiCardBadge');
+      if (srs.state === CARD_STATE.NEW) {
+        badge.innerText = 'Новое';
+        badge.style.background = 'var(--cream)';
+        badge.style.color = 'var(--ink-soft)';
+      } else if (srs.state === CARD_STATE.LEARNING) {
+        badge.innerText = `Шаг ${srs.step + 1}/${ANKI_CONFIG.learningSteps.length}`;
+        badge.style.background = 'var(--peach)';
+        badge.style.color = 'var(--peach-deep)';
+      } else if (srs.state === CARD_STATE.RELEARNING) {
+        badge.innerText = 'Повтор';
+        badge.style.background = 'var(--danger-bg)';
+        badge.style.color = 'var(--danger-text)';
+      } else {
+        badge.innerText = `Интервал: ${srs.interval}д`;
+        badge.style.background = '#eef7eb';
+        badge.style.color = 'var(--matcha-deep)';
+      }
+
+      // Всегда распределяем японский и русский по своим постоянным местам
+      const mainJapaneseText = w.kanji !== '—' ? w.kanji : w.reading;
+      qEl.innerText = mainJapaneseText;
+      readingEl.innerText = (w.kanji !== '—' ? w.reading : '');
+      transEl.innerText = w.translation;
+
+      // Размер шрифта для Кандзи
+      const len = mainJapaneseText.length;
+      if (len <= 2) {
+        qEl.style.fontSize = 'clamp(4.8rem, 20vw, 7.5rem)';
+      } else if (len <= 4) {
+        qEl.style.fontSize = 'clamp(3.6rem, 14vw, 5.4rem)';
+      } else if (len <= 7) {
+        qEl.style.fontSize = 'clamp(2.6rem, 10vw, 4.0rem)';
+      } else if (len <= 11) {
+        qEl.style.fontSize = 'clamp(2.0rem, 7.5vw, 3.0rem)';
+      } else {
+        qEl.style.fontSize = 'clamp(1.5rem, 5.5vw, 2.2rem)';
+      }
+
+      // Настройка видимости ДО нажатия «Показать ответ»
+      if (ankiMode === 'ja') {
+        // Режим 🇯🇵: Сверху видно кандзи, снизу блок ответа скрыт
+        qEl.style.visibility = 'visible';
+        ansBlock.classList.remove('revealed');
+        if (readingRow) readingRow.style.visibility = 'visible';
+      } else {
+        // Режим 🇷🇺: Сверху белое место (кандзи скрыто), снизу виден только русский перевод
+        qEl.style.visibility = 'hidden';
+        ansBlock.classList.add('revealed');
+        if (readingRow) readingRow.style.visibility = 'hidden'; // чтение и звук скрыты до клика
+      }
+
+      // Прогресс сессии
+      const graduatedCount = ankiGraduatedIds.size;
+      const pct = ankiTotalBatchSize > 0 ? (graduatedCount / ankiTotalBatchSize) * 100 : 0;
+      document.getElementById('ankiProgress').style.width = `${pct}%`;
+      document.getElementById('ankiCounter').innerText = `${graduatedCount}/${ankiTotalBatchSize}`;
+
+      // Предзагрузка аудио
+      if (currentAnkiCard) {
+        preloadCurrentAudio(currentAnkiCard.id);
+      }
+      if (ankiQueue.length > 0) {
+        preloadWordAudio(ankiQueue[0].id);
+      }
+    }
+
+    function revealAnkiAnswer() {
+      const qEl = document.getElementById('ankiQuestion');
+      const ansBlock = document.getElementById('ankiAnswerBlock');
+      const readingRow = document.querySelector('.card-reading-row');
+
+      // Показываем всё, что было скрыто
+      ansBlock.classList.add('revealed');
+      qEl.style.visibility = 'visible';
+      if (readingRow) readingRow.style.visibility = 'visible';
+
+      document.getElementById('btnShowAnswer').style.display = 'none';
+      document.getElementById('ankiGradeGroup').style.display = 'grid';
+      speakCurrentWord();
+    }
+
+    function speakCurrentWord() {
+      if (currentAnkiCard) speakKyoko(currentAnkiCard.id);
+    }
+
+    function handleAnkiGrade(grade) {
+      const w = currentAnkiCard;
+      const srs = initCardSRS(w.id);
+      const now = Date.now();
+
+      srs.reps = (srs.reps || 0) + 1;
+
+      if (grade === 1) {
+        srs.lapses = (srs.lapses || 0) + 1;
+        srs.easeFactor = Math.max(ANKI_CONFIG.minEase, srs.easeFactor - 0.20);
+        srs.state = CARD_STATE.LEARNING;
+        srs.step = 0;
+        srs.interval = 0;
+        srs.dueDate = now;
+        ankiGraduatedIds.delete(w.id);
+
+        const pos = Math.min(ankiQueue.length, 1 + Math.floor(Math.random() * 2));
+        ankiQueue.splice(pos, 0, w);
+      } else if (grade === 2) {
+        srs.easeFactor = Math.max(ANKI_CONFIG.minEase, srs.easeFactor - 0.15);
+        if (srs.state === CARD_STATE.REVIEW) {
+          srs.interval = Math.max(1, Math.round(srs.interval * ANKI_CONFIG.hardIntervalFactor));
+          srs.dueDate = now + (srs.interval * 86400000);
+          srs.ankiMastered = true;
+          ankiGraduatedIds.add(w.id);
+        } else {
+          const pos = Math.min(ankiQueue.length, 3 + Math.floor(Math.random() * 2));
+          ankiQueue.splice(pos, 0, w);
+        }
+      } else if (grade === 3) {
+        if (srs.state === CARD_STATE.REVIEW) {
+          srs.interval = Math.max(srs.interval + 1, Math.round(srs.interval * srs.easeFactor));
+          srs.dueDate = now + (srs.interval * 86400000);
+          srs.ankiMastered = true;
+          ankiGraduatedIds.add(w.id);
+        } else {
+          const nextStep = (srs.step || 0) + 1;
+          if (nextStep >= ANKI_CONFIG.learningSteps.length) {
+            srs.state = CARD_STATE.REVIEW;
+            srs.step = 0;
+            srs.interval = ANKI_CONFIG.graduatingInterval;
+            srs.dueDate = now + (srs.interval * 86400000);
+            srs.ankiMastered = true;
+            ankiGraduatedIds.add(w.id);
+          } else {
+            srs.state = CARD_STATE.LEARNING;
+            srs.step = nextStep;
+            const pos = Math.min(ankiQueue.length, 5 + Math.floor(Math.random() * 2));
+            ankiQueue.splice(pos, 0, w);
+          }
+        }
+      } else if (grade === 4) {
+        srs.easeFactor = srs.easeFactor + 0.15;
+        if (srs.state === CARD_STATE.REVIEW) {
+          srs.interval = Math.max(srs.interval + 2, Math.round(srs.interval * srs.easeFactor * ANKI_CONFIG.easyBonus));
+        } else {
+          srs.interval = ANKI_CONFIG.easyInterval;
+        }
+        srs.state = CARD_STATE.REVIEW;
+        srs.step = 0;
+        srs.dueDate = now + (srs.interval * 86400000);
+        srs.ankiMastered = true;
+        ankiGraduatedIds.add(w.id);
+      }
+
+      saveState();
+      nextAnkiCard();
+    }
+
+    // =========================================================================
+    // --- 5. ИГРА «СТОПКА» ---
+    // =========================================================================
+    let stackWaves = [];
+    let currentWaveIndex = 0;
+    let boardSlots = new Array(12).fill(null);
+    let selectedSlotIdx = null;
+    let stackTotalWords = 0;
+    let stackDoneWords = 0;
+
+    function getWordComponents(word) {
+      const list = [];
+      if (word.kanji && word.kanji !== '—') {
+        list.push({ wordId: word.id, type: 'kanji', text: word.kanji });
+      }
+      list.push({ wordId: word.id, type: 'reading', text: word.reading });
+      list.push({ wordId: word.id, type: 'translation', text: word.translation });
+
+      return {
+        wordId: word.id,
+        totalNeeded: list.length,
+        items: list
+      };
+    }
+
+    function startStackGame(words) {
+      stackTotalWords = words.length;
+      stackDoneWords = 0;
+      stackWaves = [];
+      currentWaveIndex = 0;
+      selectedSlotIdx = null;
+
+      let currentWavePieces = [];
+      const shuffledWords = [...words].sort(() => Math.random() - 0.5);
+
+      shuffledWords.forEach(w => {
+        const def = getWordComponents(w);
+        const pieces = def.items.map(it => ({
+          wordId: def.wordId,
+          totalNeeded: def.totalNeeded,
+          items: [it]
+        }));
+
+        if (currentWavePieces.length + pieces.length > 12) {
+          stackWaves.push(currentWavePieces);
+          currentWavePieces = [];
+        }
+        currentWavePieces.push(...pieces);
+      });
+
+      if (currentWavePieces.length > 0) {
+        stackWaves.push(currentWavePieces);
+      }
+
+      switchView('viewStack');
+      loadWave(0);
+      updateStackProgress();
+    }
+
+    function loadWave(waveIdx) {
+      currentWaveIndex = waveIdx;
+      selectedSlotIdx = null;
+      boardSlots = new Array(12).fill(null);
+
+      if (waveIdx < stackWaves.length) {
+        const wavePieces = [...stackWaves[waveIdx]].sort(() => Math.random() - 0.5);
+        for (let i = 0; i < wavePieces.length; i++) {
+          boardSlots[i] = wavePieces[i];
+        }
+      }
+
+      renderStackBoard();
+    }
+
+    function updateStackProgress() {
+      const pct = stackTotalWords > 0 ? (stackDoneWords / stackTotalWords) * 100 : 0;
+      document.getElementById('stackProgress').style.width = `${pct}%`;
+      document.getElementById('stackCounter').innerText = `${stackDoneWords}/${stackTotalWords}`;
+    }
+
+    function renderStackBoard() {
+      const grid = document.getElementById('stackGrid');
+      if (!grid) return;
+      grid.innerHTML = '';
+
+      boardSlots.forEach((stack, idx) => {
+        const el = document.createElement('div');
+        el.className = 'stack-tile';
+        el.dataset.slot = idx;
+
+        if (!stack) {
+          el.classList.add('empty-slot');
+          grid.appendChild(el);
+          return;
+        }
+
+        if (selectedSlotIdx === idx) el.classList.add('selected');
+
+        const isStack = stack.items.length > 1;
+        const mainItem = stack.items[stack.items.length - 1];
+
+        const textLen = mainItem.text.length;
+        let sizeClass = '';
+
+        if (mainItem.type === 'translation') {
+          if (textLen > 24) sizeClass = 'size-xs';
+          else if (textLen > 14) sizeClass = 'size-sm';
+        } else if (mainItem.type === 'reading') {
+          if (textLen > 10) sizeClass = 'size-xs';
+          else if (textLen > 7) sizeClass = 'size-sm';
+        } else if (mainItem.type === 'kanji') {
+          if (textLen > 6) sizeClass = 'size-sm';
+        }
+
+        let chipsHtml = '';
+        if (isStack) {
+          chipsHtml = `<div class="tile-sub-chips">` + 
+            stack.items.slice(0, -1).map(it => `<span class="chip-item">${it.text}</span>`).join('') +
+            `</div>`;
+        }
+
+        el.innerHTML = `
+          <div class="tile-counter-badge">${stack.items.length}/${stack.totalNeeded}</div>
+          <div class="tile-main-text type-${mainItem.type} ${sizeClass}">${mainItem.text}</div>
+          ${chipsHtml}
+        `;
+
+        el.onclick = () => onSlotClick(idx, el);
+        grid.appendChild(el);
+      });
+    }
+
+    function onSlotClick(clickedIdx, el) {
+      if (!boardSlots[clickedIdx]) return;
+
+      // 1. Первый клик (выбор карточки)
+      if (selectedSlotIdx === null) {
+        selectedSlotIdx = clickedIdx;
+        renderStackBoard();
+        return;
+      }
+
+      // 2. Клик по уже выбранной карточке/стопке (снятие выделения)
+      if (selectedSlotIdx === clickedIdx) {
+        selectedSlotIdx = null;
+        renderStackBoard();
+        return;
+      }
+
+      // 3. Второй клик (попытка объединения)
+      const firstIdx = selectedSlotIdx;
+      const targetIdx = clickedIdx;
+
+      const firstStack = boardSlots[firstIdx];
+      const targetStack = boardSlots[targetIdx];
+
+      if (!firstStack || !targetStack) {
+        selectedSlotIdx = null;
+        renderStackBoard();
+        return;
+      }
+
+      // Проверка совпадения
+      if (firstStack.wordId === targetStack.wordId) {
+        targetStack.items.push(...firstStack.items);
+        boardSlots[firstIdx] = null;
+
+        if (targetStack.wordId) speakKyoko(targetStack.wordId);
+
+        // Если стопка собрана ПОЛНОСТЬЮ
+        if (targetStack.items.length >= targetStack.totalNeeded) {
+          selectedSlotIdx = null;
+          const p = getWordData(targetStack.wordId);
+          p.stacked = true;
+          saveState();
+          stackDoneWords++;
+          updateStackProgress();
+
+          renderStackBoard();
+          const targetEl = document.querySelector(`.stack-tile[data-slot="${targetIdx}"]`);
+          if (targetEl) targetEl.classList.add('completed-burst');
+
+          setTimeout(() => {
+            boardSlots[targetIdx] = null;
+            renderStackBoard();
+
+            const isWaveCleared = boardSlots.every(s => s === null);
+            if (isWaveCleared) {
+              if (currentWaveIndex + 1 < stackWaves.length) {
+                setTimeout(() => {
+                  loadWave(currentWaveIndex + 1);
+                }, 200);
+              } else {
+                setTimeout(() => {
+                  alert('🎉 Превосходно! Все стопки собраны!');
+                  showMap();
+                }, 300);
+              }
+            }
+          }, 300);
+        } else {
+          // Если стопка собрана НЕ ДО КОНЦА (например, 2 из 3) — оставляем ее активной
+          selectedSlotIdx = targetIdx;
+          renderStackBoard();
+          const targetEl = document.querySelector(`.stack-tile[data-slot="${targetIdx}"]`);
+          if (targetEl) targetEl.classList.add('merge-pulse');
+        }
+      } else {
+        // Ошибка (карточки не подошли друг к другу)
+        const firstEl = document.querySelector(`.stack-tile[data-slot="${firstIdx}"]`);
+        const secondEl = el;
+
+        if (firstEl) firstEl.classList.add('error');
+        if (secondEl) secondEl.classList.add('error');
+
+        selectedSlotIdx = null;
+        setTimeout(() => {
+          renderStackBoard();
+        }, 320);
+      }
+    }
+
+    // =========================================================================
+    // --- 6. СТАРТ ПРИЛОЖЕНИЯ ---
+    // =========================================================================
+    updateSoundBtnUI();
+    loadState();
+  </script>
+</body>
+</html>
