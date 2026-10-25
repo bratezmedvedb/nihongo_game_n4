@@ -17,31 +17,15 @@
   <script src="https://sad.adsgram.ai/js/sad.min.js"></script>
 
   <!-- Проверка доступа и авто-раскрытие -->
-  <script>
-    const ALLOWED_USERS = [370567050, 669192721]; // Ваши Telegram ID
-
-    if (window.Telegram && window.Telegram.WebApp) {
-      const tg = window.Telegram.WebApp;
-      tg.ready();
-
-      const userId = tg.initDataUnsafe?.user?.id;
-
-      if (!ALLOWED_USERS.includes(userId)) {
-        document.addEventListener("DOMContentLoaded", () => {
-          document.body.style.cssText = "display:flex; justify-content:center; align-items:center; height:100vh; flex-direction:column; font-family:'M PLUS Rounded 1c', sans-serif; background:#fbf8ee; color:#4a3a36; margin:0; padding:20px; text-align:center;";
-          document.body.innerHTML = `
-            <div style="font-size: 42px; margin-bottom: 12px;">🔒</div>
-            <h1 style="color: #ec6f88; font-size: 22px; margin-bottom: 8px;">Доступ закрыт</h1>
-            <p style="color: #8f8478; font-size: 14px;">Приложение находится в стадии закрытого тестирования JLPT N4.</p>
-          `;
-        });
-      } else {
-        tg.expand();
-        if (tg.requestFullscreen) tg.requestFullscreen();
-        if (tg.disableVerticalSwipes) tg.disableVerticalSwipes();
-      }
-    }
-  </script>
+<script>
+  if (window.Telegram && window.Telegram.WebApp) {
+    const tg = window.Telegram.WebApp;
+    tg.ready();
+    tg.expand();
+    if (tg.requestFullscreen) tg.requestFullscreen();
+    if (tg.disableVerticalSwipes) tg.disableVerticalSwipes();
+  }
+</script>
 
   <style>
     :root {
