@@ -196,7 +196,7 @@
     .fb-kana { font-size: 19px; font-weight: 800; color: var(--ink); margin-bottom: 4px; line-height: 1.45; }
     .fb-translation { font-size: 16px; font-weight: 700; color: var(--strawberry-deep); margin-bottom: 10px; line-height: 1.4; }
     .fb-vocab { font-size: 13px; color: var(--ink); line-height: 1.7; margin-bottom: 10px; }
-    .fb-grammar { font-size: 13px; color: var(--ink-soft); line-height: 1.6; border-top: 2px dotted var(--strawberry); padding-top: 9px; }
+    .fb-grammar { font-size: 13px; color: var(--ink); line-height: 1.6; border-top: 2px dotted var(--strawberry); padding-top: 9px; }
 
     .next-btn {
       font-family: inherit; display: none; width: 100%; background: var(--strawberry-deep); color: #fff; border: none;
@@ -11177,15 +11177,17 @@ function parseBack(raw) {
   
   let vocabText = rest;
   let grammarText = '';
-  const gIdx = rest.indexOf('Грамматика:');
-  if (gIdx !== -1) {
-    vocabText = rest.slice(0, gIdx);
-    grammarText = rest.slice(gIdx).trim();
+
+  // Ищет начало блока и по слову "Грамматика", и по слову "Верно" (с двоеточием или без)
+  const match = rest.match(/(?:^|\n)\s*(?:Грамматика|Верно):?/);
+  if (match) {
+    vocabText = rest.slice(0, match.index);
+    grammarText = rest.slice(match.index).trim();
   }
-  const vocab = vocabText.split('\n').map(s=>s.trim()).filter(s=>s.length > 0);
+
+  const vocab = vocabText.split('\n').map(s => s.trim()).filter(s => s.length > 0);
   return { kana, translation, vocab, grammar: grammarText };
 }
-
 function updateMistakesCount(){
   const btn = document.getElementById('mistakesToggle');
   btn.textContent = `Ошибки (${mistakeIds.length})`;
