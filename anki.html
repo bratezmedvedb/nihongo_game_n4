@@ -264,6 +264,35 @@
       top: 45px !important;
     }
 
+    /* Кнопка возврата в меню на карте */
+.back-btn {
+  position: fixed;
+  top: calc(14px + env(safe-area-inset-top, 0px));
+  left: 16px;
+  z-index: 50;
+  background: var(--paper);
+  border: 2px solid var(--strawberry);
+  color: var(--ink);
+  font-family: inherit;
+  padding: 7px 16px;
+  border-radius: 20px;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  box-shadow: 0 3px 0 var(--strawberry);
+  transition: transform .12s, box-shadow .12s;
+}
+.back-btn:active {
+  transform: translateY(3px);
+  box-shadow: 0 0 0 var(--strawberry);
+}
+body.is-android .back-btn {
+  top: 45px !important;
+}
+
     .snake-container {
       display: flex;
       flex-direction: column;
@@ -910,7 +939,20 @@
   </div>
 
   <div id="app">
-    <!-- ЭКРАН 1: КАРТА -->
+   <!-- ЭКРАН 1: КАРТА -->
+    <div id="viewMap" class="view active">
+      <!-- Кнопка возврата в меню -->
+      <a href="index.html" class="back-btn">← Меню</a>
+
+      <button class="map-sound-btn" id="btnSoundToggle" onclick="toggleGameSound()">
+        <span id="soundIcon">🔊</span>
+      </button>
+
+      <div class="snake-container" id="snakeTree">
+        <svg id="snakeSvg"></svg>
+      </div>
+    </div>
+    
     <div id="viewMap" class="view active">
       <button class="map-sound-btn" id="btnSoundToggle" onclick="toggleGameSound()">
         <span id="soundIcon">🔊</span>
