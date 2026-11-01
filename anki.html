@@ -1,12 +1,10 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-  <!-- 1. Считываем тему мгновенно без мигания -->
   <script>
     const savedTheme = localStorage.getItem('app_theme') || 'light';
     document.documentElement.setAttribute('data-theme', savedTheme);
   </script>
-
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
   <title>JLPT • Тренажёр</title>
@@ -22,8 +20,8 @@
   <!-- Adsgram SDK -->
   <script src="https://sad.adsgram.ai/js/sad.min.js"></script>
 
-  <!-- Авто-раскрытие Telegram, цвет шапки и отслеживание полноэкранного режима -->
-  <script>
+  <!-- Авто-раскрытие Telegram -->
+ <script>
     if (window.Telegram && window.Telegram.WebApp) {
       const tg = window.Telegram.WebApp;
       tg.ready();
@@ -31,12 +29,12 @@
       if (tg.requestFullscreen) tg.requestFullscreen();
       if (tg.disableVerticalSwipes) tg.disableVerticalSwipes();
 
-      // Окрашиваем статус-бар Телеграма под цвет темы:
+      // ВОТ ЭТИ СТРОЧКИ ДОБАВЛЯЮТСЯ СЮДА:
       const themeColor = savedTheme === 'dark' ? '#181517' : '#fbf8ee';
       if (tg.setHeaderColor) tg.setHeaderColor(themeColor);
       if (tg.setBackgroundColor) tg.setBackgroundColor(themeColor);
 
-      // Синхронизация отступов при полноэкранном режиме (как в index)
+      // И слушатель для кнопок на весь экран:
       if (tg.onEvent) {
         tg.onEvent('fullscreenChanged', () => {
           if (tg.isFullscreen) {
@@ -50,7 +48,6 @@
   </script>
 
   <style>
-    /* ================= 1. СВЕТЛАЯ ТЕМА (ПО УМОЛЧАНИЮ) ================= */
     :root {
       --cream: #fbf8ee;
       --paper: #ffffff;
@@ -84,24 +81,23 @@
       --radius-lg: 18px;
       --radius-md: 14px;
     }
-
-    /* ================= 2. ТЁМНАЯ ТЕМА ================= */
+/* ================= ТЁМНАЯ ТЕМА ================= */
     [data-theme="dark"] {
-      --cream: #181517;          /* Тёмный фон приложения */
-      --paper: #231e22;          /* Фон карточки со словом */
-      --ink: #fdfaf6;            /* Белый текст кандзи и перевода */
-      --ink-soft: #a89ca0;       /* Серый текст чтения и подсказок */
-      --line: #332b30;           /* Разделители и рамки */
+      --cream: #181517;
+      --paper: #231e22;
+      --ink: #fdfaf6;
+      --ink-soft: #a89ca0;
+      --line: #332b30;
       --line-subtle: #292226;
       
       --strawberry: #4e2933;
-      --strawberry-deep: #ff7593;/* Яркая клубника */
+      --strawberry-deep: #ff7593;
       
       --matcha: #2e3b22;
-      --matcha-deep: #9dcd60;    /* Яркая матча */
+      --matcha-deep: #9dcd60;
       
       --peach: #4d3324;
-      --peach-deep: #f8a068;     /* Яркий персик */
+      --peach-deep: #f8a068;
 
       --danger-bg: #3b1b22;
       --danger-border: #8c253b;
@@ -110,6 +106,20 @@
       --shadow-card: 0 8px 24px rgba(0, 0, 0, 0.35);
     }
 
+    [data-theme="dark"] body {
+      background-image: 
+        radial-gradient(circle at 12% 15%, rgba(236, 111, 136, 0.12) 0%, transparent 45%),
+        radial-gradient(circle at 88% 85%, rgba(141, 181, 90, 0.10) 0%, transparent 45%);
+    }
+
+    [data-theme="dark"] .level-node.review-node {
+      background: #38241b;
+      color: var(--peach-deep);
+    }
+
+    [data-theme="dark"] .progress-fill {
+      background: repeating-linear-gradient(135deg, var(--strawberry-deep) 0 10px, #3d1c25 10px 20px);
+    }
     * {
       box-sizing: border-box;
       margin: 0;
@@ -127,21 +137,13 @@
       color: var(--ink);
       font-family: 'M PLUS Rounded 1c', 'Nunito', -apple-system, BlinkMacSystemFont, sans-serif;
       position: relative;
-      transition: background-color 0.25s ease, color 0.25s ease;
     }
 
-    /* Фоновый градиент: днем нежный пастельный, ночью мягкий неоновый */
     body {
       background-image: 
         radial-gradient(circle at 12% 15%, rgba(255, 196, 208, 0.35) 0%, transparent 40%),
         radial-gradient(circle at 88% 85%, rgba(213, 232, 179, 0.35) 0%, transparent 40%);
       background-attachment: fixed;
-    }
-
-    [data-theme="dark"] body {
-      background-image: 
-        radial-gradient(circle at 12% 15%, rgba(236, 111, 136, 0.12) 0%, transparent 45%),
-        radial-gradient(circle at 88% 85%, rgba(141, 181, 90, 0.10) 0%, transparent 45%);
     }
 
     /* Анимация падающих лепестков сакуры */
@@ -157,16 +159,16 @@
       top: -30px;
       width: 14px;
       height: 11px;
-      background: var(--strawberry-deep);
+      background: var(--strawberry);
       border-radius: 80% 0 80% 0;
-      opacity: 0.65;
+      opacity: 0.75;
       animation: fallSakura 14s linear infinite;
     }
     .petals span:nth-child(1) { left: 8%;  animation-delay: 0s;   animation-duration: 15s; }
     .petals span:nth-child(2) { left: 24%; animation-delay: -5s;  animation-duration: 18s; width: 10px; height: 8px; }
-    .petals span:nth-child(3) { left: 42%; animation-delay: -9s;  animation-duration: 16s; background: var(--peach-deep); }
+    .petals span:nth-child(3) { left: 42%; animation-delay: -9s;  animation-duration: 16s; background: var(--peach); }
     .petals span:nth-child(4) { left: 61%; animation-delay: -3s;  animation-duration: 20s; width: 12px; height: 9px; }
-    .petals span:nth-child(5) { left: 78%; animation-delay: -11s; animation-duration: 17s; background: var(--matcha-deep); }
+    .petals span:nth-child(5) { left: 78%; animation-delay: -11s; animation-duration: 17s; background: var(--matcha); }
     .petals span:nth-child(6) { left: 92%; animation-delay: -7s;  animation-duration: 19s; }
 
     @keyframes fallSakura {
@@ -197,23 +199,19 @@
       width: 100% !important;
     }
 
-    /* ==========================================================================
-       ВЕРХНЯЯ ПАНЕЛЬ СЕССИЙ (ANKI И СТОПКА)
-       ========================================================================== */
+    /* Верхняя панель сессий */
     .session-header {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      /* Отступ сверху точно такой же, как в index */
-      padding: calc(65px + env(safe-area-inset-top, 0px)) 16px 10px;
+      padding: calc(44px + env(safe-area-inset-top, 0px)) 16px 8px;
       flex-shrink: 0;
       width: 100%;
       z-index: 10;
-      transition: padding-top 0.2s ease;
     }
 
-    body.tg-fullscreen .session-header {
-      padding-top: calc(85px + env(safe-area-inset-top, 0px)) !important;
+    body.is-android .session-header {
+      padding-top: 75px !important;
     }
 
     .back-btn-pill {
@@ -236,27 +234,23 @@
       box-shadow: 0 1px 0 var(--line);
     }
 
-    .session-progress-wrap {
-      flex: 1;
-      height: 10px;
-      background: var(--paper);
-      border: 2px solid var(--line);
-      border-radius: 8px;
-      margin: 0 12px;
-      overflow: hidden;
-    }
+.session-progress-wrap {
+  flex: 1;
+  height: 10px;
+  background: var(--paper);
+  border: 2px solid var(--line);
+  border-radius: 8px;
+  margin: 0 12px;
+  overflow: hidden;
+}
 
-    .progress-fill {
-      height: 100%;
-      width: 0%;
-      border-radius: 6px;
-      transition: width 0.35s ease;
-      background: repeating-linear-gradient(135deg, var(--strawberry) 0 10px, #ffe3e8 10px 20px);
-    }
-
-    [data-theme="dark"] .progress-fill {
-      background: repeating-linear-gradient(135deg, var(--strawberry-deep) 0 10px, #3d1c25 10px 20px);
-    }
+.progress-fill {
+  height: 100%;
+  width: 0%;
+  border-radius: 6px;
+  transition: width 0.35s ease;
+  background: repeating-linear-gradient(135deg, var(--strawberry) 0 10px, #ffe3e8 10px 20px);
+}
 
     .session-counter-text {
       font-size: 0.88rem;
@@ -266,7 +260,7 @@
       text-align: right;
     }
 
-    .view {
+.view {
       display: none !important;
       flex: 1;
       min-height: 0;
@@ -282,7 +276,7 @@
       to { opacity: 1; transform: scale(1); }
     }
 
-    /* ==========================================================================
+   /* ==========================================================================
        ЭКРАН 1: КАРТА
        ========================================================================== */
     #viewMap {
@@ -292,7 +286,7 @@
       overflow-y: scroll !important;
       overflow-x: hidden !important;
       -webkit-overflow-scrolling: touch;
-      /* Отступ сверху увеличен, чтобы уровни не налезали на плавающие кнопки */
+      /* Отступ сверху увеличен (125px), чтобы уровни начинались аккуратно под кнопками */
       padding: calc(125px + env(safe-area-inset-top, 0px)) 12px calc(60px + env(safe-area-inset-bottom, 0px));
       position: relative;
     }
@@ -301,7 +295,7 @@
       padding-top: calc(145px + env(safe-area-inset-top, 0px)) !important;
     }
 
-    /* Кнопка звука в главном меню (опущена на правильную высоту) */
+    /* Кнопка звука в главном меню (опущена на безопасную высоту 65px как в index) */
     .map-sound-btn {
       position: fixed;
       top: calc(65px + env(safe-area-inset-top, 0px));
@@ -325,12 +319,11 @@
       transform: translateY(2px);
       box-shadow: 0 1px 0 var(--peach);
     }
-
     body.tg-fullscreen .map-sound-btn {
       top: calc(85px + env(safe-area-inset-top, 0px)) !important;
     }
 
-    /* Кнопка возврата в меню на карте (опущена на правильную высоту) */
+    /* Кнопка возврата в меню на карте (опущена на безопасную высоту 65px) */
     .back-btn {
       position: fixed;
       top: calc(65px + env(safe-area-inset-top, 0px));
@@ -355,7 +348,6 @@
       transform: translateY(3px);
       box-shadow: 0 0 0 var(--strawberry);
     }
-
     body.tg-fullscreen .back-btn {
       top: calc(85px + env(safe-area-inset-top, 0px)) !important;
     }
@@ -418,11 +410,6 @@
       height: 80px;
     }
 
-    [data-theme="dark"] .level-node.review-node {
-      background: #38241b;
-      color: var(--peach-deep);
-    }
-
     .level-node.active-unlocked {
       background: var(--pistachio);
       border-color: var(--pistachio-deep);
@@ -482,7 +469,7 @@
 
     body.desktop-device .pos-1 { transform: translateX(120px); }
     body.desktop-device .pos-3 { transform: translateX(-120px); }
-
+    
     /* ==========================================================================
        ЭКРАН 2: ANKI
        ========================================================================== */
@@ -3130,11 +3117,10 @@
       return getLevelWords(lvl).filter(w => isWordMastered(w.id)).length;
     }
 
-    function getCurrentUnlockedLevel() {
+function getCurrentUnlockedLevel() {
       for (let lvl = 1; lvl <= TOTAL_LEVELS; lvl++) {
-        const lvlWords = getLevelWords(lvl);
-        // Проверяем реальное количество слов в уровне (10, 20 или любое другое)
-        if (lvlWords.length > 0 && getLevelMasteredCount(lvl) < lvlWords.length) {
+        const wordsInLevel = getLevelWords(lvl);
+        if (wordsInLevel.length > 0 && getLevelMasteredCount(lvl) < wordsInLevel.length) {
           return lvl;
         }
       }
@@ -3810,8 +3796,11 @@
       }
     }
 
-   // =========================================================================
+    // =========================================================================
     // --- 6. СТАРТ ПРИЛОЖЕНИЯ ---
     // =========================================================================
     updateSoundBtnUI();
     loadState();
+  </script>
+</body>
+</html>
