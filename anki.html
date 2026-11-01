@@ -1,10 +1,12 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
+  <!-- 1. Считываем тему мгновенно без мигания -->
   <script>
-  const savedTheme = localStorage.getItem('app_theme') || 'light';
-  document.documentElement.setAttribute('data-theme', savedTheme);
-</script>
+    const savedTheme = localStorage.getItem('app_theme') || 'light';
+    document.documentElement.setAttribute('data-theme', savedTheme);
+  </script>
+
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
   <title>JLPT • Тренажёр</title>
@@ -20,7 +22,7 @@
   <!-- Adsgram SDK -->
   <script src="https://sad.adsgram.ai/js/sad.min.js"></script>
 
-  <!-- Авто-раскрытие Telegram и цвет шапки -->
+  <!-- Авто-раскрытие Telegram, цвет шапки и отслеживание полноэкранного режима -->
   <script>
     if (window.Telegram && window.Telegram.WebApp) {
       const tg = window.Telegram.WebApp;
@@ -33,6 +35,17 @@
       const themeColor = savedTheme === 'dark' ? '#181517' : '#fbf8ee';
       if (tg.setHeaderColor) tg.setHeaderColor(themeColor);
       if (tg.setBackgroundColor) tg.setBackgroundColor(themeColor);
+
+      // Синхронизация отступов при полноэкранном режиме (как в index)
+      if (tg.onEvent) {
+        tg.onEvent('fullscreenChanged', () => {
+          if (tg.isFullscreen) {
+            document.body.classList.add('tg-fullscreen');
+          } else {
+            document.body.classList.remove('tg-fullscreen');
+          }
+        });
+      }
     }
   </script>
 
@@ -72,7 +85,7 @@
       --radius-md: 14px;
     }
 
-    /* ================= 2. ТЁМНАЯ ТЕМА (ОТДЕЛЬНЫЙ БЛОК) ================= */
+    /* ================= 2. ТЁМНАЯ ТЕМА ================= */
     [data-theme="dark"] {
       --cream: #181517;          /* Тёмный фон приложения */
       --paper: #231e22;          /* Фон карточки со словом */
@@ -144,16 +157,16 @@
       top: -30px;
       width: 14px;
       height: 11px;
-      background: var(--strawberry);
+      background: var(--strawberry-deep);
       border-radius: 80% 0 80% 0;
-      opacity: 0.75;
+      opacity: 0.65;
       animation: fallSakura 14s linear infinite;
     }
     .petals span:nth-child(1) { left: 8%;  animation-delay: 0s;   animation-duration: 15s; }
     .petals span:nth-child(2) { left: 24%; animation-delay: -5s;  animation-duration: 18s; width: 10px; height: 8px; }
-    .petals span:nth-child(3) { left: 42%; animation-delay: -9s;  animation-duration: 16s; background: var(--peach); }
+    .petals span:nth-child(3) { left: 42%; animation-delay: -9s;  animation-duration: 16s; background: var(--peach-deep); }
     .petals span:nth-child(4) { left: 61%; animation-delay: -3s;  animation-duration: 20s; width: 12px; height: 9px; }
-    .petals span:nth-child(5) { left: 78%; animation-delay: -11s; animation-duration: 17s; background: var(--matcha); }
+    .petals span:nth-child(5) { left: 78%; animation-delay: -11s; animation-duration: 17s; background: var(--matcha-deep); }
     .petals span:nth-child(6) { left: 92%; animation-delay: -7s;  animation-duration: 19s; }
 
     @keyframes fallSakura {
@@ -184,19 +197,23 @@
       width: 100% !important;
     }
 
-    /* Верхняя панель сессий */
+    /* ==========================================================================
+       ВЕРХНЯЯ ПАНЕЛЬ СЕССИЙ (ANKI И СТОПКА)
+       ========================================================================== */
     .session-header {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding: calc(44px + env(safe-area-inset-top, 0px)) 16px 8px;
+      /* Отступ сверху точно такой же, как в index */
+      padding: calc(65px + env(safe-area-inset-top, 0px)) 16px 10px;
       flex-shrink: 0;
       width: 100%;
       z-index: 10;
+      transition: padding-top 0.2s ease;
     }
 
-    body.is-android .session-header {
-      padding-top: 75px !important;
+    body.tg-fullscreen .session-header {
+      padding-top: calc(85px + env(safe-area-inset-top, 0px)) !important;
     }
 
     .back-btn-pill {
@@ -219,23 +236,27 @@
       box-shadow: 0 1px 0 var(--line);
     }
 
-.session-progress-wrap {
-  flex: 1;
-  height: 10px;
-  background: var(--paper);
-  border: 2px solid var(--line);
-  border-radius: 8px;
-  margin: 0 12px;
-  overflow: hidden;
-}
+    .session-progress-wrap {
+      flex: 1;
+      height: 10px;
+      background: var(--paper);
+      border: 2px solid var(--line);
+      border-radius: 8px;
+      margin: 0 12px;
+      overflow: hidden;
+    }
 
-.progress-fill {
-  height: 100%;
-  width: 0%;
-  border-radius: 6px;
-  transition: width 0.35s ease;
-  background: repeating-linear-gradient(135deg, var(--strawberry) 0 10px, #ffe3e8 10px 20px);
-}
+    .progress-fill {
+      height: 100%;
+      width: 0%;
+      border-radius: 6px;
+      transition: width 0.35s ease;
+      background: repeating-linear-gradient(135deg, var(--strawberry) 0 10px, #ffe3e8 10px 20px);
+    }
+
+    [data-theme="dark"] .progress-fill {
+      background: repeating-linear-gradient(135deg, var(--strawberry-deep) 0 10px, #3d1c25 10px 20px);
+    }
 
     .session-counter-text {
       font-size: 0.88rem;
@@ -245,7 +266,7 @@
       text-align: right;
     }
 
-.view {
+    .view {
       display: none !important;
       flex: 1;
       min-height: 0;
@@ -271,18 +292,19 @@
       overflow-y: scroll !important;
       overflow-x: hidden !important;
       -webkit-overflow-scrolling: touch;
-      padding: calc(44px + env(safe-area-inset-top, 0px)) 12px calc(60px + env(safe-area-inset-bottom, 0px));
+      /* Отступ сверху увеличен, чтобы уровни не налезали на плавающие кнопки */
+      padding: calc(125px + env(safe-area-inset-top, 0px)) 12px calc(60px + env(safe-area-inset-bottom, 0px));
       position: relative;
     }
 
-    body.is-android #viewMap {
-      padding-top: 75px !important;
+    body.tg-fullscreen #viewMap {
+      padding-top: calc(145px + env(safe-area-inset-top, 0px)) !important;
     }
 
-    /* Кнопка звука в главном меню */
+    /* Кнопка звука в главном меню (опущена на правильную высоту) */
     .map-sound-btn {
       position: fixed;
-      top: calc(14px + env(safe-area-inset-top, 0px));
+      top: calc(65px + env(safe-area-inset-top, 0px));
       right: 16px;
       z-index: 50;
       background: var(--paper);
@@ -303,50 +325,52 @@
       transform: translateY(2px);
       box-shadow: 0 1px 0 var(--peach);
     }
-    body.is-android .map-sound-btn {
-      top: 45px !important;
+
+    body.tg-fullscreen .map-sound-btn {
+      top: calc(85px + env(safe-area-inset-top, 0px)) !important;
     }
 
-    /* Кнопка возврата в меню на карте */
-.back-btn {
-  position: fixed;
-  top: calc(14px + env(safe-area-inset-top, 0px));
-  left: 16px;
-  z-index: 50;
-  background: var(--paper);
-  border: 2px solid var(--strawberry);
-  color: var(--ink);
-  font-family: inherit;
-  padding: 7px 16px;
-  border-radius: 20px;
-  font-size: 13px;
-  font-weight: 700;
-  cursor: pointer;
-  text-decoration: none;
-  display: inline-flex;
-  align-items: center;
-  box-shadow: 0 3px 0 var(--strawberry);
-  transition: transform .12s, box-shadow .12s;
-}
-.back-btn:active {
-  transform: translateY(3px);
-  box-shadow: 0 0 0 var(--strawberry);
-}
-body.is-android .back-btn {
-  top: 45px !important;
-}
+    /* Кнопка возврата в меню на карте (опущена на правильную высоту) */
+    .back-btn {
+      position: fixed;
+      top: calc(65px + env(safe-area-inset-top, 0px));
+      left: 16px;
+      z-index: 50;
+      background: var(--paper);
+      border: 2px solid var(--strawberry);
+      color: var(--ink);
+      font-family: inherit;
+      padding: 7px 16px;
+      border-radius: 20px;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      box-shadow: 0 3px 0 var(--strawberry);
+      transition: transform .12s, box-shadow .12s;
+    }
+    .back-btn:active {
+      transform: translateY(3px);
+      box-shadow: 0 0 0 var(--strawberry);
+    }
+
+    body.tg-fullscreen .back-btn {
+      top: calc(85px + env(safe-area-inset-top, 0px)) !important;
+    }
 
     .snake-container {
       display: flex;
       flex-direction: column;
       align-items: center;
       gap: 26px;
-      padding: 24px 0 90px;
+      padding: 10px 0 90px;
       position: relative;
       min-height: 100%;
     }
 
- #snakeSvg {
+    #snakeSvg {
       position: absolute;
       top: 0;
       left: 0;
@@ -392,6 +416,11 @@ body.is-android .back-btn {
       color: var(--peach-deep);
       width: 80px;
       height: 80px;
+    }
+
+    [data-theme="dark"] .level-node.review-node {
+      background: #38241b;
+      color: var(--peach-deep);
     }
 
     .level-node.active-unlocked {
