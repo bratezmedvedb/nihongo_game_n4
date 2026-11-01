@@ -3781,10 +3781,23 @@ body.is-android .back-btn {
       }
     }
 
+   // =========================================================================
+    // --- 6. СТАРТ ПРИЛОЖЕНИЯ (БЕЗОПАСНЫЙ ЗАПУСК) ---
     // =========================================================================
-    // --- 6. СТАРТ ПРИЛОЖЕНИЯ ---
-    // =========================================================================
-    // 1. Принудительно разворачиваем Telegram на весь экран сразу при входе:
+    function scrollToCurrentLevel() {
+      try {
+        const activeNode = document.querySelector('.level-node.active-unlocked');
+        const container = document.getElementById('viewMap') || document.getElementById('snakeTree');
+        if (activeNode && container) {
+          // Безопасная плавная прокрутка только внутри контейнера, без сдвига всего экрана
+          const topPos = activeNode.offsetTop - (window.innerHeight / 2) + 50;
+          container.scrollTo({ top: Math.max(0, topPos), behavior: 'smooth' });
+        }
+      } catch (e) {
+        console.error('Scroll error:', e);
+      }
+    }
+
     if (window.Telegram?.WebApp) {
       window.Telegram.WebApp.ready();
       window.Telegram.WebApp.expand();
@@ -3792,12 +3805,12 @@ body.is-android .back-btn {
 
     updateSoundBtnUI();
 
-    // 2. Загружаем данные и гарантированно красиво открываем меню:
+    // Гарантированно открываем карту и рисуем уровни:
+    switchView('viewMap');
     loadState(() => {
-      showMap();
-      // Небольшая задержка, чтобы Телеграм успел растянуть экран перед расчетом змейки:
+      renderMap();
       setTimeout(() => {
         drawSnakePath();
         scrollToCurrentLevel();
-      }, 150);
+      }, 100);
     });
