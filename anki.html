@@ -1,6 +1,10 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
+  <script>
+  const savedTheme = localStorage.getItem('app_theme') || 'light';
+  document.documentElement.setAttribute('data-theme', savedTheme);
+</script>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
   <title>JLPT • Тренажёр</title>
@@ -16,7 +20,7 @@
   <!-- Adsgram SDK -->
   <script src="https://sad.adsgram.ai/js/sad.min.js"></script>
 
-  <!-- Авто-раскрытие Telegram -->
+  <!-- Авто-раскрытие Telegram и цвет шапки -->
   <script>
     if (window.Telegram && window.Telegram.WebApp) {
       const tg = window.Telegram.WebApp;
@@ -24,10 +28,16 @@
       tg.expand();
       if (tg.requestFullscreen) tg.requestFullscreen();
       if (tg.disableVerticalSwipes) tg.disableVerticalSwipes();
+
+      // Окрашиваем статус-бар Телеграма под цвет темы:
+      const themeColor = savedTheme === 'dark' ? '#181517' : '#fbf8ee';
+      if (tg.setHeaderColor) tg.setHeaderColor(themeColor);
+      if (tg.setBackgroundColor) tg.setBackgroundColor(themeColor);
     }
   </script>
 
   <style>
+    /* ================= 1. СВЕТЛАЯ ТЕМА (ПО УМОЛЧАНИЮ) ================= */
     :root {
       --cream: #fbf8ee;
       --paper: #ffffff;
@@ -62,6 +72,31 @@
       --radius-md: 14px;
     }
 
+    /* ================= 2. ТЁМНАЯ ТЕМА (ОТДЕЛЬНЫЙ БЛОК) ================= */
+    [data-theme="dark"] {
+      --cream: #181517;          /* Тёмный фон приложения */
+      --paper: #231e22;          /* Фон карточки со словом */
+      --ink: #fdfaf6;            /* Белый текст кандзи и перевода */
+      --ink-soft: #a89ca0;       /* Серый текст чтения и подсказок */
+      --line: #332b30;           /* Разделители и рамки */
+      --line-subtle: #292226;
+      
+      --strawberry: #4e2933;
+      --strawberry-deep: #ff7593;/* Яркая клубника */
+      
+      --matcha: #2e3b22;
+      --matcha-deep: #9dcd60;    /* Яркая матча */
+      
+      --peach: #4d3324;
+      --peach-deep: #f8a068;     /* Яркий персик */
+
+      --danger-bg: #3b1b22;
+      --danger-border: #8c253b;
+      --danger-text: #ff859b;
+
+      --shadow-card: 0 8px 24px rgba(0, 0, 0, 0.35);
+    }
+
     * {
       box-sizing: border-box;
       margin: 0;
@@ -79,13 +114,21 @@
       color: var(--ink);
       font-family: 'M PLUS Rounded 1c', 'Nunito', -apple-system, BlinkMacSystemFont, sans-serif;
       position: relative;
+      transition: background-color 0.25s ease, color 0.25s ease;
     }
 
+    /* Фоновый градиент: днем нежный пастельный, ночью мягкий неоновый */
     body {
       background-image: 
         radial-gradient(circle at 12% 15%, rgba(255, 196, 208, 0.35) 0%, transparent 40%),
         radial-gradient(circle at 88% 85%, rgba(213, 232, 179, 0.35) 0%, transparent 40%);
       background-attachment: fixed;
+    }
+
+    [data-theme="dark"] body {
+      background-image: 
+        radial-gradient(circle at 12% 15%, rgba(236, 111, 136, 0.12) 0%, transparent 45%),
+        radial-gradient(circle at 88% 85%, rgba(141, 181, 90, 0.10) 0%, transparent 45%);
     }
 
     /* Анимация падающих лепестков сакуры */
@@ -3060,7 +3103,11 @@ body.is-android .back-btn {
 
     function getCurrentUnlockedLevel() {
       for (let lvl = 1; lvl <= TOTAL_LEVELS; lvl++) {
-        if (getLevelMasteredCount(lvl) < 20) return lvl;
+        const lvlWords = getLevelWords(lvl);
+        // Проверяем реальное количество слов в уровне (10, 20 или любое другое)
+        if (lvlWords.length > 0 && getLevelMasteredCount(lvl) < lvlWords.length) {
+          return lvl;
+        }
       }
       return TOTAL_LEVELS;
     }
@@ -3737,8 +3784,20 @@ body.is-android .back-btn {
     // =========================================================================
     // --- 6. СТАРТ ПРИЛОЖЕНИЯ ---
     // =========================================================================
+    // 1. Принудительно разворачиваем Telegram на весь экран сразу при входе:
+    if (window.Telegram?.WebApp) {
+      window.Telegram.WebApp.ready();
+      window.Telegram.WebApp.expand();
+    }
+
     updateSoundBtnUI();
-    loadState();
-  </script>
-</body>
-</html>
+
+    // 2. Загружаем данные и гарантированно красиво открываем меню:
+    loadState(() => {
+      showMap();
+      // Небольшая задержка, чтобы Телеграм успел растянуть экран перед расчетом змейки:
+      setTimeout(() => {
+        drawSnakePath();
+        scrollToCurrentLevel();
+      }, 150);
+    });

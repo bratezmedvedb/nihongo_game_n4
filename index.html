@@ -16,18 +16,22 @@
   <!-- Adsgram SDK -->
   <script src="https://sad.adsgram.ai/js/sad.min.js"></script>
 
-  <!-- Проверка доступа и авто-раскрытие -->
-<script>
-  if (window.Telegram && window.Telegram.WebApp) {
-    const tg = window.Telegram.WebApp;
-    tg.ready();
-    tg.expand();
-    if (tg.requestFullscreen) tg.requestFullscreen();
-    if (tg.disableVerticalSwipes) tg.disableVerticalSwipes();
-  }
-</script>
+  <!-- Мгновенное применение темы без мигания белым -->
+  <script>
+    const savedTheme = localStorage.getItem('app_theme') || 'light';
+    document.documentElement.setAttribute('data-theme', savedTheme);
+
+    if (window.Telegram && window.Telegram.WebApp) {
+      const tg = window.Telegram.WebApp;
+      tg.ready();
+      tg.expand();
+      if (tg.requestFullscreen) tg.requestFullscreen();
+      if (tg.disableVerticalSwipes) tg.disableVerticalSwipes();
+    }
+  </script>
 
   <style>
+    /* ================= СВЕТЛАЯ ТЕМА ================= */
     :root {
       --cream: #fbf8ee;
       --paper: #ffffff;
@@ -49,10 +53,38 @@
       --apricot: #ffe6cc;
       --line: #f3e2d6;
       --shadow: 0 6px 0 rgba(236, 111, 136, 0.2);
+
+      --icon-box-megaquiz: #fff0f3;
+      --icon-box-anki: #fff5ec;
+      --icon-box-blocks: #f3f9e8;
       
       --radius-xl: 24px;
       --radius-lg: 18px;
       --radius-md: 14px;
+    }
+
+    /* ================= ТЁМНАЯ ТЕМА (НОЧНАЯ САКУРА) ================= */
+    [data-theme="dark"] {
+      --cream: #181517;          /* Глубокий сливово-графитовый фон */
+      --paper: #231e22;          /* Цвет карточек */
+      --ink: #fdfaf6;            /* Текст заголовков */
+      --ink-soft: #a89ca0;       /* Второстепенный текст */
+      
+      --strawberry: #4e2933;     /* Обводка клубники */
+      --strawberry-deep: #ff7593;/* Яркая клубника для кнопок */
+      
+      --matcha: #2e3b22;         /* Обводка матча */
+      --matcha-deep: #9dcd60;    /* Яркая матча для кнопок */
+      
+      --peach: #4d3324;          /* Обводка персика */
+      --peach-deep: #f8a068;     /* Яркий персик для кнопок */
+      
+      --apricot: #3d2a20;
+      --line: #332b30;           /* Разделители и рамки */
+      
+      --icon-box-megaquiz: #341e25;
+      --icon-box-anki: #38251c;
+      --icon-box-blocks: #232d1c;
     }
 
     * {
@@ -71,12 +103,18 @@
       display: flex;
       justify-content: center;
       padding: calc(65px + env(safe-area-inset-top, 0px)) 16px calc(40px + env(safe-area-inset-bottom, 0px));
-      transition: padding-top 0.2s ease;
+      transition: background-color 0.25s ease, color 0.25s ease, padding-top 0.2s ease;
       background-image: 
-        radial-gradient(circle at 15% 15%, rgba(255, 196, 208, 0.35) 0%, transparent 40%),
-        radial-gradient(circle at 85% 85%, rgba(213, 232, 179, 0.35) 0%, transparent 40%);
+        radial-gradient(circle at 15% 15%, rgba(255, 196, 208, 0.25) 0%, transparent 40%),
+        radial-gradient(circle at 85% 85%, rgba(213, 232, 179, 0.25) 0%, transparent 40%);
       background-attachment: fixed;
       position: relative;
+    }
+
+    [data-theme="dark"] body {
+      background-image: 
+        radial-gradient(circle at 15% 15%, rgba(236, 111, 136, 0.12) 0%, transparent 45%),
+        radial-gradient(circle at 85% 85%, rgba(141, 181, 90, 0.10) 0%, transparent 45%);
     }
 
     body.tg-fullscreen {
@@ -96,16 +134,16 @@
       top: -30px; 
       width: 14px; 
       height: 11px;
-      background: var(--strawberry); 
+      background: var(--strawberry-deep); 
       border-radius: 80% 0 80% 0; 
-      opacity: .75;
+      opacity: .6;
       animation: fall 14s linear infinite;
     }
     .petals span:nth-child(1) { left: 8%;  animation-delay: 0s;   animation-duration: 15s; }
     .petals span:nth-child(2) { left: 24%; animation-delay: -5s;  animation-duration: 18s; width: 10px; height: 8px; }
-    .petals span:nth-child(3) { left: 42%; animation-delay: -9s;  animation-duration: 16s; background: var(--peach); }
+    .petals span:nth-child(3) { left: 42%; animation-delay: -9s;  animation-duration: 16s; background: var(--peach-deep); }
     .petals span:nth-child(4) { left: 61%; animation-delay: -3s;  animation-duration: 20s; width: 12px; height: 9px; }
-    .petals span:nth-child(5) { left: 78%; animation-delay: -11s; animation-duration: 17s; background: var(--matcha); }
+    .petals span:nth-child(5) { left: 78%; animation-delay: -11s; animation-duration: 17s; background: var(--matcha-deep); }
     .petals span:nth-child(6) { left: 92%; animation-delay: -7s;  animation-duration: 19s; }
     
     @keyframes fall {
@@ -136,7 +174,8 @@
       margin-bottom: 20px;
     }
 
-    .level-badge {
+    /* Кнопка переключения темы */
+    .theme-toggle-btn {
       display: inline-flex;
       align-items: center;
       gap: 6px;
@@ -145,9 +184,16 @@
       border: 2px solid var(--strawberry);
       font-size: 13px;
       font-weight: 800;
-      padding: 5px 14px;
+      padding: 6px 14px;
       border-radius: 99px;
       box-shadow: 0 3px 0 var(--strawberry);
+      cursor: pointer;
+      font-family: inherit;
+      transition: all 0.15s ease;
+    }
+    .theme-toggle-btn:active {
+      transform: translateY(2px);
+      box-shadow: 0 1px 0 var(--strawberry);
     }
 
     .fullscreen-btn {
@@ -216,7 +262,7 @@
       text-decoration: none;
       position: relative;
       cursor: pointer;
-      transition: transform 0.15s ease, box-shadow 0.15s ease;
+      transition: transform 0.15s ease, box-shadow 0.15s ease, background 0.25s ease;
     }
 
     /* Темы карточек */
@@ -265,10 +311,11 @@
       justify-content: center;
       font-size: 26px;
       flex-shrink: 0;
+      transition: background 0.25s ease;
     }
-    .theme-megaquiz .game-icon-box { background: #fff0f3; }
-    .theme-anki .game-icon-box { background: #fff5ec; }
-    .theme-blocks .game-icon-box { background: #f3f9e8; }
+    .theme-megaquiz .game-icon-box { background: var(--icon-box-megaquiz); }
+    .theme-anki .game-icon-box { background: var(--icon-box-anki); }
+    .theme-blocks .game-icon-box { background: var(--icon-box-blocks); }
 
     .game-text {
       min-width: 0;
@@ -299,15 +346,15 @@
     }
     .theme-megaquiz .play-btn {
       background: var(--strawberry-deep);
-      box-shadow: 0 3px 0 #c9546b;
+      box-shadow: 0 3px 0 #af3952;
     }
     .theme-anki .play-btn {
       background: var(--peach-deep);
-      box-shadow: 0 3px 0 #cc7e4f;
+      box-shadow: 0 3px 0 #b35f29;
     }
     .theme-blocks .play-btn {
       background: var(--matcha-deep);
-      box-shadow: 0 3px 0 #6e9440;
+      box-shadow: 0 3px 0 #58792c;
     }
 
     /* Поддержка проекта */
@@ -341,7 +388,7 @@
     .modal-backdrop {
       position: fixed;
       top: 0; left: 0; right: 0; bottom: 0;
-      background: rgba(74, 58, 54, 0.45);
+      background: rgba(15, 12, 14, 0.65);
       backdrop-filter: blur(5px);
       display: none;
       align-items: center;
@@ -363,7 +410,7 @@
       width: 100%;
       max-width: 400px;
       padding: 24px;
-      box-shadow: 0 16px 32px rgba(74, 58, 54, 0.15);
+      box-shadow: 0 16px 32px rgba(0, 0, 0, 0.35);
       display: flex;
       flex-direction: column;
       gap: 14px;
@@ -431,7 +478,7 @@
     .btn-donate {
       background: var(--strawberry-deep);
       color: #ffffff;
-      box-shadow: 0 3px 0 #be4d64;
+      box-shadow: 0 3px 0 #9c3349;
     }
 
     .modal-close-text {
@@ -461,9 +508,11 @@
 
 <div class="wrap">
   
-  <!-- Верхняя строка -->
+  <!-- Верхняя строка с кнопкой темы -->
   <div class="top-bar">
-    <div class="level-badge">🌸 JLPT N4</div>
+    <button type="button" class="theme-toggle-btn" id="themeBtn" onclick="toggleTheme()">
+      🌙 Тёмная
+    </button>
     <button type="button" class="fullscreen-btn" id="fsBtn" onclick="toggleAppFullscreen()">⛶ Экран</button>
   </div>
 
@@ -545,16 +594,41 @@
 </div>
 
 <script>
-  // Инициализация Telegram WebApp
+  // ================= УПРАВЛЕНИЕ ТЕМОЙ =================
+  function updateThemeUI(theme) {
+    const btn = document.getElementById('themeBtn');
+    if (!btn) return;
+
+    if (theme === 'dark') {
+      btn.innerHTML = '☀️ Светлая';
+    } else {
+      btn.innerHTML = '🌙 Тёмная';
+    }
+
+    // Синхронизируем системные цвета Telegram
+    if (window.Telegram?.WebApp) {
+      const tg = window.Telegram.WebApp;
+      const themeColor = theme === 'dark' ? '#181517' : '#fbf8ee';
+      if (tg.setHeaderColor) tg.setHeaderColor(themeColor);
+      if (tg.setBackgroundColor) tg.setBackgroundColor(themeColor);
+    }
+  }
+
+  function toggleTheme() {
+    const currentTheme = document.documentElement.getAttribute('data-theme') || 'light';
+    const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+
+    document.documentElement.setAttribute('data-theme', newTheme);
+    localStorage.setItem('app_theme', newTheme);
+    updateThemeUI(newTheme);
+  }
+
+  // Применяем сохранённое значение при загрузке
+  updateThemeUI(savedTheme);
+
+  // ================= ИНИЦИАЛИЗАЦИЯ TELEGRAM =================
   if (window.Telegram && window.Telegram.WebApp) {
     const tg = window.Telegram.WebApp;
-    tg.ready();
-    tg.expand();
-    
-    if (tg.setHeaderColor) tg.setHeaderColor('#fbf8ee');
-    if (tg.setBackgroundColor) tg.setBackgroundColor('#fbf8ee');
-    if (tg.disableVerticalSwipes) tg.disableVerticalSwipes();
-
     if (tg.onEvent) {
       tg.onEvent('fullscreenChanged', () => {
         const btn = document.getElementById('fsBtn');
