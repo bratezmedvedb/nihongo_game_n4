@@ -54,9 +54,9 @@
       --line: #f3e2d6;
       --shadow: 0 6px 0 rgba(236, 111, 136, 0.2);
 
-      --icon-box-megaquiz: #fff0f3;
-      --icon-box-anki: #fff5ec;
-      --icon-box-blocks: #f3f9e8;
+      --icon-box-strawberry: #fff0f3;
+      --icon-box-peach: #fff5ec;
+      --icon-box-matcha: #f3f9e8;
       
       --radius-xl: 24px;
       --radius-lg: 18px;
@@ -82,9 +82,9 @@
       --apricot: #3d2a20;
       --line: #332b30;           /* Разделители и рамки */
       
-      --icon-box-megaquiz: #341e25;
-      --icon-box-anki: #38251c;
-      --icon-box-blocks: #232d1c;
+      --icon-box-strawberry: #341e25;
+      --icon-box-peach: #38251c;
+      --icon-box-matcha: #232d1c;
     }
 
     * {
@@ -265,30 +265,30 @@
       transition: transform 0.15s ease, box-shadow 0.15s ease, background 0.25s ease;
     }
 
-    /* Темы карточек */
-    .game-card.theme-megaquiz {
+    /* Темы карточек: Красный (Клубника) / Жёлтый (Персик) / Зелёный (Матча) */
+    .theme-strawberry {
       border: 2.5px solid var(--strawberry);
       box-shadow: 0 6px 0 var(--strawberry);
     }
-    .game-card.theme-megaquiz:active {
+    .theme-strawberry:active {
       transform: translateY(4px);
       box-shadow: 0 2px 0 var(--strawberry);
     }
 
-    .game-card.theme-anki {
+    .theme-peach {
       border: 2.5px solid var(--peach);
       box-shadow: 0 6px 0 var(--peach);
     }
-    .game-card.theme-anki:active {
+    .theme-peach:active {
       transform: translateY(4px);
       box-shadow: 0 2px 0 var(--peach);
     }
 
-    .game-card.theme-blocks {
+    .theme-matcha {
       border: 2.5px solid var(--matcha);
       box-shadow: 0 6px 0 var(--matcha);
     }
-    .game-card.theme-blocks:active {
+    .theme-matcha:active {
       transform: translateY(4px);
       box-shadow: 0 2px 0 var(--matcha);
     }
@@ -313,9 +313,9 @@
       flex-shrink: 0;
       transition: background 0.25s ease;
     }
-    .theme-megaquiz .game-icon-box { background: var(--icon-box-megaquiz); }
-    .theme-anki .game-icon-box { background: var(--icon-box-anki); }
-    .theme-blocks .game-icon-box { background: var(--icon-box-blocks); }
+    .theme-strawberry .game-icon-box { background: var(--icon-box-strawberry); }
+    .theme-peach .game-icon-box { background: var(--icon-box-peach); }
+    .theme-matcha .game-icon-box { background: var(--icon-box-matcha); }
 
     .game-text {
       min-width: 0;
@@ -344,15 +344,15 @@
       gap: 4px;
       transition: all 0.15s ease;
     }
-    .theme-megaquiz .play-btn {
+    .theme-strawberry .play-btn {
       background: var(--strawberry-deep);
       box-shadow: 0 3px 0 #af3952;
     }
-    .theme-anki .play-btn {
+    .theme-peach .play-btn {
       background: var(--peach-deep);
       box-shadow: 0 3px 0 #b35f29;
     }
-    .theme-blocks .play-btn {
+    .theme-matcha .play-btn {
       background: var(--matcha-deep);
       box-shadow: 0 3px 0 #58792c;
     }
@@ -526,10 +526,32 @@
   <!-- Список игр под JLPT N4 -->
   <div class="games-list">
     
-    <!-- 1. MegaQuiz (Клубника) -->
-    <div class="game-card theme-megaquiz" onclick="goTo('MegaQuiz.html')">
+    <!-- 1. Anki (Красный) -->
+    <div class="game-card theme-strawberry" onclick="goTo('anki.html')">
       <div class="game-left">
         <div class="game-icon-box">🍓</div>
+        <div class="game-text">
+          <h2>Anki</h2>
+        </div>
+      </div>
+      <div class="play-btn">Играть →</div>
+    </div>
+
+    <!-- 2. Слайдшоу (Жёлтый / Персик) -->
+    <div class="game-card theme-peach" onclick="goTo('slideshow.html')">
+      <div class="game-left">
+        <div class="game-icon-box">🍑</div>
+        <div class="game-text">
+          <h2>Слайдшоу</h2>
+        </div>
+      </div>
+      <div class="play-btn">Играть →</div>
+    </div>
+
+    <!-- 3. MegaQuiz (Зелёный / Матча) -->
+    <div class="game-card theme-matcha" onclick="goTo('MegaQuiz.html')">
+      <div class="game-left">
+        <div class="game-icon-box">🍵</div>
         <div class="game-text">
           <h2>MegaQuiz</h2>
         </div>
@@ -537,21 +559,10 @@
       <div class="play-btn">Играть →</div>
     </div>
 
-    <!-- 2. Anki (Персик) -->
-    <div class="game-card theme-anki" onclick="goTo('anki.html')">
+    <!-- 4. Блоки (Красный) -->
+    <div class="game-card theme-strawberry" onclick="goTo('blocks_n4.html')">
       <div class="game-left">
-        <div class="game-icon-box">🍑</div>
-        <div class="game-text">
-          <h2>Anki N4</h2>
-        </div>
-      </div>
-      <div class="play-btn">Играть →</div>
-    </div>
-
-    <!-- 3. Блоки (Матча) -->
-    <div class="game-card theme-blocks" onclick="goTo('blocks_n4.html')">
-      <div class="game-left">
-        <div class="game-icon-box">🍵</div>
+        <div class="game-icon-box">🍡</div>
         <div class="game-text">
           <h2>Блоки</h2>
         </div>
