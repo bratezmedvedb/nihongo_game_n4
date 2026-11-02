@@ -475,12 +475,24 @@
       box-shadow: 0 4px 0 var(--peach-deep);
     }
 
-    /* ПОЛНОЭКРАННЫЙ РЕЖИМ */
+   /* ПОЛНОЭКРАННЫЙ РЕЖИМ */
     :fullscreen, body.app-fullscreen {
       background-color: var(--cream) !important;
       background-image: 
-        radial-gradient(circle at 15% 15%, rgba(255, 196, 208, 0.4) 0%, transparent 45%),
-        radial-gradient(circle at 85% 85%, rgba(213, 232, 179, 0.4) 0%, transparent 45%) !important;
+        radial-gradient(circle at 15% 15%, rgba(255, 196, 208, 0.35) 0%, transparent 40%),
+        radial-gradient(circle at 85% 85%, rgba(213, 232, 179, 0.35) 0%, transparent 40%) !important;
+      background-attachment: fixed !important;
+    }
+
+    /* В тёмной теме фон в полноэкранном режиме точно такой же, как в малоэкранном */
+    [data-theme="dark"]:fullscreen,
+    [data-theme="dark"] :fullscreen,
+    [data-theme="dark"] body.app-fullscreen,
+    [data-theme="dark"].app-fullscreen {
+      background-color: var(--cream) !important;
+      background-image: 
+        radial-gradient(circle at 15% 15%, rgba(236, 111, 136, 0.12) 0%, transparent 45%),
+        radial-gradient(circle at 85% 85%, rgba(141, 181, 90, 0.10) 0%, transparent 45%) !important;
       background-attachment: fixed !important;
     }
 
@@ -2843,36 +2855,199 @@
       }
     }
 
-    // БЕСКОНЕЧНЫЙ ФОН: генератор 4 слабых + 1 новое
-    function appendNextAmbientCluster() {
-      const weakPool = RAW_VOCABULARY.filter(w => isLearned(w.id));
-      const unlearnedPool = RAW_VOCABULARY.filter(w => !isLearned(w.id));
-      const cluster = [];
+// =========================================================================
+    // 1. УМНЫЙ ПОВТОР (SRS): Все 830 слов пачками по 20 со схлёстом
+    // =========================================================================
+    function startSrsReview() {
+      closeAllModals();
+      activeModeType = 'srs';
+      updateActiveModeHighlight();
+      document.getElementById('mainCard').classList.remove('ambient-glow');
+      document.getElementById('ambientIndicator').style.display = 'none';
 
-      if (weakPool.length > 0) {
-        for (let i = 0; i < 4; i++) {
-          cluster.push(weakPool[(ambientWeakIndex + i) % weakPool.length]);
-        }
-        ambientWeakIndex = (ambientWeakIndex + 4) % weakPool.length;
-      } else {
-        for (let i = 0; i < 4; i++) cluster.push(RAW_VOCABULARY[i % RAW_VOCABULARY.length]);
+      const learned = RAW_VOCABULARY.filter(w => isLearned(w.id));
+
+      if (learned.length === 0) {
+        launchDeck(RAW_VOCABULARY.slice(0, 20).map((w, idx) => ({ 
+          word: w, 
+          duration: 5000, 
+          wordNum: idx + 1, 
+          totalWords: 20 
+        })), 0);
+        return;
       }
 
+      // Сортируем: сначала самые слабые (интервал 1, 2...), в конце — намертво выученные
+      const sortedLearned = [...learned].sort((a, b) => {
+        const intA = userProgress[a.id]?.interval ?? 1;
+        const intB = userProgress[b.id]?.interval ?? 1;
+        return intA - intB;
+      });
+
+      const totalWordsCount = sortedLearned.length; // Ровно 830 слов
+      const batchSize = 20;
+      const list = [];
+
+      // Разбиваем все 830 слов на порции по 20
+      for (let i = 0; i < totalWordsCount; i += batchSize) {
+        const batchWords = sortedLearned.slice(i, i + batchSize);
+
+        // Круг 1: по порядку пачки (5 сек, размытие перевода 2.5 сек)
+        batchWords.forEach((w, bIdx) => {
+          list.push({
+            word: w,
+            duration: 5000,
+            wordNum: i + bIdx + 1,       // Показывает, например, Слово 5 из 830
+            totalWords: totalWordsCount
+          });
+        });
+
+        // Круг 2: та же пачка вперемешку для закрепления (4 сек)
+        const round2 = [...batchWords].sort(() => Math.random() - 0.5);
+        round2.forEach((w) => {
+          const originalIdx = batchWords.indexOf(w);
+          list.push({
+            word: w,
+            duration: 4000,
+            wordNum: i + originalIdx + 1, // Тот же правильный номер слова
+            totalWords: totalWordsCount
+          });
+        });
+
+        // Круг 3: контрольный только для проблемных слов этой пачки (у кого interval < 3)
+        const weakInBatch = batchWords.filter(w => (userProgress[w.id]?.interval || 1) < 3);
+        if (weakInBatch.length > 0) {
+          weakInBatch.sort(() => Math.random() - 0.5).forEach(w => {
+            const originalIdx = batchWords.indexOf(w);
+            list.push({
+              word: w,
+              duration: 3500,
+              wordNum: i + originalIdx + 1,
+              totalWords: totalWordsCount
+            });
+          });
+        }
+      }
+
+      launchDeck(list, 0);
+    }
+
+    // =========================================================================
+    // 2. НОВЫЙ УРОК: Полный мощный алгоритм (115 шагов), но счётчик "1 из 20"
+    // =========================================================================
+    function startNextIncompleteLesson() {
+      closeAllModals();
+      activeModeType = 'lesson';
+      updateActiveModeHighlight();
+      document.getElementById('mainCard').classList.remove('ambient-glow');
+      document.getElementById('ambientIndicator').style.display = 'none';
+
+      const lessonLevels = [...new Set(RAW_VOCABULARY.map(w => w.level_id))].sort((a,b) => a - b);
+      let targetLvl = lessonLevels[0] || 1;
+
+      // Находим текущий незавершённый урок
+      for (let lvl of lessonLevels) {
+        const words = RAW_VOCABULARY.filter(w => w.level_id === lvl);
+        const done = words.filter(w => isLearned(w.id)).length;
+        if (done < words.length) {
+          targetLvl = lvl;
+          break;
+        }
+      }
+
+      const allLessonWords = RAW_VOCABULARY.filter(w => w.level_id === targetLvl);
+
+      // Берём только те слова урока, которые еще НЕ изучены в Анки
+      let wordsToLearn = allLessonWords.filter(w => !isLearned(w.id));
+      if (wordsToLearn.length === 0) wordsToLearn = allLessonWords;
+
+      const totalWordsCount = wordsToLearn.length; // Ровно 20 (или меньше, если часть уже пройдена)
+      const list = [];
+
+      // Вспомогательная функция для добавления карточки с сохранением номера слова (1..20)
+      const pushCard = (w, duration, doubleAudio = false) => {
+        const wordNum = wordsToLearn.indexOf(w) + 1;
+        list.push({
+          word: w,
+          duration,
+          doubleAudio,
+          wordNum,
+          totalWords: totalWordsCount
+        });
+      };
+
+      // ПОЛНЫЙ АЛГОРИТМ ЗУБРЁЖКИ:
+      // Вбивание тройками: 6с (двойной звук) ➔ 4с ➔ 2.5с + схлёст с предыдущей тройкой + финал
+      for (let i = 0; i < wordsToLearn.length; i += 3) {
+        const batch = wordsToLearn.slice(i, i + 3);
+
+        batch.forEach(w => pushCard(w, 6000, true));
+        batch.forEach(w => pushCard(w, 4000));
+        batch.forEach(w => pushCard(w, 2500));
+
+        if (i > 0) {
+          const prev = wordsToLearn.slice(i - 3, i);
+          const combo = [...prev, ...batch].sort(() => Math.random() - 0.5);
+          combo.forEach(w => pushCard(w, 3500));
+        }
+      }
+
+      // Финальный закрепляющий микс всех слов урока
+      const finalMix = [...wordsToLearn].sort(() => Math.random() - 0.5);
+      finalMix.forEach(w => pushCard(w, 3500));
+
+      launchDeck(list, 0);
+    }
+
+    // =========================================================================
+    // БЕСКОНЕЧНЫЙ ФОН: 4 слабых + 1 новое (автономный надёжный конвейер)
+    // =========================================================================
+    function appendNextAmbientCluster() {
+      const learned = RAW_VOCABULARY.filter(w => isLearned(w.id));
+      const unlearnedPool = RAW_VOCABULARY.filter(w => !isLearned(w.id));
+
+      // Сортируем изученные слова от слабых (интервал 1, 2...) к сильным
+      const sortedWeak = [...learned].sort((a, b) => {
+        const intA = userProgress[a.id]?.interval ?? 1;
+        const intB = userProgress[b.id]?.interval ?? 1;
+        return intA - intB;
+      });
+
+      const cluster = [];
+
+      // 1. Берём 4 слабых слова со сдвигом индекса
+      if (sortedWeak.length > 0) {
+        for (let i = 0; i < 4; i++) {
+          cluster.push(sortedWeak[(ambientWeakIndex + i) % sortedWeak.length]);
+        }
+        ambientWeakIndex = (ambientWeakIndex + 4) % sortedWeak.length;
+      } else {
+        // Фоллбэк, если изученных слов нет
+        for (let i = 0; i < 4; i++) {
+          cluster.push(RAW_VOCABULARY[i % RAW_VOCABULARY.length]);
+        }
+      }
+
+      // 2. Берём 1 новое слово строго по порядку неизученных (из N4)
       if (unlearnedPool.length > 0) {
         cluster.push(unlearnedPool[ambientNewIndex % unlearnedPool.length]);
         ambientNewIndex = (ambientNewIndex + 1) % unlearnedPool.length;
-      } else {
-        cluster.push(RAW_VOCABULARY[(ambientWeakIndex + 4) % RAW_VOCABULARY.length]);
+      } else if (RAW_VOCABULARY.length > 0) {
+        cluster.push(RAW_VOCABULARY[ambientWeakIndex % RAW_VOCABULARY.length]);
       }
 
+      // 3. Формируем 4 круга вперемешку по 30 сек с двойным звуком
       const rounds = 4;
       for (let r = 1; r <= rounds; r++) {
         const roundShuffled = [...cluster].sort(() => Math.random() - 0.5);
         roundShuffled.forEach(w => {
+          const wordNum = cluster.indexOf(w) + 1;
           currentPlaylist.push({
             word: w,
             duration: 30000,
             doubleAudio: true,
+            wordNum: wordNum,
+            totalWords: cluster.length, // 5 слов
             ambientTag: `🌸 Фон • Круг ${r}/${rounds}`
           });
         });
@@ -2887,6 +3062,7 @@
       ambientNewIndex = 0;
       currentPlaylist = [];
       
+      // Генерируем первые два кластера (40 слайдов)
       appendNextAmbientCluster();
       appendNextAmbientCluster();
 
@@ -2894,77 +3070,6 @@
       document.getElementById('ambientIndicator').style.display = 'block';
 
       launchDeck(currentPlaylist, 0);
-    }
-
-    // УМНЫЙ ПОВТОР (SRS)
-    function startSrsReview() {
-      closeAllModals();
-      activeModeType = 'srs';
-      updateActiveModeHighlight();
-      document.getElementById('mainCard').classList.remove('ambient-glow');
-      document.getElementById('ambientIndicator').style.display = 'none';
-
-      let pool = RAW_VOCABULARY.filter(w => isLearned(w.id));
-      if (pool.length === 0) {
-        pool = RAW_VOCABULARY.slice(0, 20);
-      }
-
-      const weighted = pool.map(w => {
-        const p = userProgress[w.id];
-        let reps = (p && p.interval < 3) ? 3 : 1;
-        return { word: w, reps };
-      });
-
-      const list = [];
-      for (let r = 1; r <= 3; r++) {
-        const round = weighted.filter(x => x.reps >= r).map(x => x.word);
-        round.sort(() => Math.random() - 0.5);
-        round.forEach(w => list.push({ word: w, duration: 5000 }));
-      }
-
-      launchDeck(list, 0);
-    }
-
-    // НОВЫЙ УРОК
-    function startNextIncompleteLesson() {
-      closeAllModals();
-      activeModeType = 'lesson';
-      updateActiveModeHighlight();
-      document.getElementById('mainCard').classList.remove('ambient-glow');
-      document.getElementById('ambientIndicator').style.display = 'none';
-
-      const lessonLevels = [...new Set(RAW_VOCABULARY.map(w => w.level_id))].sort((a,b) => a - b);
-      let targetLvl = lessonLevels[0] || 1;
-
-      for (let lvl of lessonLevels) {
-        const words = RAW_VOCABULARY.filter(w => w.level_id === lvl);
-        const done = words.filter(w => isLearned(w.id)).length;
-        if (done < words.length) {
-          targetLvl = lvl;
-          break;
-        }
-      }
-
-      const lessonWords = RAW_VOCABULARY.filter(w => w.level_id === targetLvl);
-      const list = [];
-      
-      for (let i = 0; i < lessonWords.length; i += 3) {
-        const batch = lessonWords.slice(i, i + 3);
-        batch.forEach(w => list.push({ word: w, duration: 6000, doubleAudio: true }));
-        batch.forEach(w => list.push({ word: w, duration: 4000 }));
-        batch.forEach(w => list.push({ word: w, duration: 2500 }));
-
-        if (i > 0) {
-          const prev = lessonWords.slice(i - 3, i);
-          const combo = [...prev, ...batch].sort(() => Math.random() - 0.5);
-          combo.forEach(w => list.push({ word: w, duration: 3500 }));
-        }
-      }
-
-      const finalMix = [...lessonWords].sort(() => Math.random() - 0.5);
-      finalMix.forEach(w => list.push({ word: w, duration: 3500 }));
-
-      launchDeck(list, 0);
     }
 
     // СВОЙ РЕЖИМ (ГИБКИЙ КОНСТРУКТОР)
@@ -3077,11 +3182,12 @@
       else if (kLen === 5) kEl.classList.add('len-5');
       else if (kLen >= 6) kEl.classList.add('len-long');
 
-      // Индикаторы
-      document.getElementById('deckIndicator').textContent = `Слово ${currentIndex + 1} из ${currentPlaylist.length}`;
-      if (item.ambientTag) {
-        document.getElementById('ambientIndicator').textContent = item.ambientTag;
-      }
+     // Умный счётчик: показывает номер реального слова, а не количество карточек в алгоритме
+if (item.wordNum && item.totalWords) {
+  document.getElementById('deckIndicator').textContent = `Слово ${item.wordNum} из ${item.totalWords}`;
+} else {
+  document.getElementById('deckIndicator').textContent = `Слово ${currentIndex + 1} из ${currentPlaylist.length}`;
+}
 
       // ПОДПИСЬ УРОКА ДЛЯ НОВОГО СЛОВА
       const isWordNew = !isLearned(w.id);
