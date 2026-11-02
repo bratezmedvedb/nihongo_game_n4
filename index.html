@@ -265,7 +265,7 @@
       transition: transform 0.15s ease, box-shadow 0.15s ease, background 0.25s ease;
     }
 
-    /* Темы карточек: Красный (Клубника) / Жёлтый (Персик) / Зелёный (Матча) */
+    /* Темы карточек: Клубника / Персик / Матча */
     .theme-strawberry {
       border: 2.5px solid var(--strawberry);
       box-shadow: 0 6px 0 var(--strawberry);
@@ -559,12 +559,23 @@
       <div class="play-btn">Играть →</div>
     </div>
 
-    <!-- 4. Блоки (Красный) -->
-    <div class="game-card theme-strawberry" onclick="goTo('blocks_n4.html')">
+    <!-- 4. Пары (Красный) -->
+    <div class="game-card theme-strawberry" onclick="goTo('pairs_trainer_n4.html')">
+      <div class="game-left">
+        <div class="game-icon-box">🍧</div>
+        <div class="game-text">
+          <h2>Пары</h2>
+        </div>
+      </div>
+      <div class="play-btn">Играть →</div>
+    </div>
+
+    <!-- 5. Спряжатор (Жёлтый / Персик) -->
+    <div class="game-card theme-peach" onclick="goTo('verb_trainer_n4.html')">
       <div class="game-left">
         <div class="game-icon-box">🍡</div>
         <div class="game-text">
-          <h2>Блоки</h2>
+          <h2>Спряжатор</h2>
         </div>
       </div>
       <div class="play-btn">Играть →</div>

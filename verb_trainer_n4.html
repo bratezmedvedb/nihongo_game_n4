@@ -1,0 +1,1596 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+
+  <!-- Google Fonts: Японский округлый шрифт -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@400;500;700;800&family=Nunito:wght@600;700;800&display=swap" rel="stylesheet">
+
+  <!-- Telegram WebApp SDK -->
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+
+  <!-- Применение темы, сохранённой в главном меню -->
+  <script>
+    const savedTheme = localStorage.getItem('app_theme') || 'light';
+    document.documentElement.setAttribute('data-theme', savedTheme);
+
+    if (window.Telegram && window.Telegram.WebApp) {
+      const tg = window.Telegram.WebApp;
+      tg.ready();
+      tg.expand();
+      if (tg.disableVerticalSwipes) tg.disableVerticalSwipes();
+      const themeColor = savedTheme === 'dark' ? '#181517' : '#fbf8ee';
+      if (tg.setHeaderColor) tg.setHeaderColor(themeColor);
+      if (tg.setBackgroundColor) tg.setBackgroundColor(themeColor);
+    }
+  </script>
+
+  <style>
+    /* ================= СВЕТЛАЯ ТЕМА ================= */
+    :root {
+      --cream: #fbf8ee;
+      --paper: #ffffff;
+      --ink: #4a3a36;
+      --ink-soft: #8f8478;
+
+      --strawberry: #ffc4d0;
+      --strawberry-deep: #ec6f88;
+      --strawberry-shadow: #af3952;
+
+      --matcha: #d5e8b3;
+      --matcha-deep: #8db55a;
+      --matcha-shadow: #58792c;
+
+      --peach: #ffd8bb;
+      --peach-deep: #f0a06c;
+      --peach-shadow: #b35f29;
+
+      --pistachio: #cdeec4;
+      --pistachio-deep: #78bf74;
+
+      --apricot: #ffe6cc;
+      --line: #f3e2d6;
+
+      --icon-box-strawberry: #fff0f3;
+      --icon-box-peach: #fff5ec;
+      --icon-box-matcha: #f3f9e8;
+
+      --radius-xl: 24px;
+      --radius-lg: 18px;
+      --radius-md: 14px;
+    }
+
+    /* ================= ТЁМНАЯ ТЕМА ================= */
+    [data-theme="dark"] {
+      --cream: #181517;
+      --paper: #231e22;
+      --ink: #fdfaf6;
+      --ink-soft: #a89ca0;
+
+      --strawberry: #4e2933;
+      --strawberry-deep: #ff7593;
+      --strawberry-shadow: #943248;
+
+      --matcha: #2e3b22;
+      --matcha-deep: #9dcd60;
+      --matcha-shadow: #4d6d24;
+
+      --peach: #4d3324;
+      --peach-deep: #f8a068;
+      --peach-shadow: #a44f20;
+
+      --apricot: #3d2a20;
+      --line: #332b30;
+
+      --icon-box-strawberry: #341e25;
+      --icon-box-peach: #38251c;
+      --icon-box-matcha: #232d1c;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-tap-highlight-color: transparent;
+      user-select: none;
+    }
+
+    body {
+      background-color: var(--cream);
+      color: var(--ink);
+      font-family: 'M PLUS Rounded 1c', 'Nunito', -apple-system, BlinkMacSystemFont, sans-serif;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      padding: calc(65px + env(safe-area-inset-top, 0px)) 16px calc(40px + env(safe-area-inset-bottom, 0px));
+      transition: background-color 0.25s ease, color 0.25s ease, padding-top 0.2s ease;
+      background-image:
+        radial-gradient(circle at 15% 15%, rgba(255, 196, 208, 0.25) 0%, transparent 40%),
+        radial-gradient(circle at 85% 85%, rgba(213, 232, 179, 0.25) 0%, transparent 40%);
+      background-attachment: fixed;
+      position: relative;
+    }
+
+    [data-theme="dark"] body {
+      background-image:
+        radial-gradient(circle at 15% 15%, rgba(236, 111, 136, 0.12) 0%, transparent 45%),
+        radial-gradient(circle at 85% 85%, rgba(141, 181, 90, 0.10) 0%, transparent 45%);
+    }
+
+    body.tg-fullscreen {
+      padding-top: calc(85px + env(safe-area-inset-top, 0px)) !important;
+    }
+
+    /* Фоновые лепестки сакуры */
+    .petals {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      overflow: hidden;
+      z-index: 0;
+    }
+    .petals span {
+      position: absolute;
+      top: -30px;
+      width: 14px;
+      height: 11px;
+      background: var(--strawberry-deep);
+      border-radius: 80% 0 80% 0;
+      opacity: .5;
+      animation: fall 14s linear infinite;
+    }
+    .petals span:nth-child(1) { left: 8%;  animation-delay: 0s;   animation-duration: 15s; }
+    .petals span:nth-child(2) { left: 24%; animation-delay: -5s;  animation-duration: 18s; width: 10px; height: 8px; }
+    .petals span:nth-child(3) { left: 42%; animation-delay: -9s;  animation-duration: 16s; background: var(--peach-deep); }
+    .petals span:nth-child(4) { left: 61%; animation-delay: -3s;  animation-duration: 20s; width: 12px; height: 9px; }
+    .petals span:nth-child(5) { left: 78%; animation-delay: -11s; animation-duration: 17s; background: var(--matcha-deep); }
+    .petals span:nth-child(6) { left: 92%; animation-delay: -7s;  animation-duration: 19s; }
+
+    @keyframes fall {
+      0%   { transform: translate(0, 0) rotate(0deg); }
+      50%  { transform: translate(28px, 55vh) rotate(180deg); }
+      100% { transform: translate(-12px, 110vh) rotate(360deg); }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .petals { display: none; }
+    }
+
+    #app {
+      width: 100%;
+      max-width: 480px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      position: relative;
+      z-index: 1;
+    }
+
+    /* Верхняя панель (только кнопка Меню) */
+    .top-bar {
+      display: flex;
+      justify-content: flex-start;
+      align-items: center;
+      margin-bottom: 2px;
+    }
+
+    .nav-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: var(--paper);
+      color: var(--ink);
+      border: 2px solid var(--line);
+      font-size: 13px;
+      font-weight: 800;
+      padding: 7px 16px;
+      border-radius: 99px;
+      box-shadow: 0 3px 0 var(--line);
+      cursor: pointer;
+      text-decoration: none;
+      font-family: inherit;
+      transition: all 0.15s ease;
+    }
+    .nav-btn:active {
+      transform: translateY(2px);
+      box-shadow: 0 1px 0 var(--line);
+    }
+
+    /* Навигация по Уровням */
+    .level-nav {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr) 1.25fr;
+      gap: 6px;
+    }
+
+    .lvl-btn {
+      padding: 9px 2px;
+      border-radius: var(--radius-md);
+      border: 2px solid var(--line);
+      background: var(--paper);
+      color: var(--ink-soft);
+      font-size: 11px;
+      font-weight: 800;
+      cursor: pointer;
+      text-align: center;
+      transition: all 0.15s ease;
+      white-space: nowrap;
+      box-shadow: 0 3px 0 var(--line);
+      font-family: inherit;
+    }
+    .lvl-btn:active {
+      transform: translateY(2px);
+      box-shadow: 0 1px 0 var(--line);
+    }
+    .lvl-btn.active {
+      background: var(--peach-deep);
+      color: #ffffff;
+      border-color: var(--peach-deep);
+      box-shadow: 0 3px 0 var(--peach-shadow);
+    }
+
+    .lvl-btn.errors-btn {
+      color: var(--strawberry-deep);
+      border-color: var(--strawberry);
+      box-shadow: 0 3px 0 var(--strawberry);
+    }
+    .lvl-btn.errors-btn.active {
+      background: var(--strawberry-deep);
+      color: #ffffff;
+      border-color: var(--strawberry-deep);
+      box-shadow: 0 3px 0 var(--strawberry-shadow);
+    }
+
+    /* Баннер правил */
+    .theory-banner {
+      background: var(--paper);
+      border: 2px dashed var(--peach-deep);
+      border-radius: var(--radius-lg);
+      padding: 10px 14px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 6px;
+      font-size: 13.5px;
+      font-weight: 800;
+      color: var(--peach-deep);
+      cursor: pointer;
+      box-shadow: 0 3px 0 rgba(240, 160, 108, 0.25);
+      transition: all 0.15s ease;
+    }
+    .theory-banner:active {
+      transform: translateY(2px);
+      box-shadow: 0 1px 0 rgba(240, 160, 108, 0.25);
+    }
+
+    /* Прогресс-бар с карамельной полоской */
+    .progress-wrap {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .progress-labels {
+      display: flex;
+      justify-content: space-between;
+      font-size: 12.5px;
+      color: var(--ink-soft);
+      font-weight: 700;
+      padding: 0 4px;
+    }
+    .progress-container {
+      width: 100%;
+      height: 10px;
+      background: var(--line);
+      border-radius: 99px;
+      overflow: hidden;
+      padding: 1px;
+    }
+
+    /* Карамельная полоса */
+    .progress-fill {
+      height: 100%;
+      width: 0%;
+      border-radius: 99px;
+      transition: width 0.25s ease;
+      background: repeating-linear-gradient(135deg, var(--strawberry-deep) 0 10px, var(--strawberry) 10px 20px);
+    }
+    [data-theme="dark"] .progress-fill {
+      background: repeating-linear-gradient(135deg, var(--strawberry-deep) 0 10px, #3d1c25 10px 20px);
+    }
+
+    /* Карточка вопроса */
+    .card {
+      position: relative;
+      background: var(--paper);
+      border: 2.5px solid var(--peach);
+      box-shadow: 0 6px 0 var(--peach);
+      border-radius: var(--radius-xl);
+      padding: 24px 16px 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      gap: 6px;
+      transition: background 0.25s ease;
+    }
+
+    .btn-sound-corner {
+      position: absolute;
+      top: 14px;
+      right: 14px;
+    }
+
+    .target-header {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 100%;
+      padding: 0 36px;
+    }
+
+    /* Кандзи в вопросе: строго 500 */
+    .target-phrase {
+      font-size: 28px;
+      font-weight: 500;
+      color: var(--ink);
+      letter-spacing: 0.5px;
+      line-height: 1.3;
+    }
+
+    .target-paren {
+      color: var(--ink-soft);
+      font-weight: 400;
+    }
+
+    .target-blank {
+      color: var(--peach-deep);
+      border-bottom: 3px dashed var(--peach-deep);
+      padding: 0 6px;
+      display: inline-block;
+    }
+
+    .target-reading {
+      font-size: 15px;
+      font-weight: 500;
+      color: var(--ink-soft);
+      letter-spacing: 0.5px;
+      min-height: 22px;
+    }
+
+    .target-ru {
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--matcha-deep);
+      line-height: 1.35;
+      margin-top: 2px;
+    }
+
+    /* Кнопка звука */
+    .btn-sound {
+      background: var(--cream);
+      border: 2px solid var(--line);
+      border-radius: 50%;
+      width: 36px;
+      height: 36px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      font-size: 16px;
+      box-shadow: 0 2px 0 var(--line);
+      transition: all 0.15s ease;
+      flex-shrink: 0;
+    }
+    .btn-sound:active {
+      transform: translateY(2px);
+      box-shadow: 0 0 0 var(--line);
+    }
+
+    /* Сетка кнопок ответов 2х2 */
+    .buttons-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    .choice-btn {
+      background: var(--paper);
+      border: 2.5px solid var(--line);
+      box-shadow: 0 5px 0 var(--line);
+      border-radius: var(--radius-lg);
+      padding: 16px 8px;
+      cursor: pointer;
+      transition: all 0.12s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      word-break: keep-all;
+      font-family: inherit;
+    }
+    .choice-btn:active {
+      transform: translateY(3px);
+      box-shadow: 0 2px 0 var(--line);
+      border-color: var(--peach-deep);
+    }
+
+    /* Кандзи в кнопках ответов: строго 500 */
+    .choice-main {
+      font-size: 18px;
+      font-weight: 500;
+      color: var(--ink);
+      line-height: 1.25;
+    }
+
+    /* Блок пояснения */
+    .feedback-box {
+      background: var(--paper);
+      border-radius: var(--radius-xl);
+      padding: 18px;
+      display: none;
+      flex-direction: column;
+      gap: 12px;
+      transition: all 0.2s ease;
+    }
+    .feedback-box.correct {
+      border: 2.5px solid var(--matcha);
+      box-shadow: 0 6px 0 var(--matcha);
+      background: var(--icon-box-matcha);
+    }
+    .feedback-box.wrong {
+      border: 2.5px solid var(--strawberry);
+      box-shadow: 0 6px 0 var(--strawberry);
+      background: var(--icon-box-strawberry);
+    }
+
+    .fb-title {
+      font-size: 14.5px;
+      font-weight: 800;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .feedback-box.correct .fb-title { color: var(--matcha-deep); }
+    .feedback-box.wrong .fb-title { color: var(--strawberry-deep); }
+
+    .fb-body-wrap {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+    }
+
+    /* Кандзи в плашке правильного ответа: строго 500 */
+    .fb-full {
+      font-size: 24px;
+      font-weight: 500;
+      color: var(--ink);
+      line-height: 1.25;
+    }
+    .fb-kana {
+      font-size: 14px;
+      color: var(--ink-soft);
+      font-weight: 500;
+    }
+
+    /* Пояснение ответа: тонкий шрифт 400 и персиковые акценты */
+    .fb-rule {
+      font-size: 13.5px;
+      color: var(--ink);
+      line-height: 1.6;
+      background: var(--paper);
+      padding: 12px 14px;
+      border-radius: var(--radius-md);
+      border: 1.5px solid var(--line);
+      font-weight: 400;
+    }
+    .fb-rule b, 
+    .fb-rule strong {
+      color: var(--peach-deep);
+      font-weight: 700;
+    }
+    .fb-rule code {
+      background: var(--cream);
+      padding: 1px 5px;
+      border-radius: 6px;
+      font-family: inherit;
+      color: var(--strawberry-deep);
+      font-weight: 500;
+      border: 1px solid var(--line);
+    }
+    .fb-step-line {
+      margin-bottom: 5px;
+    }
+    .fb-step-line:last-child {
+      margin-bottom: 0;
+    }
+
+    /* Основная кнопка действия */
+    .btn-action {
+      background: var(--strawberry-deep);
+      color: #ffffff;
+      border: none;
+      border-radius: var(--radius-md);
+      padding: 14px;
+      font-size: 15px;
+      font-weight: 800;
+      cursor: pointer;
+      box-shadow: 0 4px 0 var(--strawberry-shadow);
+      transition: all 0.12s ease;
+      font-family: inherit;
+      width: 100%;
+    }
+    .btn-action:active {
+      transform: translateY(2px);
+      box-shadow: 0 2px 0 var(--strawberry-shadow);
+    }
+
+    /* Модальное окно теории */
+    .modal-backdrop {
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(15, 12, 14, 0.65);
+      backdrop-filter: blur(5px);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 18px;
+      z-index: 1000;
+      opacity: 0;
+      transition: opacity 0.2s ease;
+    }
+    .modal-backdrop.show {
+      display: flex;
+      opacity: 1;
+    }
+
+    .modal-card {
+      background: var(--paper);
+      border: 3px solid var(--line);
+      border-radius: var(--radius-xl);
+      width: 100%;
+      max-width: 440px;
+      max-height: 85vh;
+      overflow-y: auto;
+      padding: 22px;
+      box-shadow: 0 16px 32px rgba(0, 0, 0, 0.35);
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      transform: scale(0.95);
+      transition: transform 0.2s ease;
+    }
+    .modal-backdrop.show .modal-card {
+      transform: scale(1);
+    }
+
+    .modal-header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      border-bottom: 2px dashed var(--line);
+      padding-bottom: 12px;
+    }
+    .modal-icon {
+      font-size: 28px;
+    }
+    .modal-title {
+      font-size: 17px;
+      font-weight: 800;
+      color: var(--ink);
+      margin: 0;
+    }
+
+    /* Текст теории: тонкий 400, подтемы персиковые */
+    .modal-body {
+      font-size: 14px;
+      line-height: 1.65;
+      color: var(--ink);
+      font-weight: 400;
+    }
+    .modal-body strong {
+      font-weight: 600;
+      color: var(--ink);
+    }
+    .modal-body p > strong:first-child {
+      color: var(--peach-deep);
+      font-weight: 700;
+      display: inline-block;
+      margin-bottom: 3px;
+    }
+    .modal-body code {
+      background: var(--cream);
+      padding: 1px 5px;
+      border-radius: 6px;
+      font-family: inherit;
+      color: var(--strawberry-deep);
+      font-weight: 500;
+      border: 1px solid var(--line);
+    }
+
+    .modal-close-btn {
+      background: var(--peach-deep);
+      color: #ffffff;
+      border: none;
+      border-radius: var(--radius-md);
+      padding: 12px;
+      font-size: 14px;
+      font-weight: 800;
+      cursor: pointer;
+      box-shadow: 0 3px 0 var(--peach-shadow);
+      font-family: inherit;
+      transition: all 0.12s ease;
+    }
+    .modal-close-btn:active {
+      transform: translateY(2px);
+      box-shadow: 0 1px 0 var(--peach-shadow);
+    }
+
+    /* Экран завершения */
+    .dialog-view {
+      background: var(--paper);
+      border: 2.5px solid var(--matcha);
+      box-shadow: 0 6px 0 var(--matcha);
+      border-radius: var(--radius-xl);
+      padding: 36px 20px;
+      text-align: center;
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      gap: 12px;
+    }
+    .dialog-view h3 {
+      font-size: 22px;
+      font-weight: 800;
+      color: var(--ink);
+    }
+    .dialog-view p {
+      font-size: 14.5px;
+      color: var(--ink-soft);
+      font-weight: 600;
+    }
+  </style>
+</head>
+<body>
+
+<!-- Падающие лепестки сакуры -->
+<div class="petals" aria-hidden="true">
+  <span></span>
+  <span></span>
+  <span></span>
+  <span></span>
+  <span></span>
+  <span></span>
+</div>
+
+<div id="app">
+  <!-- Верхняя строка (только кнопка Меню) -->
+  <div class="top-bar">
+    <a href="index.html" class="nav-btn">← Меню</a>
+  </div>
+
+  <!-- 1. Навигация по Уровням -->
+  <div class="level-nav">
+    <button type="button" class="lvl-btn active" id="lvlBtn1" onclick="switchLevel(1)">Пассив</button>
+    <button type="button" class="lvl-btn" id="lvlBtn2" onclick="switchLevel(2)">Каузатив</button>
+    <button type="button" class="lvl-btn" id="lvlBtn3" onclick="switchLevel(3)">Кауз-Пасс</button>
+    <button type="button" class="lvl-btn" id="lvlBtn4" onclick="switchLevel(4)">Потенциал</button>
+    <button type="button" class="lvl-btn" id="lvlBtn5" onclick="switchLevel(5)">ば / よう</button>
+    <button type="button" class="lvl-btn errors-btn" id="lvlBtnErr" onclick="switchLevel('errors')">Ошибки (0)</button>
+  </div>
+
+  <!-- 2. Баннер правил -->
+  <div class="theory-banner" onclick="openTheory()">
+    <span>📖</span> Формулы спряжения и этикет
+  </div>
+
+  <!-- 3. Прогресс -->
+  <div class="progress-wrap">
+    <div class="progress-labels">
+      <span id="progCountLabel">Вопрос 1</span>
+      <span id="progPctLabel">0%</span>
+    </div>
+    <div class="progress-container">
+      <div class="progress-fill" id="progressBar"></div>
+    </div>
+  </div>
+
+  <!-- 4. Игровая панель -->
+  <div id="gamePanel" style="display: flex; flex-direction: column; gap: 12px;">
+    <div class="card">
+      <button type="button" class="btn-sound btn-sound-corner" onclick="replayQuestionAudio()" title="Послушать фразу">🔊</button>
+      
+      <!-- КРУПНО: кандзи 500 -->
+      <div class="target-header">
+        <div class="target-phrase" id="qPhrase">絵に 触(る)＿＿</div>
+      </div>
+      <!-- СРЕДНЕ: чтение -->
+      <div class="target-reading" id="qReading">えに さわ(る)＿＿</div>
+      <!-- Перевод -->
+      <div class="target-ru" id="qRu">прикасаться к картине</div>
+    </div>
+
+    <!-- 4 кнопки ответов (сетка 2х2) -->
+    <div class="buttons-grid" id="choicesGrid"></div>
+
+    <!-- Пояснение ответа -->
+    <div class="feedback-box" id="feedbackBox">
+      <div class="fb-title">
+        <span id="fbVerdict">Верно!</span>
+        <span id="fbTypeTag">1-я группа (五段)</span>
+      </div>
+      <div class="fb-body-wrap">
+        <div>
+          <!-- Кандзи 500 -->
+          <div class="fb-full" id="fbFull">絵に 触られる</div>
+          <div class="fb-kana" id="fbKana">えにさわられる</div>
+        </div>
+        <button type="button" class="btn-sound" onclick="replayAnswerAudio()" title="Послушать правильный ответ">🔊</button>
+      </div>
+      <div class="fb-rule" id="fbRule"></div>
+      <button type="button" class="btn-action" id="btnNext" onclick="nextQuestion()">Дальше →</button>
+    </div>
+  </div>
+
+  <!-- Экран окончания списка -->
+  <div class="dialog-view" id="emptyScreen">
+    <div style="font-size: 38px;">🎉</div>
+    <h3 id="emptyTitle">Уровень завершён!</h3>
+    <p id="emptyDesc">Все глаголы в этом уровне пройдены!</p>
+    <button type="button" class="btn-action" style="max-width: 220px;" onclick="restartLevel()">Пройти заново</button>
+  </div>
+</div>
+
+<!-- Модалка теории -->
+<div class="modal-backdrop" id="theoryModal" onclick="closeTheory()">
+  <div class="modal-card" onclick="event.stopPropagation()">
+    <div class="modal-header">
+      <div class="modal-icon">💡</div>
+      <h3 class="modal-title" id="modalTitle">Грамматика и правила</h3>
+    </div>
+    <div class="modal-body" id="modalBody"></div>
+    <button type="button" class="modal-close-btn" onclick="closeTheory()">Всё понятно!</button>
+  </div>
+</div>
+
+<script>
+
+/* ==========================================================================
+   ПОЛНАЯ БАЗА: 226 ГЛАГОЛОВ
+   Формат: [ "Глагол", "Чтение", Группа, "Уровень", "Контекст (Кандзи)", "Контекст (Хирагана)", "Естественный русский перевод" ]
+   ========================================================================== */
+var CONJUGATION_VERBS_DATA = [
+  // --- N5: 1-Я ГРУППА (ГОДАН) ---
+  ["働く", "はたらく", 1, "N5", "会社で", "かいしゃで", "работать в компании"],
+  ["休む", "やすむ", 1, "N5", "学校を", "がっこうを", "пропускать школу"],
+  ["終わる", "おわる", 1, "N5", "授業が", "じゅぎょうが", "урок заканчивается"],
+  ["行く", "いく", 1, "N5", "日本へ", "にほんへ", "ехать в Японию"],
+  ["帰る", "かえる", 1, "N5", "家に", "うちに", "возвращаться домой"],
+  ["飲む", "のむ", 1, "N5", "水を", "みずを", "пить воду"],
+  ["吸う", "すう", 1, "N5", "たばこを", "たばこを", "курить сигарету"],
+  ["聞く", "きく", 1, "N5", "音楽を", "おんがくを", "слушать музыку"],
+  ["読む", "よむ", 1, "N5", "本を", "ほんを", "читать книгу"],
+  ["書く", "かく", 1, "N5", "手紙を", "てがみを", "писать письмо"],
+  ["買う", "かう", 1, "N5", "パンを", "ぱんを", "покупать хлеб"],
+  ["撮る", "とる", 1, "N5", "写真を", "しゃしんを", "делать фото"],
+  ["会う", "あう", 1, "N5", "友達に", "ともだちに", "встречать друга"],
+  ["切る", "きる", 1, "N5", "紙を", "かみを", "резать бумагу"],
+  ["送る", "おくる", 1, "N5", "荷物を", "にもつを", "отправлять посылку"],
+  ["貰う", "もらう", 1, "N5", "お土産を", "おみやげを", "получать подарок"],
+  ["習う", "ならう", 1, "N5", "ピアノを", "ぴあのを", "учиться игре на пианино"],
+  ["貸す", "かす", 1, "N5", "お金を", "おかねを", "одалживать деньги"],
+  ["分かる", "わかる", 1, "N5", "意味が", "いみが", "понимать смысл"],
+  ["掛かる", "かかる", 1, "N5", "時間が", "じかんが", "требуется время"],
+  ["遊ぶ", "あそぶ", 1, "N5", "公園で", "こうえんで", "играть в парке"],
+  ["泳ぐ", "およぐ", 1, "N5", "海で", "うみで", "плавать в море"],
+  ["消す", "けす", 1, "N5", "テレビを", "てれびを", "выключать телевизор"],
+  ["急ぐ", "いそぐ", 1, "N5", "道を", "みちを", "спешить по дороге"],
+  ["待つ", "まつ", 1, "N5", "バスを", "ばすを", "ждать автобус"],
+  ["持つ", "もつ", 1, "N5", "傘を", "かさを", "держать зонт"],
+  ["取る", "とる", 1, "N5", "塩を", "しおを", "передавать соль"],
+  ["手伝う", "てつだう", 1, "N5", "仕事を", "しごとを", "помогать с работой"],
+  ["呼ぶ", "よぶ", 1, "N5", "タクシーを", "たくしーを", "вызывать такси"],
+  ["話す", "はなす", 1, "N5", "日本語で", "にほんごで", "говорить по-японски"],
+  ["使う", "つかう", 1, "N5", "スマホを", "すまほを", "пользоваться смартфоном"],
+  ["座る", "すわる", 1, "N5", "椅子に", "いすに", "садиться на стул"],
+  ["立つ", "たつ", 1, "N5", "ここに", "ここに", "стоять здесь"],
+  ["入る", "はいる", 1, "N5", "お風呂に", "おふろに", "принимать ванну"],
+  ["降る", "ふる", 1, "N5", "雨が", "あめが", "идет дождь"],
+  ["置く", "おく", 1, "N5", "机の上に", "つくえのうえに", "класть на стол"],
+  ["作る", "つくる", 1, "N5", "料理を", "りょうりを", "готовить блюдо"],
+  ["売る", "うる", 1, "N5", "野菜を", "やさいを", "продавать овощи"],
+  ["知る", "しる", 1, "N5", "理由を", "りゆうを", "знать причину"],
+  ["住む", "すむ", 1, "N5", "東京に", "とうきょうに", "жить в Токио"],
+  ["乗る", "のる", 1, "N5", "電車に", "でんしゃに", "садиться в поезд"],
+  ["出す", "だす", 1, "N5", "宿題を", "しゅくだいを", "сдавать домашку"],
+  ["下ろす", "おろす", 1, "N5", "現金を", "げんきんを", "снимать наличные"],
+  ["押す", "おす", 1, "N5", "ボタンを", "ぼたんを", "нажимать кнопку"],
+  ["無くす", "なくす", 1, "N5", "鍵を", "かぎを", "терять ключ"],
+  ["払う", "はらう", 1, "N5", "家賃を", "やちんを", "платить за аренду"],
+  ["返す", "かえす", 1, "N5", "本を", "ほんを", "возвращать книгу"],
+  ["脱ぐ", "ぬぐ", 1, "N5", "靴を", "くつを", "снимать обувь"],
+  ["洗う", "あらう", 1, "N5", "手を", "てを", "мыть руки"],
+  ["弾く", "ひく", 1, "N5", "ギターを", "ぎたーを", "играть на гитаре"],
+  ["歌う", "うたう", 1, "N5", "歌を", "うたを", "петь песню"],
+  ["登る", "のぼる", 1, "N5", "山に", "やまに", "подниматься на гору"],
+  ["泊まる", "とまる", 1, "N5", "ホテルに", "ほてるに", "ночевать в отеле"],
+  ["成る", "なる", 1, "N5", "先生に", "せんせいに", "становиться учителем"],
+  ["要る", "いる", 1, "N5", "ビザが", "びざが", "нужна виза"],
+  ["思う", "おもう", 1, "N5", "そう", "そう", "думать так"],
+  ["言う", "いう", 1, "N5", "本当のことを", "ほんとうのことを", "говорить правду"],
+  ["勝つ", "かつ", 1, "N5", "試合に", "しあいに", "побеждать в матче"],
+  ["動く", "うごく", 1, "N5", "機械が", "きかいが", "станок работает"],
+  ["履く", "はく", 1, "N5", "ズボンを", "ずぼんを", "надевать брюки"],
+  ["被る", "かぶる", 1, "N5", "帽子を", "ぼうしを", "надевать шапку"],
+  ["回す", "まわす", 1, "N5", "ハンドルを", "はんどるを", "крутить руль"],
+  ["引く", "ひく", 1, "N5", "ドアを", "どあを", "тянуть дверь на себя"],
+  ["触る", "さわる", 1, "N5", "絵に", "えに", "прикасаться к картине"],
+  ["歩く", "あるく", 1, "N5", "橋を", "はしを", "идти по мосту"],
+  ["渡る", "わたる", 1, "N5", "通りを", "とおりを", "переходить улицу"],
+  ["曲がる", "まがる", 1, "N5", "交差点を", "こうさてんを", "поворачивать на перекрёстке"],
+  ["直す", "なおす", 1, "N5", "時計を", "とけいを", "чинить часы"],
+  ["着く", "つく", 1, "N5", "空港に", "くうこうに", "прибывать в аэропорт"],
+
+  // --- N5: 2-Я ГРУППА (ИТИДАН) ---
+  ["起きる", "おきる", 2, "N5", "朝早く", "あさはやく", "вставать рано утром"],
+  ["寝る", "ねる", 2, "N5", "ベッドで", "べっどで", "спать в кровати"],
+  ["食べる", "たべる", 2, "N5", "ご飯を", "ごはんを", "есть рис"],
+  ["見る", "みる", 2, "N5", "アニメを", "あにめを", "смотреть аниме"],
+  ["上げる", "あげる", 2, "N5", "花束を", "はなたばを", "дарить букет"],
+  ["教える", "おしえる", 2, "N5", "数学を", "すうがくを", "преподавать математику"],
+  ["借りる", "かりる", 2, "N5", "辞書を", "じしょを", "брать словарь в долг"],
+  ["掛ける", "かける", 2, "N5", "眼鏡を", "めがねを", "надевать очки"],
+  ["居る", "いる", 2, "N5", "部屋に", "へやに", "находиться в комнате"],
+  ["迎える", "むかえる", 2, "N5", "客を", "きゃくを", "встречать гостя"],
+  ["疲れる", "つかれる", 2, "N5", "体が", "からだが", "тело устает"],
+  ["点ける", "つける", 2, "N5", "電気を", "でんきを", "включать свет"],
+  ["開ける", "あける", 2, "N5", "窓を", "まどを", "открывать окно"],
+  ["閉める", "しめる", 2, "N5", "戸を", "とを", "закрывать створку"],
+  ["止める", "とめる", 2, "N5", "車を", "くるまを", "останавливать машину"],
+  ["見せる", "みせる", 2, "N5", "パスポートを", "ぱすぽーとを", "показывать паспорт"],
+  ["出る", "でる", 2, "N5", "家を", "いえを", "выходить из дома"],
+  ["降りる", "おりる", 2, "N5", "バスを", "ばすを", "выходить из автобуса"],
+  ["乗り換える", "のりかえる", 2, "N5", "地下鉄に", "ちかてつに", "пересаживаться на метро"],
+  ["浴びる", "あびる", 2, "N5", "シャワーを", "しゃわーを", "принимать душ"],
+  ["入れる", "いれる", 2, "N5", "お茶を", "おちゃを", "наливать чай"],
+  ["始める", "はじめる", 2, "N5", "会議を", "かいぎを", "начинать собрание"],
+  ["覚える", "おぼえる", 2, "N5", "漢字を", "かんじを", "запоминать иероглифы"],
+  ["忘れる", "わすれる", 2, "N5", "約束を", "やくそくを", "забывать обещание"],
+  ["出かける", "でかける", 2, "N5", "買い物に", "かいものに", "идти за покупками"],
+  ["出来る", "できる", 2, "N5", "運転が", "うんてんが", "уметь водить машину"],
+  ["集める", "あつめる", 2, "N5", "コインを", "こいんを", "собирать монеты"],
+  ["捨てる", "すてる", 2, "N5", "ゴミを", "ごみを", "выбрасывать мусор"],
+  ["換える", "かえる", 2, "N5", "電池を", "でんちを", "менять батарейку"],
+  ["調べる", "しらべる", 2, "N5", "時刻表を", "じこくひょうを", "проверять расписание"],
+  ["負ける", "まける", 2, "N5", "勝負に", "しょうぶに", "проигрывать поединок"],
+  ["辞める", "やめる", 2, "N5", "バイトを", "ばいとを", "увольняться с подработки"],
+  ["着る", "きる", 2, "N5", "コートを", "こーとを", "надевать пальто"],
+  ["生まれる", "うまれる", 2, "N5", "赤ちゃんが", "あかちゃんが", "рождается малыш"],
+  ["変える", "かえる", 2, "N5", "予定を", "よていを", "менять планы"],
+  ["呉れる", "くれる", 2, "N5", "ヒントを", "ひんとを", "давать мне подсказку"],
+  ["考える", "かんがえる", 2, "N5", "答えを", "こたえを", "обдумывать ответ"],
+  ["足りる", "たりる", 2, "N5", "給料が", "きゅうりょうが", "зарплаты хватает"],
+
+  // --- N5: 3-Я ГРУППА (НЕПРАВИЛЬНЫЕ) ---
+  ["する", "する", 3, "N5", "宿題を", "しゅくだいを", "делать домашку"],
+  ["来る", "くる", 3, "N5", "事務所に", "じむしょに", "приходить в офис"],
+  ["勉強する", "べんきょうする", 3, "N5", "文法を", "ぶんぽうを", "учить грамматику"],
+  ["結婚する", "けっこんする", 3, "N5", "恋人と", "こいびとと", "жениться на любимой"],
+  ["買い物する", "かいものする", 3, "N5", "デパートで", "でぱーとで", "делать покупки в универмаге"],
+  ["食事する", "しょくじする", 3, "N5", "食堂で", "しょくどうで", "обедать в столовой"],
+  ["散歩する", "さんぽする", 3, "N5", "川沿いを", "かわぞいを", "гулять вдоль реки"],
+  ["コピーする", "コピーする", 3, "N5", "書類を", "しょるいを", "копировать документы"],
+  ["研究する", "けんきゅうする", 3, "N5", "歴史を", "れきしを", "исследовать историю"],
+  ["見学する", "けんがくする", 3, "N5", "工場を", "こうじょうを", "осматривать завод"],
+  ["心配する", "しんぱいする", 3, "N5", "親を", "おやを", "беспокоиться о родителях"],
+  ["残業する", "ざんぎょうする", 3, "N5", "毎晩", "まいばん", "перерабатывать каждый вечер"],
+  ["出張する", "しゅっちょうする", 3, "N5", "大阪へ", "おおさかへ", "ехать в командировку в Осаку"],
+  ["運転する", "うんてんする", 3, "N5", "トラックを", "とらっくを", "водить грузовик"],
+  ["予約する", "よやくする", 3, "N5", "チケットを", "ちけっとを", "бронировать билеты"],
+  ["掃除する", "そうじする", 3, "N5", "台所を", "だいどころを", "убираться на кухне"],
+  ["洗濯する", "せんたくする", 3, "N5", "シーツを", "しーつを", "стирать простыни"],
+  ["修理する", "しゅうりする", 3, "N5", "バイクを", "ばいくを", "чинить мотоцикл"],
+  ["留学する", "りゅうがくする", 3, "N5", "アメリカへ", "あめりかへ", "учиться в Америке"],
+  ["紹介する", "しょうかいする", 3, "N5", "同僚を", "どうりょうを", "знакомить с коллегой"],
+  ["案内する", "あんないする", 3, "N5", "街を", "まちを", "проводить экскурсию по городу"],
+  ["説明する", "せつめいする", 3, "N5", "ルールを", "るーるを", "объяснять правила"],
+
+  // --- N4: 1-Я ГРУППА (ГОДАН) ---
+  ["探す", "さがす", 1, "N4", "仕事を", "しごとを", "искать работу"],
+  ["間に合う", "まにあう", 1, "N4", "終電に", "しゅうでんに", "успевать на последний поезд"],
+  ["やる", "やる", 1, "N4", "犬に餌を", "いぬにえさを", "давать корм собаке"],
+  ["申し込む", "もうしこむ", 1, "N4", "講座に", "こうざに", "записываться на курс"],
+  ["片付く", "かたづく", 1, "N4", "部屋が", "へやが", "комната убирается"],
+  ["飼う", "かう", 1, "N4", "猫を", "ねこを", "держать кошку"],
+  ["走る", "はしる", 1, "N4", "トラックを", "とらっくを", "бежать по дорожке"],
+  ["開く", "ひらく", 1, "N4", "パーティーを", "ぱーてぃーを", "устраивать вечеринку"],
+  ["飛ぶ", "とぶ", 1, "N4", "空を", "そらを", "летать в небе"],
+  ["踊る", "おどる", 1, "N4", "舞台で", "ぶたいで", "танцевать на сцене"],
+  ["噛む", "かむ", 1, "N4", "ガムを", "がむを", "жевать жвачку"],
+  ["選ぶ", "えらぶ", 1, "N4", "プレゼントを", "ぷれぜんとを", "выбирать подарок"],
+  ["通う", "かよう", 1, "N4", "大学に", "だいがくに", "посещать университет"],
+  ["開く", "あく", 1, "N4", "ドアが", "どあが", "дверь открывается"],
+  ["閉まる", "しまる", 1, "N4", "窓が", "まどが", "окно закрывается"],
+  ["点く", "つく", 1, "N4", "明かりが", "あかりが", "свет загорается"],
+  ["込む", "こむ", 1, "N4", "道が", "みちが", "дорога забита"],
+  ["割る", "わる", 1, "N4", "コップを", "こっぷを", "разбивать стакан"],
+  ["折る", "おる", 1, "N4", "木の枝を", "きのえだを", "ломать ветку дерева"],
+  ["破る", "やぶる", 1, "N4", "ノートを", "のーとを", "рвать тетрадь"],
+  ["付く", "つく", 1, "N4", "名札が", "なふだが", "бейджик прикреплен"],
+  ["落とす", "おとす", 1, "N4", "財布を", "さいふを", "ронять кошелёк"],
+  ["指す", "さす", 1, "N4", "黒板を", "こくばんを", "указывать на доску"],
+  ["貼る", "はる", 1, "N4", "ポスターを", "ぽすたーを", "наклеивать плакат"],
+  ["飾る", "かざる", 1, "N4", "人形を", "にんぎょうを", "украшать куклой"],
+  ["戻す", "もどす", 1, "N4", "道具を", "どうぐを", "возвращать инструменты на место"],
+  ["仕舞う", "しまう", 1, "N4", "服を", "ふくを", "убирать одежду"],
+  ["残る", "のこる", 1, "N4", "お金が", "おかねが", "деньги остаются"],
+  ["止む", "やむ", 1, "N4", "雪が", "ゆきが", "снег прекращается"],
+  ["曇る", "くもる", 1, "N4", "空が", "そらが", "небо хмурится"],
+  ["続く", "つづく", 1, "N4", "暑さが", "あつさが", "жара продолжается"],
+  ["冷やす", "ひやす", 1, "N4", "ビールを", "びーるを", "охлаждать пиво"],
+  ["騒ぐ", "さわぐ", 1, "N4", "教室で", "きょうしつで", "шуметь в классе"],
+  ["守る", "まもる", 1, "N4", "法律を", "ほうりつを", "соблюдать закон"],
+  ["外す", "はずす", 1, "N4", "マスクを", "ますくを", "снимать маску"],
+  ["始まる", "はじまる", 1, "N4", "映画が", "えいがが", "фильм начинается"],
+  ["戻る", "もどる", 1, "N4", "席に", "せきに", "возвращаться на место"],
+  ["磨く", "みがく", 1, "N4", "歯を", "はを", "чистить зубы"],
+  ["見つかる", "みつかる", 1, "N4", "指輪が", "ゆびわが", "кольцо находится"],
+  ["咲く", "さく", 1, "N4", "桜が", "さくらが", "сакура цветет"],
+  ["変わる", "かわる", 1, "N4", "時代が", "じだいが", "эпоха меняется"],
+  ["困る", "こまる", 1, "N4", "生活に", "せいかつに", "испытывать трудности в быту"],
+  ["治る", "なおる", 1, "N4", "風邪が", "かぜが", "простуда проходит"],
+  ["叱る", "しかる", 1, "N4", "生徒を", "せいとを", "отчитывать ученика"],
+  ["誘う", "さそう", 1, "N4", "同級生を", "どうきゅうせいを", "приглашать одноклассника"],
+  ["頼む", "たのむ", 1, "N4", "出前を", "でまえを", "заказывать доставку еды"],
+  ["踏む", "ふむ", 1, "N4", "ブレーキを", "ぶれーきを", "нажимать на тормоз"],
+  ["壊す", "こわす", 1, "N4", "スマホを", "すまほを", "ломать телефон"],
+  ["汚す", "よごす", 1, "N4", "シーツを", "しーつを", "пачкать простыню"],
+  ["行う", "おこなう", 1, "N4", "試験を", "しけんを", "проводить экзамен"],
+  ["運ぶ", "はこぶ", 1, "N4", "ダンボールを", "だんぼーるを", "переносить коробку"],
+  ["通る", "とおる", 1, "N4", "門を", "もんを", "проходить сквозь ворота"],
+  ["死ぬ", "しぬ", 1, "N4", "魚が", "さかなが", "рыбка умирает"],
+  ["太る", "ふとる", 1, "N4", "冬の間に", "ふゆのあいだに", "полнеть за зиму"],
+  ["測る", "はかる", 1, "N4", "熱を", "ねつを", "измерять температуру"],
+  ["酔う", "よう", 1, "N4", "酒に", "さけに", "пьянеть от саке"],
+  ["暮らす", "くらす", 1, "N4", "一人で", "ひとりで", "жить в одиночку"],
+  ["包む", "つつむ", 1, "N4", "風呂敷で", "ふろしきで", "заворачивать в платок"],
+  ["沸かす", "わかす", 1, "N4", "お湯を", "おゆを", "кипятить воду"],
+  ["並ぶ", "ならぶ", 1, "N4", "列に", "れつに", "стоять в очереди"],
+  ["減る", "へる", 1, "N4", "体重が", "たいじゅうが", "вес уменьшается"],
+  ["上がる", "あがる", 1, "N4", "物価が", "ぶっかが", "цены растут"],
+  ["下がる", "さがる", 1, "N4", "気温が", "きおんが", "температура падает"],
+  ["無くなる", "なくなる", 1, "N4", "自信が", "じしんが", "уверенность пропадает"],
+  ["泣く", "なく", 1, "N4", "大声で", "おおごえで", "плакать во весь голос"],
+  ["笑う", "わらう", 1, "N4", "声を出して", "こえをだして", "смеяться вслух"],
+  ["乾く", "かわく", 1, "N4", "喉が", "のどが", "горло пересыхает"],
+  ["滑る", "すべる", 1, "N4", "氷の上で", "こおりのうえで", "скользить по льду"],
+  ["謝る", "あやまる", 1, "N4", "部長に", "ぶちょうに", "извиняться перед начальником"],
+  ["焼く", "やく", 1, "N4", "ステーキを", "すてーきを", "жарить стейк"],
+  ["渡す", "わたす", 1, "N4", "鍵を", "かぎを", "вручать ключи"],
+  ["集まる", "あつまる", 1, "N4", "広場に", "ひろばに", "собираться на площади"],
+  ["過ごす", "すごす", 1, "N4", "休暇を", "きゅうかを", "проводить отпуск"],
+
+  // --- N4: 2-Я ГРУППА (ИТИДАН) ---
+  ["遅れる", "おくれる", 2, "N4", "時間に", "じかんに", "опаздывать ко времени"],
+  ["燃える", "もえる", 2, "N4", "ゴミが", "ごみが", "мусор горит"],
+  ["建てる", "たてる", 2, "N4", "ビルを", "びるを", "строить здание"],
+  ["見える", "みえる", 2, "N4", "星が", "ほしが", "звёзды виднеются"],
+  ["聞こえる", "きこえる", 2, "N4", "声が", "こえが", "голос слышится"],
+  ["売れる", "うれる", 2, "N4", "雑誌が", "ざっしが", "журнал хорошо продается"],
+  ["消える", "きえる", 2, "N4", "火が", "ひが", "огонь гаснет"],
+  ["割れる", "われる", 2, "N4", "皿が", "さらが", "тарелка разбивается"],
+  ["折れる", "おれる", 2, "N4", "枝が", "えだが", "ветка ломается"],
+  ["破れる", "やぶれる", 2, "N4", "紙が", "かみが", "бумага рвется"],
+  ["汚れる", "よごれる", 2, "N4", "ズボンが", "ずぼんが", "штаны пачкаются"],
+  ["外れる", "はずれる", 2, "N4", "ボタンが", "ぼたんが", "пуговица отрывается"],
+  ["間違える", "まちがえる", 2, "N4", "番号を", "ばんごうを", "путать номер"],
+  ["倒れる", "たおれる", 2, "N4", "電柱が", "でんちゅうが", "столб падает"],
+  ["並べる", "ならべる", 2, "N4", "本を", "ほんを", "расставлять книги"],
+  ["植える", "うえる", 2, "N4", "木を", "きを", "сажать дерево"],
+  ["纏める", "まとめる", 2, "N4", "意見を", "いけんを", "обобщать мнения"],
+  ["決める", "きめる", 2, "N4", "方針を", "ほうしんを", "определять курс"],
+  ["続ける", "つづける", 2, "N4", "練習を", "れんしゅうを", "продолжать тренировку"],
+  ["見つける", "みつける", 2, "N4", "財布を", "さいふを", "находить кошелёк"],
+  ["受ける", "うける", 2, "N4", "テストを", "てすとを", "сдавать тест"],
+  ["晴れる", "はれる", 2, "N4", "空が", "そらが", "небо проясняется"],
+  ["逃げる", "にげる", 2, "N4", "泥棒が", "どろぼうが", "вор убегает"],
+  ["諦める", "あきらめる", 2, "N4", "夢を", "ゆめを", "отказываться от мечты"],
+  ["投げる", "なげる", 2, "N4", "ボールを", "ぼーるを", "бросать мяч"],
+  ["伝える", "つたえる", 2, "N4", "伝言を", "でんごんを", "передавать сообщение"],
+  ["組み立てる", "くみたてる", 2, "N4", "棚を", "たなを", "собирать полку"],
+  ["煮る", "にる", 2, "N4", "ジャガイモを", "じゃがいもを", "тушить картофель"],
+  ["煮える", "にえる", 2, "N4", "スープが", "すーぷが", "суп варится"],
+  ["過ぎる", "すぎる", 2, "N4", "締め切りが", "しめきりが", "дедлайн проходит"],
+  ["慣れる", "なれる", 2, "N4", "日本の気候に", "にほんのきこうに", "привыкать к климату Японии"],
+  ["褒める", "ほめる", 2, "N4", "子供を", "こどもを", "хвалить ребёнка"],
+  ["育てる", "そだてる", 2, "N4", "野菜を", "やさいを", "выращивать овощи"],
+  ["答える", "こたえる", 2, "N4", "質問に", "しつもんに", "отвечать на вопрос"],
+  ["痩せる", "やせる", 2, "N4", "運動で", "うんどうで", "худеть от тренировок"],
+  ["数える", "かぞえる", 2, "N4", "人数を", "にんずうを", "считать людей"],
+  ["確かめる", "たしかめる", 2, "N4", "事実を", "じじつを", "проверять факты"],
+  ["苛める", "いじめる", 2, "N4", "弱い者を", "よわいものを", "обижать слабого"],
+  ["混ぜる", "まぜる", 2, "N4", "砂糖を", "さとうを", "перемешивать сахар"],
+  ["増える", "ふえる", 2, "N4", "人口が", "じんこうが", "население растет"],
+  ["切れる", "きれる", 2, "N4", "糸が", "いとが", "нитка обрывается"],
+  ["取れる", "とれる", 2, "N4", "ボタンが", "ぼたんが", "пуговица отрывается"],
+  ["濡れる", "ぬれる", 2, "N4", "雨で", "あめで", "мокнуть под дождем"],
+  ["信じる", "しんじる", 2, "N4", "友達を", "ともだちを", "доверять другу"],
+  ["別れる", "わかれる", 2, "N4", "恋人と", "こいびとと", "расставаться с любимой"],
+  ["届ける", "とどける", 2, "N4", "荷物を", "にもつを", "доставлять посылку"],
+  ["勤める", "つとめる", 2, "N4", "銀行に", "ぎんこうに", "работать в банке"],
+
+  // --- N4: 3-Я ГРУППА (СУРУ-ГЛАГОЛЫ) ---
+  ["参加する", "さんかする", 3, "N4", "マラソンに", "まらそんに", "участвовать в марафоне"],
+  ["予習する", "よしゅうする", 3, "N4", "教科書を", "きょうかしょを", "готовить урок по учебнику"],
+  ["復習する", "ふくしゅうする", 3, "N4", "文法を", "ぶんぽうを", "повторять грамматику"],
+  ["休憩する", "きゅうけいする", 3, "N4", "ロビーで", "ろびーで", "отдыхать в холле"],
+  ["運動する", "うんどうする", 3, "N4", "ジムで", "じむで", "тренироваться в спортзале"],
+  ["成功する", "せいこうする", 3, "N4", "実験に", "じっけんに", "добиться успеха в опыте"],
+  ["失敗する", "しっぱいする", 3, "N4", "試験に", "しけんに", "провалиться на экзамене"],
+  ["合格する", "ごうかくする", 3, "N4", "大学に", "だいがくに", "поступить в университет"],
+  ["注意する", "ちゅういする", 3, "N4", "車に", "くるまに", "остерегаться машин"],
+  ["出席する", "しゅっせきする", 3, "N4", "式に", "しきに", "присутствовать на церемонии"],
+  ["利用する", "りようする", 3, "N4", "図書館を", "としょかんを", "пользоваться библиотекой"],
+  ["招待する", "しょうたいする", 3, "N4", "親戚を", "しんせきを", "приглашать родственников"],
+  ["輸出する", "ゆしゅつする", 3, "N4", "車を", "くるまを", "экспортировать машины"],
+  ["輸入する", "ゆにゅうする", 3, "N4", "木材を", "もくざいを", "импортировать древесину"],
+  ["翻訳する", "ほんやくする", 3, "N4", "小説を", "しょうせつを", "переводить роман"],
+  ["発明する", "はつめいする", 3, "N4", "機械を", "きかいを", "изобретать прибор"],
+  ["発見する", "はっけんする", 3, "N4", "新星を", "しんせいを", "открыть новую звезду"],
+  ["入院する", "にゅういんする", 3, "N4", "総合病院に", "そうごうびょういんに", "ложиться в больницу"],
+  ["退院する", "たいいんする", 3, "N4", "来週", "らいしゅう", "выписываться на следующей неделе"],
+  ["整理する", "せいりする", 3, "N4", "本棚を", "ほんだなを", "приводить в порядок полку"],
+  ["出発する", "しゅっぱつする", 3, "N4", "朝8時に", "あさはちじに", "отправляться в 8 утра"],
+  ["到着する", "とうちゃくする", 3, "N4", "駅に", "えきに", "прибывать на станцию"],
+  ["相談する", "そうだんする", 3, "N4", "医者に", "いしゃに", "советоваться с врачом"],
+  ["計算する", "けいさんする", 3, "N4", "費用を", "ひようを", "рассчитывать расходы"],
+  ["用意する", "よういする", 3, "N4", "資料を", "しりょうを", "готовить материалы"],
+  ["緊張する", "きんちょうする", 3, "N4", "面接で", "めんせつで", "нервничать на интервью"]
+];
+
+/* ==========================================================================
+   АЛГОРИТМИЧЕСКИЙ ДВИЖОК СПРЯЖЕНИЙ
+   ========================================================================== */
+var GODAN_MAP = {
+  "う": { a: "わ", i: "い", e: "え", o: "おう", ba: "えば" },
+  "く": { a: "か", i: "き", e: "け", o: "こう", ba: "けば" },
+  "ぐ": { a: "が", i: "ぎ", e: "げ", o: "ごう", ba: "げば" },
+  "す": { a: "さ", i: "し", e: "せ", o: "そう", ba: "せば" },
+  "つ": { a: "た", i: "ち", e: "て", o: "とう", ba: "てば" },
+  "ぬ": { a: "な", i: "に", e: "ね", o: "のう", ba: "ねば" },
+  "ぶ": { a: "ば", i: "び", e: "べ", o: "ぼう", ba: "べば" },
+  "む": { a: "ま", i: "み", e: "め", o: "もう", ba: "めば" },
+  "る": { a: "ら", i: "り", e: "れ", o: "ろう", ba: "れば" }
+};
+GODAN_MAP["く"].a = "か";
+
+function conjugateVerb(kanji, kana, group) {
+  if (kana === "つとめます") kana = "つとめる";
+
+  var forms = {};
+
+  if (group === 3) {
+    if (kanji === "来る" || kana === "くる") {
+      forms.passive   = { k: "来られる", r: "こられる" };
+      forms.causative = { k: "来させる", r: "こさせる" };
+      forms.caus_pass = { k: "来させられる", r: "こさせられる" };
+      forms.potential = { k: "来られる", r: "こられる" };
+      forms.ba        = { k: "来れば", r: "くれば" };
+      forms.volitional= { k: "来よう", r: "こよう" };
+    } else {
+      var prefixK = kanji.replace(/する$/, "");
+      var prefixR = kana.replace(/する$/, "");
+      forms.passive   = { k: prefixK + "される", r: prefixR + "される" };
+      forms.causative = { k: prefixK + "させる", r: prefixR + "させる" };
+      forms.caus_pass = { k: prefixK + "させられる", r: prefixR + "させられる" };
+      forms.potential = { k: prefixK + "できる", r: prefixR + "できる" };
+      forms.ba        = { k: prefixK + "すれば", r: prefixR + "すれば" };
+      forms.volitional= { k: prefixK + "しよう", r: prefixR + "しよう" };
+    }
+    return forms;
+  }
+
+  if (group === 2) {
+    var stemK = kanji.slice(0, -1);
+    var stemR = kana.slice(0, -1);
+
+    forms.passive   = { k: stemK + "られる", r: stemR + "られる" };
+    forms.causative = { k: stemK + "させる", r: stemR + "させる" };
+    forms.caus_pass = { k: stemK + "させられる", r: stemR + "させられる" };
+    forms.potential = { k: stemK + "られる", r: stemR + "られる" };
+    forms.ba        = { k: stemK + "れば",   r: stemR + "れば" };
+    forms.volitional= { k: stemK + "よう",   r: stemR + "よう" };
+    return forms;
+  }
+
+  // 1-я группа (Годан)
+  var lastChar = kana.slice(-1);
+  var stemK1 = kanji.slice(0, -1);
+  var stemR1 = kana.slice(0, -1);
+  var g = GODAN_MAP[lastChar];
+
+  var causPassShortK = (lastChar !== "す") ? (stemK1 + g.a + "される") : (stemK1 + g.a + "せられる");
+  var causPassShortR = (lastChar !== "す") ? (stemR1 + g.a + "される") : (stemR1 + g.a + "せられる");
+
+  forms.passive   = { k: stemK1 + g.a + "れる", r: stemR1 + g.a + "れる" };
+  forms.causative = { k: stemK1 + g.a + "せる", r: stemR1 + g.a + "せる" };
+  forms.caus_pass = { k: causPassShortK, r: causPassShortR };
+  forms.potential = { k: stemK1 + g.e + "る",   r: stemR1 + g.e + "る" };
+  forms.ba        = { k: stemK1 + g.ba,         r: stemR1 + g.ba };
+  forms.volitional= { k: stemK1 + g.o,          r: stemR1 + g.o };
+
+  return forms;
+}
+
+/* ==========================================================================
+   ФОРМАТИРОВАНИЕ ЗАДАНИЯ С ВЫНОСОМ ОКОНЧАНИЯ В СКОБКИ
+   ========================================================================== */
+function formatBlankPhrase(cK, cR, kanji, kana, group) {
+  var phraseHtml = "";
+  var readingText = "";
+
+  if (group === 3) {
+    if (kanji === "来る" || kana === "くる") {
+      phraseHtml = `${cK} <span class="target-paren">(来る)</span><span class="target-blank">＿＿</span>`;
+      readingText = `${cR} (くる)＿＿`;
+    } else {
+      var pK = kanji.replace(/する$/, "");
+      var pR = kana.replace(/する$/, "");
+      phraseHtml = `${cK} ${pK}<span class="target-paren">(する)</span><span class="target-blank">＿＿</span>`;
+      readingText = `${cR} ${pR}(する)＿＿`;
+    }
+  } else {
+    var stemK = kanji.slice(0, -1);
+    var endK = kanji.slice(-1);
+    var stemR = kana.slice(0, -1);
+    var endR = kana.slice(-1);
+
+    phraseHtml = `${cK} ${stemK}<span class="target-paren">(${endK})</span><span class="target-blank">＿＿</span>`;
+    readingText = `${cR} ${stemR}(${endR})＿＿`;
+  }
+
+  return { phrase: phraseHtml, reading: readingText };
+}
+
+/* ==========================================================================
+   ПОШАГОВЫЙ РАЗБОР ФОРМУЛЫ
+   ========================================================================== */
+function buildStepBreakdown(kanji, kana, group, fKey, targetObj, cKanji) {
+  var grpName = (group === 1) ? "1-я группа (五段)" : ((group === 2) ? "2-я группа (一段)" : "3-я группа (исключение)");
+  var steps = [];
+
+  steps.push(`<div class="fb-step-line"><b>Глагол:</b> ${kanji} (${kana}) — ${grpName}</div>`);
+
+  if (group === 3) {
+    if (kanji === "来る" || kana === "くる") {
+      steps.push(`<div class="fb-step-line"><b>Основа:</b> особое спряжение глагола <code>来る (くる)</code></div>`);
+      steps.push(`<div class="fb-step-line"><b>Формула:</b> ➔ <b>${targetObj.k} (${targetObj.r})</b></div>`);
+    } else {
+      steps.push(`<div class="fb-step-line"><b>Основа:</b> отбрасываем <code>する</code></div>`);
+      steps.push(`<div class="fb-step-line"><b>Суффикс:</b> заменяем на <code>${targetObj.k.replace(kanji.replace(/する$/,''), '')}</code> ➔ <b>${targetObj.k}</b></div>`);
+    }
+  } else if (group === 2) {
+    var stemK = kanji.slice(0, -1);
+    var stemR = kana.slice(0, -1);
+    steps.push(`<div class="fb-step-line"><b>Основа:</b> отбрасываем <code>る</code> ➔ ${stemK} (${stemR})</div>`);
+
+    if (fKey === "passive" || fKey === "potential") {
+      steps.push(`<div class="fb-step-line"><b>Суффикс:</b> добавляем <code>〜られる</code> ➔ <b>${targetObj.k}</b></div>`);
+    } else if (fKey === "causative") {
+      steps.push(`<div class="fb-step-line"><b>Суффикс:</b> добавляем <code>〜させる</code> ➔ <b>${targetObj.k}</b></div>`);
+    } else if (fKey === "caus_pass") {
+      steps.push(`<div class="fb-step-line"><b>Суффикс:</b> добавляем <code>〜させられる</code> ➔ <b>${targetObj.k}</b></div>`);
+    } else if (fKey === "ba") {
+      steps.push(`<div class="fb-step-line"><b>Суффикс:</b> добавляем <code>〜れば</code> ➔ <b>${targetObj.k}</b></div>`);
+    } else if (fKey === "volitional") {
+      steps.push(`<div class="fb-step-line"><b>Суффикс:</b> добавляем <code>〜よう</code> ➔ <b>${targetObj.k}</b></div>`);
+    }
+  } else {
+    // 1 группа
+    var last = kana.slice(-1);
+    var stemK = kanji.slice(0, -1);
+    var g = GODAN_MAP[last];
+
+    if (fKey === "passive") {
+      steps.push(`<div class="fb-step-line"><b>Основа:</b> меняем звук <code>${last} ➔ ${g.a}</code> (на -а) ➔ ${stemK}${g.a}</div>`);
+      steps.push(`<div class="fb-step-line"><b>Суффикс:</b> добавляем <code>〜れる</code> ➔ <b>${targetObj.k}</b></div>`);
+    } else if (fKey === "causative") {
+      steps.push(`<div class="fb-step-line"><b>Основа:</b> меняем звук <code>${last} ➔ ${g.a}</code> (на -а) ➔ ${stemK}${g.a}</div>`);
+      steps.push(`<div class="fb-step-line"><b>Суффикс:</b> добавляем <code>〜せる</code> ➔ <b>${targetObj.k}</b></div>`);
+    } else if (fKey === "caus_pass") {
+      steps.push(`<div class="fb-step-line"><b>Основа:</b> меняем звук <code>${last} ➔ ${g.a}</code> (на -а) ➔ ${stemK}${g.a}</div>`);
+      if (last === "す") {
+        steps.push(`<div class="fb-step-line"><b>Суффикс:</b> для глаголов на -す полная форма <code>〜せられる</code> ➔ <b>${targetObj.k}</b></div>`);
+      } else {
+        steps.push(`<div class="fb-step-line"><b>Суффикс:</b> сокращенная форма <code>〜される</code> ➔ <b>${targetObj.k}</b></div>`);
+      }
+    } else if (fKey === "potential") {
+      steps.push(`<div class="fb-step-line"><b>Основа:</b> меняем звук <code>${last} ➔ ${g.e}</code> (на -э) ➔ ${stemK}${g.e}</div>`);
+      steps.push(`<div class="fb-step-line"><b>Суффикс:</b> добавляем <code>〜る</code> ➔ <b>${targetObj.k}</b></div>`);
+    } else if (fKey === "ba") {
+      steps.push(`<div class="fb-step-line"><b>Основа:</b> меняем звук <code>${last} ➔ ${g.ba}</code> ➔ <b>${targetObj.k}</b></div>`);
+    } else if (fKey === "volitional") {
+      steps.push(`<div class="fb-step-line"><b>Основа:</b> меняем звук <code>${last} ➔ ${g.o}</code> ➔ <b>${targetObj.k}</b></div>`);
+    }
+  }
+
+  if (fKey === "passive" && (cKanji.indexOf("が") !== -1 || cKanji.indexOf("に") !== -1 || cKanji.indexOf("で") !== -1)) {
+    if (kanji === "降る" || kanji === "死ぬ" || kanji === "泣く" || kanji === "来る" || kanji === "走る" || kanji === "行く") {
+      steps.push(`<div class="fb-step-line" style="margin-top: 6px; color: var(--peach-deep);">💡 <b>Нюанс:</b> непереходный глагол в пассиве выражает досаду (страдательный пассив 迷惑受身) — кто-то пострадал от этого действия.</div>`);
+    }
+  }
+
+  return steps.join("");
+}
+
+/* ==========================================================================
+   ОЗВУЧКА
+   ========================================================================== */
+var jaVoice = null;
+function initVoices() {
+  if (!('speechSynthesis' in window)) return;
+  var voices = window.speechSynthesis.getVoices();
+  jaVoice = voices.find(function(v) { 
+    return (v.lang === 'ja-JP' || v.lang === 'ja_JP' || v.lang.indexOf('ja') === 0) && 
+           (v.name.toLowerCase().indexOf('kyoko') !== -1 || v.name.indexOf('Google 日本語') !== -1 || v.name.indexOf('Siri') !== -1);
+  }) || voices.find(function(v) { 
+    return v.lang === 'ja-JP' || v.lang === 'ja_JP' || v.lang.indexOf('ja') === 0; 
+  }) || null;
+}
+if ('speechSynthesis' in window) {
+  window.speechSynthesis.onvoiceschanged = initVoices;
+  initVoices();
+}
+function speak(text) {
+  if (!('speechSynthesis' in window) || !text) return;
+  try {
+    window.speechSynthesis.cancel();
+    var msg = new SpeechSynthesisUtterance(text);
+    msg.lang = 'ja-JP';
+    msg.rate = 0.88;
+    if (jaVoice) msg.voice = jaVoice;
+    window.speechSynthesis.speak(msg);
+  } catch (e) {}
+}
+
+function shuffleArray(arr) {
+  var copy = arr.slice();
+  for (var i = copy.length - 1; i > 0; i--) {
+    var j = Math.floor(Math.random() * (i + 1));
+    var temp = copy[i];
+    copy[i] = copy[j];
+    copy[j] = temp;
+  }
+  return copy;
+}
+
+/* ==========================================================================
+   ГЕНЕРАТОР КОЛОДЫ
+   ========================================================================== */
+function generateLevelDeck(level) {
+  var deck = [];
+  var targetFormKeys = [];
+
+  if (level === 1) targetFormKeys = ["passive"];
+  if (level === 2) targetFormKeys = ["causative"];
+  if (level === 3) targetFormKeys = ["caus_pass"];
+  if (level === 4) targetFormKeys = ["potential"];
+  if (level === 5) targetFormKeys = ["ba", "volitional"];
+
+  CONJUGATION_VERBS_DATA.forEach(function(item) {
+    var kanji   = item[0];
+    var kana    = (item[1] === "つとめます") ? "つとめる" : item[1];
+    var group   = item[2];
+    var cKanji  = item[4];
+    var cKana   = item[5];
+    var natRu   = item[6];
+
+    var forms = conjugateVerb(kanji, kana, group);
+    var formatted = formatBlankPhrase(cKanji, cKana, kanji, kana, group);
+
+    targetFormKeys.forEach(function(fKey) {
+      var targetObj = forms[fKey];
+
+      var otherKeys = ["passive", "causative", "caus_pass", "potential", "ba", "volitional"].filter(function(k) {
+        return k !== fKey && forms[k].k !== targetObj.k;
+      });
+      var shuffledOther = shuffleArray(otherKeys).slice(0, 3);
+      var choices = shuffledOther.map(function(k) { return forms[k].k; });
+      choices.push(targetObj.k);
+      choices = shuffleArray(choices);
+
+      var grpName = (group === 1) ? "1-я группа (五段)" : ((group === 2) ? "2-я группа (一段)" : "3-я группа (исключение)");
+      var ruleHtml = buildStepBreakdown(kanji, kana, group, fKey, targetObj, cKanji);
+
+      var ruText = natRu;
+      if (level === 5) {
+        ruText = (fKey === "ba") ? `Если: ${natRu}` : `Давай: ${natRu}`;
+      }
+
+      deck.push({
+        rawId: kanji + "_" + fKey,
+        rawVoiceText: cKana + kana,
+        phraseHtml: formatted.phrase,
+        readingText: formatted.reading,
+        ru: ruText,
+        choices: choices,
+        correct: targetObj.k,
+        full: cKanji + " " + targetObj.k,
+        kana: cKana + targetObj.r,
+        rule: ruleHtml,
+        typeTag: grpName
+      });
+    });
+  });
+
+  return shuffleArray(deck);
+}
+
+/* ==========================================================================
+   УПРАВЛЕНИЕ ИГРОЙ
+   ========================================================================== */
+var currentLevel = 1;
+var currentIndex = 0;
+var currentList = [];
+var errorList = [];
+var isAnswered = false;
+
+function initLevel() {
+  if (currentLevel === 'errors') {
+    currentList = errorList.slice();
+  } else {
+    currentList = generateLevelDeck(currentLevel);
+  }
+  currentIndex = 0;
+  renderCard();
+}
+
+function renderCard() {
+  isAnswered = false;
+  document.getElementById('feedbackBox').style.display = 'none';
+  document.getElementById('emptyScreen').style.display = 'none';
+  document.getElementById('gamePanel').style.display = 'flex';
+
+  if (currentList.length === 0 || currentIndex >= currentList.length) {
+    showEmpty();
+    return;
+  }
+
+  var currentTask = currentList[currentIndex];
+
+  document.getElementById('qPhrase').innerHTML = currentTask.phraseHtml;
+  document.getElementById('qReading').textContent = currentTask.readingText;
+  document.getElementById('qRu').textContent = currentTask.ru;
+
+  var grid = document.getElementById('choicesGrid');
+  grid.innerHTML = '';
+
+  currentTask.choices.forEach(function(ch) {
+    var btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'choice-btn';
+    btn.innerHTML = `<span class="choice-main">${ch}</span>`;
+    btn.onclick = function() { handleAnswer(ch); };
+    grid.appendChild(btn);
+  });
+
+  var currentNum = currentIndex + 1;
+  var total = currentList.length;
+  var pct = Math.round((currentIndex / total) * 100);
+
+  document.getElementById('progCountLabel').textContent = "Вопрос " + currentNum + " из " + total;
+  document.getElementById('progPctLabel').textContent = pct + "%";
+  document.getElementById('progressBar').style.width = pct + '%';
+
+  speak(currentTask.rawVoiceText);
+}
+
+function replayQuestionAudio() {
+  if (currentList.length === 0 || currentIndex >= currentList.length) return;
+  speak(currentList[currentIndex].rawVoiceText);
+}
+
+function replayAnswerAudio() {
+  if (currentList.length === 0 || currentIndex >= currentList.length) return;
+  speak(currentList[currentIndex].kana);
+}
+
+function handleAnswer(chosen) {
+  if (isAnswered) return;
+  isAnswered = true;
+
+  var currentTask = currentList[currentIndex];
+  var isCorrect = (chosen === currentTask.correct);
+  var fbBox = document.getElementById('feedbackBox');
+
+  fbBox.style.display = 'flex';
+
+  if (isCorrect) {
+    fbBox.className = 'feedback-box correct';
+    document.getElementById('fbVerdict').textContent = 'Правильно! ✨';
+    if (currentLevel === 'errors') {
+      errorList = errorList.filter(function(e) { return e.rawId !== currentTask.rawId; });
+    }
+  } else {
+    fbBox.className = 'feedback-box wrong';
+    document.getElementById('fbVerdict').textContent = 'Ошибка ✕';
+    var exists = errorList.some(function(e) { return e.rawId === currentTask.rawId; });
+    if (!exists) {
+      errorList.push(currentTask);
+    }
+  }
+
+  document.getElementById('fbTypeTag').textContent = currentTask.typeTag;
+  document.getElementById('fbFull').textContent = currentTask.full;
+  document.getElementById('fbKana').textContent = currentTask.kana;
+  document.getElementById('fbRule').innerHTML = currentTask.rule;
+
+  speak(currentTask.kana);
+  updateUI();
+}
+
+function nextQuestion() {
+  currentIndex++;
+  renderCard();
+}
+
+function showEmpty() {
+  document.getElementById('gamePanel').style.display = 'none';
+  document.getElementById('emptyScreen').style.display = 'flex';
+  document.getElementById('progCountLabel').textContent = "Завершено";
+  document.getElementById('progPctLabel').textContent = "100%";
+  document.getElementById('progressBar').style.width = '100%';
+
+  if (currentLevel === 'errors') {
+    document.getElementById('emptyTitle').textContent = errorList.length === 0 ? 'Ошибок нет!' : 'Круг ошибок завершен';
+    document.getElementById('emptyDesc').textContent = errorList.length === 0 ? 'Все глаголы исправлены!' : 'Осталось ошибок: ' + errorList.length;
+  } else {
+    document.getElementById('emptyTitle').textContent = 'Уровень ' + currentLevel + ' завершён!';
+    document.getElementById('emptyDesc').textContent = 'Все задания уровня пройдены!';
+  }
+}
+
+function restartLevel() {
+  initLevel();
+}
+
+function switchLevel(lvl) {
+  currentLevel = lvl;
+  updateUI();
+  initLevel();
+}
+
+function updateUI() {
+  for (var i = 1; i <= 5; i++) {
+    var btn = document.getElementById('lvlBtn' + i);
+    if (btn) btn.className = (currentLevel === i) ? 'lvl-btn active' : 'lvl-btn';
+  }
+  var errBtn = document.getElementById('lvlBtnErr');
+  if (errBtn) {
+    errBtn.className = (currentLevel === 'errors') ? 'lvl-btn errors-btn active' : 'lvl-btn errors-btn';
+    errBtn.textContent = 'Ошибки (' + errorList.length + ')';
+  }
+}
+
+/* ==========================================================================
+   ТЕОРИЯ (СИТУАЦИИ, ЭТИКЕТ, НЮАНСЫ)
+   ========================================================================== */
+function openTheory() {
+  var modal = document.getElementById('theoryModal');
+  var mTitle = document.getElementById('modalTitle');
+  var mBody = document.getElementById('modalBody');
+
+  if (currentLevel === 1) {
+    mTitle.textContent = "Уровень 1: Пассив (受身形 - Укэми)";
+    mBody.innerHTML = `
+      <p><strong>Зачем нужен:</strong><br>
+      Показать, что субъект <em>испытал действие на себе</em> (его похвалили, сфотографировали, обругали), либо сместить фокус внимания с того, кто делал, на того, с кем это произошло.</p><br>
+      <p><strong>С кем и как говорить:</strong><br>
+      Абсолютно нейтральная форма. В вежливой речи добавляют <code>〜れました</code> (褒められました — меня похвалили). Широко используется в новостях, официальных объявлениях и повседневной жизни.</p><br>
+      <p><strong>💡 Главная фишка N4 — Пассив досады (迷惑受身):</strong><br>
+      В японском можно поставить в пассив <em>непереходный</em> глагол! Это означает, что чье-то действие принесло вам ущерб или неудобство:<br>
+      • <code>雨に降られた</code> (букв. «был обдождлен») ➔ пошёл дождь, и я промок/расстроился.<br>
+      • <code>子供に泣かれた</code> ➔ ребёнок расплакался, и мне было тяжело.</p><br>
+      <p><strong>Формула:</strong><br>
+      • 1-я группа: окончание <code>-u ➔ -areru</code> (う➔われる: 言う ➔ 言われる, 待つ ➔ 待たれる)<br>
+      • 2-я группа: убираем <code>る</code> + <code>られる</code> (食べる ➔ 食べられる)<br>
+      • 3-я группа: <code>する ➔ される</code>, <code>来る ➔ 来られる (こられる)</code></p>
+    `;
+  } else if (currentLevel === 2) {
+    mTitle.textContent = "Уровень 2: Каузатив (使役形 - Сиэки)";
+    mBody.innerHTML = `
+      <p><strong>Зачем нужен:</strong><br>
+      Обозначает побуждение: <strong>заставить</strong> кого-то сделать действие ИЛИ <strong>разрешить / дать</strong> сделать (мама разрешила сыну поиграть, учитель заставил выучить).</p><br>
+      <p><strong>⚠️ Внимание к этикету и субординации:</strong><br>
+      Каузатив звучит жестко и властно. Его используют <strong>старшие к младшим</strong> (родители к детям, босс к подчиненным). Начальнику или старшему по возрасту так сказать нельзя!<br>
+      💡 <em>Исключение:</em> вежливейшая просьба о разрешении <code>〜させてください</code> («позвольте мне сделать / дайте мне уйти»).</p><br>
+      <p><strong>Формула:</strong><br>
+      • 1-я группа: окончание <code>-u ➔ -aseru</code> (う➔わせる: 買う ➔ 買わせる, 待つ ➔ 待たせる)<br>
+      • 2-я группа: убираем <code>る</code> + <code>させる</code> (食べる ➔ 食べさせる)<br>
+      • 3-я группа: <code>する ➔ させる</code>, <code>来る ➔ 来させる (こさせる)</code></p>
+    `;
+  } else if (currentLevel === 3) {
+    mTitle.textContent = "Уровень 3: Каузатив-пассив (使役受身)";
+    mBody.innerHTML = `
+      <p><strong>Зачем нужен:</strong><br>
+      Это комбо каузатива и пассива: <strong>«меня заставили сделать что-то против моей воли»</strong>.<br>
+      <em>Примеры: заставили пить на корпоративе, заставили ждать 2 часа, заставили убираться.</em></p><br>
+      <p><strong>С кем говорить:</strong><br>
+      Используется, когда вы жалуетесь друзьям или коллегам на несправедливость или обстоятельства, в которых у вас не было выбора.</p><br>
+      <p><strong>💡 Лайфхак N4 (Короткая форма):</strong><br>
+      Для 1-й группы японцы почти всегда говорят короткую форму: не длинное <code>待たせられる</code>, а быстрое <code>待たされる</code>!<br>
+      <em>Исключение: глаголы на す (話す ➔ 話させられる).</em></p><br>
+      <p><strong>Формула:</strong><br>
+      • 1-я группа: <code>-u ➔ -asareru</code> (待つ ➔ 待たされる, 飲む ➔ 飲まされる)<br>
+      • 2-я группа: убираем <code>る</code> + <code>させられる</code> (食べる ➔ 食べさせられる)<br>
+      • 3-я группа: <code>する ➔ させられる</code>, <code>来る ➔ 来させられる (こさせられる)</code></p>
+    `;
+  } else if (currentLevel === 4) {
+    mTitle.textContent = "Уровень 4: Потенциал (可能形 - Кано:кэй)";
+    mBody.innerHTML = `
+      <p><strong>Зачем нужен:</strong><br>
+      Обозначает физическую способность или возможность: «я могу / умею делать это». Это живой разговорный аналог длинной конструкции N5 <code>〜ことができます</code>.</p><br>
+      <p><strong>⚠️ Золотое правило падежей N4:</strong><br>
+      Винительный падеж <code>を</code> при переходе в потенциал обычно заменяется на <code>が</code>:<br>
+      <em>日本語を話す ➔ 日本語が話せる (Я могу говорить по-японски).</em></p><br>
+      <p><strong>Формула:</strong><br>
+      • 1-я группа: окончание <code>-u ➔ -eru</code> (行く ➔ 行ける, 飲む ➔ 飲める, 待つ ➔ 待てる)<br>
+      • 2-я группа: убираем <code>る</code> + <code>られる</code> (食べる ➔ 食べられる)<br>
+      • 3-я группа: <code>する ➔ できる</code> (слово меняется полностью!), <code>来る ➔ 来られる (こられる)</code></p>
+    `;
+  } else if (currentLevel === 5) {
+    mTitle.textContent = "Уровень 5: Условие (-ば) и Волитив (-よう)";
+    mBody.innerHTML = `
+      <p><strong>1. Условная форма (-ば / Катэйкэй):</strong><br>
+      «Если сделать X, то...». Более книжное и строгое условие, чем разговорное <code>〜たら</code>.<br>
+      • 1-я группа: <code>-u ➔ -eba</code> (安ければ, 行けば, 待てば)<br>
+      • 2-я группа: <code>る ➔ れば</code> (食べれば)<br>
+      • 3-я группа: <code>する ➔ すれば</code>, <code>来る ➔ くれば</code></p><br>
+      <p><strong>2. Побудительная форма (Волитив / 〜よう / Ико:кэй):</strong><br>
+      Простая форма для призыва «Давай сделаем!» (неформальный эквивалент вежливого <code>〜ましょう</code>).<br>
+      <strong>С кем говорить:</strong> Только с друзьями, равными или младшими. Начальнику сказать <code>行こう</code> грубо, ему говорят только <code>行きましょう</code>!<br>
+      • 1-я группа: <code>-u ➔ -ō</code> (行く ➔ 行こう, 待つ ➔ 待とう)<br>
+      • 2-я группа: <code>る ➔ よう</code> (食べる ➔ 食べよう)<br>
+      • 3-я группа: <code>する ➔ しよう</code>, <code>来る ➔ こよう</code></p>
+    `;
+  } else {
+    mTitle.textContent = "Работа над ошибками";
+    mBody.innerHTML = "<p>Здесь собраны конкретные глаголы, в формах которых вы ошиблись. Ответьте на них правильно, чтобы убрать из списка!</p>";
+  }
+
+  modal.classList.add('show');
+}
+
+function closeTheory() {
+  document.getElementById('theoryModal').classList.remove('show');
+}
+
+/* ==========================================================================
+   КЛАВИАТУРА (1-4, ENTER, ESCAPE)
+   ========================================================================== */
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Escape') {
+    closeTheory();
+  } else if (e.key >= '1' && e.key <= '4') {
+    var idx = parseInt(e.key) - 1;
+    var btns = document.querySelectorAll('.choice-btn');
+    if (btns && btns[idx] && document.getElementById('feedbackBox').style.display !== 'flex') {
+      btns[idx].click();
+    }
+  } else if (e.key === 'Enter') {
+    var nextBtn = document.getElementById('btnNext');
+    if (document.getElementById('feedbackBox').style.display === 'flex') {
+      nextBtn.click();
+    }
+  }
+});
+
+// Старт
+updateUI();
+initLevel();
+</script>
+</body>
+</html>

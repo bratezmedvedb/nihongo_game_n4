@@ -1,0 +1,1454 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>Не/переходные глаголы (N4/N5)</title>
+
+  <!-- Google Fonts: Японский округлый шрифт -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@400;500;700;800&family=Nunito:wght@600;700;800&display=swap" rel="stylesheet">
+
+  <!-- Telegram WebApp SDK -->
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+
+  <!-- Применение темы, сохранённой в главном меню -->
+  <script>
+    const savedTheme = localStorage.getItem('app_theme') || 'light';
+    document.documentElement.setAttribute('data-theme', savedTheme);
+
+    if (window.Telegram && window.Telegram.WebApp) {
+      const tg = window.Telegram.WebApp;
+      tg.ready();
+      tg.expand();
+      if (tg.disableVerticalSwipes) tg.disableVerticalSwipes();
+      const themeColor = savedTheme === 'dark' ? '#181517' : '#fbf8ee';
+      if (tg.setHeaderColor) tg.setHeaderColor(themeColor);
+      if (tg.setBackgroundColor) tg.setBackgroundColor(themeColor);
+    }
+  </script>
+
+  <style>
+    /* ================= СВЕТЛАЯ ТЕМА ================= */
+    :root {
+      --cream: #fbf8ee;
+      --paper: #ffffff;
+      --ink: #4a3a36;
+      --ink-soft: #8f8478;
+
+      --strawberry: #ffc4d0;
+      --strawberry-deep: #ec6f88;
+      --strawberry-shadow: #af3952;
+
+      --matcha: #d5e8b3;
+      --matcha-deep: #8db55a;
+      --matcha-shadow: #58792c;
+
+      --peach: #ffd8bb;
+      --peach-deep: #f0a06c;
+      --peach-shadow: #b35f29;
+
+      --pistachio: #cdeec4;
+      --pistachio-deep: #78bf74;
+
+      --apricot: #ffe6cc;
+      --line: #f3e2d6;
+
+      --icon-box-strawberry: #fff0f3;
+      --icon-box-peach: #fff5ec;
+      --icon-box-matcha: #f3f9e8;
+
+      --radius-xl: 24px;
+      --radius-lg: 18px;
+      --radius-md: 14px;
+    }
+
+    /* ================= ТЁМНАЯ ТЕМА ================= */
+    [data-theme="dark"] {
+      --cream: #181517;
+      --paper: #231e22;
+      --ink: #fdfaf6;
+      --ink-soft: #a89ca0;
+
+      --strawberry: #4e2933;
+      --strawberry-deep: #ff7593;
+      --strawberry-shadow: #943248;
+
+      --matcha: #2e3b22;
+      --matcha-deep: #9dcd60;
+      --matcha-shadow: #4d6d24;
+
+      --peach: #4d3324;
+      --peach-deep: #f8a068;
+      --peach-shadow: #a44f20;
+
+      --apricot: #3d2a20;
+      --line: #332b30;
+
+      --icon-box-strawberry: #341e25;
+      --icon-box-peach: #38251c;
+      --icon-box-matcha: #232d1c;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-tap-highlight-color: transparent;
+      user-select: none;
+    }
+
+    body {
+      background-color: var(--cream);
+      color: var(--ink);
+      font-family: 'M PLUS Rounded 1c', 'Nunito', -apple-system, BlinkMacSystemFont, sans-serif;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      padding: calc(65px + env(safe-area-inset-top, 0px)) 16px calc(40px + env(safe-area-inset-bottom, 0px));
+      transition: background-color 0.25s ease, color 0.25s ease, padding-top 0.2s ease;
+      background-image:
+        radial-gradient(circle at 15% 15%, rgba(255, 196, 208, 0.25) 0%, transparent 40%),
+        radial-gradient(circle at 85% 85%, rgba(213, 232, 179, 0.25) 0%, transparent 40%);
+      background-attachment: fixed;
+      position: relative;
+    }
+
+    [data-theme="dark"] body {
+      background-image:
+        radial-gradient(circle at 15% 15%, rgba(236, 111, 136, 0.12) 0%, transparent 45%),
+        radial-gradient(circle at 85% 85%, rgba(141, 181, 90, 0.10) 0%, transparent 45%);
+    }
+
+    body.tg-fullscreen {
+      padding-top: calc(85px + env(safe-area-inset-top, 0px)) !important;
+    }
+
+    /* Фоновые лепестки сакуры */
+    .petals {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      overflow: hidden;
+      z-index: 0;
+    }
+    .petals span {
+      position: absolute;
+      top: -30px;
+      width: 14px;
+      height: 11px;
+      background: var(--strawberry-deep);
+      border-radius: 80% 0 80% 0;
+      opacity: .5;
+      animation: fall 14s linear infinite;
+    }
+    .petals span:nth-child(1) { left: 8%;  animation-delay: 0s;   animation-duration: 15s; }
+    .petals span:nth-child(2) { left: 24%; animation-delay: -5s;  animation-duration: 18s; width: 10px; height: 8px; }
+    .petals span:nth-child(3) { left: 42%; animation-delay: -9s;  animation-duration: 16s; background: var(--peach-deep); }
+    .petals span:nth-child(4) { left: 61%; animation-delay: -3s;  animation-duration: 20s; width: 12px; height: 9px; }
+    .petals span:nth-child(5) { left: 78%; animation-delay: -11s; animation-duration: 17s; background: var(--matcha-deep); }
+    .petals span:nth-child(6) { left: 92%; animation-delay: -7s;  animation-duration: 19s; }
+
+    @keyframes fall {
+      0%   { transform: translate(0, 0) rotate(0deg); }
+      50%  { transform: translate(28px, 55vh) rotate(180deg); }
+      100% { transform: translate(-12px, 110vh) rotate(360deg); }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .petals { display: none; }
+    }
+
+    #app {
+      width: 100%;
+      max-width: 480px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      position: relative;
+      z-index: 1;
+    }
+
+    /* Верхняя панель (только кнопка Меню) */
+    .top-bar {
+      display: flex;
+      justify-content: flex-start;
+      align-items: center;
+      margin-bottom: 2px;
+    }
+
+    .nav-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: var(--paper);
+      color: var(--ink);
+      border: 2px solid var(--line);
+      font-size: 13px;
+      font-weight: 800;
+      padding: 7px 16px;
+      border-radius: 99px;
+      box-shadow: 0 3px 0 var(--line);
+      cursor: pointer;
+      text-decoration: none;
+      font-family: inherit;
+      transition: all 0.15s ease;
+    }
+    .nav-btn:active {
+      transform: translateY(2px);
+      box-shadow: 0 1px 0 var(--line);
+    }
+
+    /* Навигация по Уровням */
+    .level-nav {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr) 1.25fr;
+      gap: 6px;
+    }
+
+    .lvl-btn {
+      padding: 9px 2px;
+      border-radius: var(--radius-md);
+      border: 2px solid var(--line);
+      background: var(--paper);
+      color: var(--ink-soft);
+      font-size: 11px;
+      font-weight: 800;
+      cursor: pointer;
+      text-align: center;
+      transition: all 0.15s ease;
+      white-space: nowrap;
+      box-shadow: 0 3px 0 var(--line);
+      font-family: inherit;
+    }
+    .lvl-btn:active {
+      transform: translateY(2px);
+      box-shadow: 0 1px 0 var(--line);
+    }
+    .lvl-btn.active {
+      background: var(--peach-deep);
+      color: #ffffff;
+      border-color: var(--peach-deep);
+      box-shadow: 0 3px 0 var(--peach-shadow);
+    }
+
+    .lvl-btn.errors-btn {
+      color: var(--strawberry-deep);
+      border-color: var(--strawberry);
+      box-shadow: 0 3px 0 var(--strawberry);
+    }
+    .lvl-btn.errors-btn.active {
+      background: var(--strawberry-deep);
+      color: #ffffff;
+      border-color: var(--strawberry-deep);
+      box-shadow: 0 3px 0 var(--strawberry-shadow);
+    }
+
+    /* Баннер секретов/правил */
+    .theory-banner {
+      background: var(--paper);
+      border: 2px dashed var(--peach-deep);
+      border-radius: var(--radius-lg);
+      padding: 10px 14px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 6px;
+      font-size: 13.5px;
+      font-weight: 800;
+      color: var(--peach-deep);
+      cursor: pointer;
+      box-shadow: 0 3px 0 rgba(240, 160, 108, 0.25);
+      transition: all 0.15s ease;
+    }
+    .theory-banner:active {
+      transform: translateY(2px);
+      box-shadow: 0 1px 0 rgba(240, 160, 108, 0.25);
+    }
+
+    /* Прогресс-бар с карамельной полоской */
+    .progress-wrap {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .progress-labels {
+      display: flex;
+      justify-content: space-between;
+      font-size: 12.5px;
+      color: var(--ink-soft);
+      font-weight: 700;
+      padding: 0 4px;
+    }
+    .progress-container {
+      width: 100%;
+      height: 10px;
+      background: var(--line);
+      border-radius: 99px;
+      overflow: hidden;
+      padding: 1px;
+    }
+
+    /* Карамельная полоса (Светлая тема) */
+    .progress-fill {
+      height: 100%;
+      width: 0%;
+      border-radius: 99px;
+      transition: width 0.25s ease;
+      background: repeating-linear-gradient(135deg, var(--strawberry-deep) 0 10px, var(--strawberry) 10px 20px);
+    }
+
+    /* Карамельная полоса (Тёмная тема) */
+    [data-theme="dark"] .progress-fill {
+      background: repeating-linear-gradient(135deg, var(--strawberry-deep) 0 10px, #3d1c25 10px 20px);
+    }
+
+    /* Карточка вопроса */
+    .card {
+      position: relative;
+      background: var(--paper);
+      border: 2.5px solid var(--peach);
+      box-shadow: 0 6px 0 var(--peach);
+      border-radius: var(--radius-xl);
+      padding: 24px 16px 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      gap: 6px;
+      transition: background 0.25s ease;
+    }
+
+    .btn-sound-corner {
+      position: absolute;
+      top: 14px;
+      right: 14px;
+    }
+
+    .target-header {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 100%;
+      padding: 0 36px;
+    }
+
+    /* Кандзи строго font-weight: 500 */
+    .target-phrase {
+      font-size: 28px;
+      font-weight: 500;
+      color: var(--ink);
+      letter-spacing: 0.5px;
+      line-height: 1.3;
+    }
+
+    .target-particle {
+      color: var(--strawberry-deep);
+      font-weight: 700;
+    }
+
+    .target-blank {
+      color: var(--peach-deep);
+      border-bottom: 3px dashed var(--peach-deep);
+      padding: 0 6px;
+      display: inline-block;
+    }
+
+    .target-reading {
+      font-size: 15px;
+      font-weight: 500;
+      color: var(--ink-soft);
+      letter-spacing: 0.5px;
+      min-height: 22px;
+    }
+
+    .target-ru {
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--matcha-deep);
+      line-height: 1.35;
+      margin-top: 2px;
+    }
+
+    /* Кнопка звука */
+    .btn-sound {
+      background: var(--cream);
+      border: 2px solid var(--line);
+      border-radius: 50%;
+      width: 36px;
+      height: 36px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      font-size: 16px;
+      box-shadow: 0 2px 0 var(--line);
+      transition: all 0.15s ease;
+      flex-shrink: 0;
+    }
+    .btn-sound:active {
+      transform: translateY(2px);
+      box-shadow: 0 0 0 var(--line);
+    }
+
+    /* Сетка кнопок ответа */
+    .buttons-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    .choice-btn {
+      background: var(--paper);
+      border: 2.5px solid var(--line);
+      box-shadow: 0 5px 0 var(--line);
+      border-radius: var(--radius-lg);
+      padding: 16px 8px;
+      cursor: pointer;
+      transition: all 0.12s ease;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 3px;
+      text-align: center;
+      word-break: keep-all;
+      font-family: inherit;
+    }
+    .choice-btn:active {
+      transform: translateY(3px);
+      box-shadow: 0 2px 0 var(--line);
+      border-color: var(--peach-deep);
+    }
+
+    /* Кандзи в вариантах выбора: строго 500 */
+    .choice-main {
+      font-size: 19px;
+      font-weight: 500;
+      color: var(--ink);
+      line-height: 1.25;
+    }
+
+    .choice-sub {
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--ink-soft);
+    }
+
+    /* Блок пояснения */
+    .feedback-box {
+      background: var(--paper);
+      border-radius: var(--radius-xl);
+      padding: 18px;
+      display: none;
+      flex-direction: column;
+      gap: 12px;
+      transition: all 0.2s ease;
+    }
+    .feedback-box.correct {
+      border: 2.5px solid var(--matcha);
+      box-shadow: 0 6px 0 var(--matcha);
+      background: var(--icon-box-matcha);
+    }
+    .feedback-box.wrong {
+      border: 2.5px solid var(--strawberry);
+      box-shadow: 0 6px 0 var(--strawberry);
+      background: var(--icon-box-strawberry);
+    }
+
+    .fb-title {
+      font-size: 14.5px;
+      font-weight: 800;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .feedback-box.correct .fb-title { color: var(--matcha-deep); }
+    .feedback-box.wrong .fb-title { color: var(--strawberry-deep); }
+
+    .fb-body-wrap {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+    }
+
+    /* Кандзи в ответе: строго 500 */
+    .fb-full {
+      font-size: 24px;
+      font-weight: 500;
+      color: var(--ink);
+      line-height: 1.25;
+    }
+    .fb-kana {
+      font-size: 14px;
+      color: var(--ink-soft);
+      font-weight: 500;
+/* Блок пояснения — обычный шрифт (400) */
+    .fb-rule {
+      font-size: 13.5px;
+      color: var(--ink);
+      line-height: 1.6;
+      background: var(--paper);
+      padding: 12px 14px;
+      border-radius: var(--radius-md);
+      border: 1.5px solid var(--line);
+      font-weight: 400; /* <-- ОБЫЧНАЯ ТОЛЩИНА */
+    }
+
+    /* Чтобы заголовки в пояснении (Частица, Лайфхак) были выделены, 
+       но сами японские фразы внутри пояснения не раздувало жирным */
+    .fb-rule b,
+    .fb-rule strong {
+      font-weight: 600; /* Аккуратный полужирный для акцентов */
+    }
+    }
+    .fb-step-line {
+      margin-bottom: 6px;
+    }
+    .fb-step-line:last-child {
+      margin-bottom: 0;
+    }
+
+    /* Основная кнопка действия */
+    .btn-action {
+      background: var(--strawberry-deep);
+      color: #ffffff;
+      border: none;
+      border-radius: var(--radius-md);
+      padding: 14px;
+      font-size: 15px;
+      font-weight: 800;
+      cursor: pointer;
+      box-shadow: 0 4px 0 var(--strawberry-shadow);
+      transition: all 0.12s ease;
+      font-family: inherit;
+      width: 100%;
+    }
+    .btn-action:active {
+      transform: translateY(2px);
+      box-shadow: 0 2px 0 var(--strawberry-shadow);
+    }
+
+    /* Модальное окно теории */
+    .modal-backdrop {
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(15, 12, 14, 0.65);
+      backdrop-filter: blur(5px);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 18px;
+      z-index: 1000;
+      opacity: 0;
+      transition: opacity 0.2s ease;
+    }
+    .modal-backdrop.show {
+      display: flex;
+      opacity: 1;
+    }
+
+    .modal-card {
+      background: var(--paper);
+      border: 3px solid var(--line);
+      border-radius: var(--radius-xl);
+      width: 100%;
+      max-width: 440px;
+      max-height: 85vh;
+      overflow-y: auto;
+      padding: 22px;
+      box-shadow: 0 16px 32px rgba(0, 0, 0, 0.35);
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      transform: scale(0.95);
+      transition: transform 0.2s ease;
+    }
+    .modal-backdrop.show .modal-card {
+      transform: scale(1);
+    }
+
+    .modal-header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      border-bottom: 2px dashed var(--line);
+      padding-bottom: 12px;
+    }
+    .modal-icon {
+      font-size: 28px;
+    }
+    .modal-title {
+      font-size: 17px;
+      font-weight: 800;
+      color: var(--ink);
+      margin: 0;
+    }
+/* Тело модалки "Секреты пар" */
+    .modal-body {
+      font-size: 14px;
+      line-height: 1.65;
+      color: var(--ink);
+      font-weight: 400;
+    }
+
+    /* Обычные выделения и кандзи внутри текста (消す, 割る) — чёткие, тёмные и тонкие */
+    .modal-body strong {
+      font-weight: 600;
+      color: var(--ink);
+    }
+
+    /* Подтемы правил («1. Правило...», «2. Правило...») — персиковые и заметные */
+    .modal-body p > strong:first-child {
+      color: var(--peach-deep);
+      font-weight: 700;
+      display: inline-block;
+      margin-bottom: 3px;
+    }
+
+    /* Подсвеченные плашки с кодом (〜す, を) */
+    .modal-body code {
+      background: var(--cream);
+      padding: 1px 5px;
+      border-radius: 6px;
+      font-family: inherit;
+      color: var(--strawberry-deep);
+      font-weight: 500;
+      border: 1px solid var(--line);
+    }
+
+    /* Заодно в карточке пояснения (после ответа) делаем «Частица:» и «Лайфхак:» тоже персиковыми */
+    .fb-rule b, 
+    .fb-rule strong {
+      color: var(--peach-deep);
+      font-weight: 700;
+    }
+
+    .modal-close-btn {
+      background: var(--peach-deep);
+      color: #ffffff;
+      border: none;
+      border-radius: var(--radius-md);
+      padding: 12px;
+      font-size: 14px;
+      font-weight: 800;
+      cursor: pointer;
+      box-shadow: 0 3px 0 var(--peach-shadow);
+      font-family: inherit;
+      transition: all 0.12s ease;
+    }
+    .modal-close-btn:active {
+      transform: translateY(2px);
+      box-shadow: 0 1px 0 var(--peach-shadow);
+    }
+
+    /* Экран завершения */
+    .dialog-view {
+      background: var(--paper);
+      border: 2.5px solid var(--matcha);
+      box-shadow: 0 6px 0 var(--matcha);
+      border-radius: var(--radius-xl);
+      padding: 36px 20px;
+      text-align: center;
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      gap: 12px;
+    }
+    .dialog-view h3 {
+      font-size: 22px;
+      font-weight: 800;
+      color: var(--ink);
+    }
+    .dialog-view p {
+      font-size: 14.5px;
+      color: var(--ink-soft);
+      font-weight: 600;
+    }
+  </style>
+</head>
+<body>
+
+<!-- Падающие лепестки сакуры -->
+<div class="petals" aria-hidden="true">
+  <span></span>
+  <span></span>
+  <span></span>
+  <span></span>
+  <span></span>
+  <span></span>
+</div>
+
+<div id="app">
+  <!-- Верхняя строка (только кнопка Меню) -->
+  <div class="top-bar">
+    <a href="index.html" class="nav-btn">← Меню</a>
+  </div>
+
+  <!-- 1. Навигация по Уровням -->
+  <div class="level-nav">
+    <button type="button" class="lvl-btn active" id="lvlBtn1" onclick="switchLevel(1)">Прошедшее</button>
+    <button type="button" class="lvl-btn" id="lvlBtn2" onclick="switchLevel(2)">Настоящее</button>
+    <button type="button" class="lvl-btn" id="lvlBtn3" onclick="switchLevel(3)">〜ている</button>
+    <button type="button" class="lvl-btn" id="lvlBtn4" onclick="switchLevel(4)">Микс</button>
+    <button type="button" class="lvl-btn" id="lvlBtn5" onclick="switchLevel(5)">が или を?</button>
+    <button type="button" class="lvl-btn errors-btn" id="lvlBtnErr" onclick="switchLevel('errors')">Ошибки (0)</button>
+  </div>
+
+  <!-- 2. Баннер правил -->
+  <div class="theory-banner" onclick="openTheory()">
+    <span>📖</span> Секреты пар 自動詞 / 他動詞
+  </div>
+
+  <!-- 3. Прогресс -->
+  <div class="progress-wrap">
+    <div class="progress-labels">
+      <span id="progCountLabel">Вопрос 1</span>
+      <span id="progPctLabel">0%</span>
+    </div>
+    <div class="progress-container">
+      <div class="progress-fill" id="progressBar"></div>
+    </div>
+  </div>
+
+  <!-- 4. Игровая панель -->
+  <div id="gamePanel" style="display: flex; flex-direction: column; gap: 12px;">
+    <div class="card">
+      <button type="button" class="btn-sound btn-sound-corner" onclick="replayQuestionAudio()" title="Послушать">🔊</button>
+
+      <!-- КРУПНО: кандзи 500 -->
+      <div class="target-header">
+        <div class="target-phrase" id="qPhrase">ドアが ＿＿</div>
+      </div>
+      <!-- СРЕДНЕ: чтение -->
+      <div class="target-reading" id="qReading">どあが ＿＿</div>
+      <!-- Перевод -->
+      <div class="target-ru" id="qRu">дверь открылась</div>
+    </div>
+
+    <!-- 2 кнопки ответов строчкой -->
+    <div class="buttons-grid" id="choicesGrid"></div>
+
+    <!-- Пояснение ответа -->
+    <div class="feedback-box" id="feedbackBox">
+      <div class="fb-title">
+        <span id="fbVerdict">Верно!</span>
+        <span id="fbTypeTag">自動詞 (непереходный)</span>
+      </div>
+      <div class="fb-body-wrap">
+        <div>
+          <!-- Кандзи 500 -->
+          <div class="fb-full" id="fbFull">ドアが 開いた</div>
+          <div class="fb-kana" id="fbKana">どあがあいた</div>
+        </div>
+        <button type="button" class="btn-sound" onclick="replayAnswerAudio()" title="Послушать правильный ответ">🔊</button>
+      </div>
+      <div class="fb-rule" id="fbRule"></div>
+      <button type="button" class="btn-action" id="btnNext" onclick="nextQuestion()">Дальше →</button>
+    </div>
+  </div>
+
+  <!-- Экран окончания списка -->
+  <div class="dialog-view" id="emptyScreen">
+    <div style="font-size: 38px;">🎉</div>
+    <h3 id="emptyTitle">Уровень завершён!</h3>
+    <p id="emptyDesc">Все пары успешно отработаны!</p>
+    <button type="button" class="btn-action" style="max-width: 220px;" onclick="restartLevel()">Пройти заново</button>
+  </div>
+</div>
+
+<!-- Модалка теории -->
+<div class="modal-backdrop" id="theoryModal" onclick="closeTheory()">
+  <div class="modal-card" onclick="event.stopPropagation()">
+    <div class="modal-header">
+      <div class="modal-icon">💡</div>
+      <h3 class="modal-title" id="modalTitle">Секреты запоминания пар 自動詞 / 他動詞</h3>
+    </div>
+    <div class="modal-body" id="modalBody"></div>
+    <button type="button" class="modal-close-btn" onclick="closeTheory()">Всё понятно!</button>
+  </div>
+</div>
+
+<script>
+/* ==========================================================================
+   ПОЛНАЯ БАЗА: 40 ПАР ГЛАГОЛОВ С ТОЧНЫМИ ПЕРЕВОДАМИ ВО ВСЕХ ФОРМАХ
+   ========================================================================== */
+var PAIRS_RAW = [
+  // --- N5 ---
+  {
+    ji:"開く", jr:"あく", ta:"開ける", tr:"あける", nk:"ドア", nr:"どあ",
+    pres: ["дверь открывается", "открывать дверь"],
+    past: ["дверь открылась", "открыл дверь"],
+    te:   ["дверь открыта", "кто-то прямо сейчас открывает дверь"],
+    tip:  "Пара на -u / -eru: глагол на -e- (開ける) всегда переходный!"
+  },
+  {
+    ji:"閉まる", jr:"しまる", ta:"閉める", tr:"しめる", nk:"窓", nr:"まど",
+    pres: ["окно закрывается", "закрывать окно"],
+    past: ["окно закрылось", "закрыл окно"],
+    te:   ["окно закрыто", "кто-то прямо сейчас закрывает окно"],
+    tip:  "-aru (閉まる) = непереходный (само), -e- (閉める) = переходный (человек)."
+  },
+  {
+    ji:"点く", jr:"つく", ta:"点ける", tr:"つける", nk:"電気", nr:"でんき",
+    pres: ["свет загорается", "включать свет"],
+    past: ["свет включился", "включил свет"],
+    te:   ["свет горит", "кто-то прямо сейчас включает свет"],
+    tip:  "-u (点く) = само, -eru (点ける) = действие над объектом."
+  },
+  {
+    ji:"消える", jr:"きえる", ta:"消す", tr:"けす", nk:"火", nr:"ひ",
+    pres: ["огонь гаснет", "тушить огонь / выключать свет"],
+    past: ["огонь погас", "потушил огонь / выключил свет"],
+    te:   ["огонь погас", "кто-то прямо сейчас тушит огонь"],
+    tip:  "Золотое правило: глагол на -す (消す) ВСЕГДА переходный!"
+  },
+  {
+    ji:"入る", jr:"はいる", ta:"入れる", tr:"いれる", nk:"お茶", nr:"おちゃ",
+    pres: ["чай наливается", "наливать чай"],
+    past: ["чай налился", "налил чай"],
+    te:   ["чай налит", "кто-то прямо сейчас наливает чай"],
+    tip:  "入る (входить / попадать), 入れる (вкладывать / наливать)."
+  },
+  {
+    ji:"出る", jr:"でる", ta:"出す", tr:"だす", nk:"宿題", nr:"しゅくだい",
+    pres: ["домашка сдается", "сдавать домашку"],
+    past: ["домашка сдана", "сдал домашку"],
+    te:   ["домашка сдана", "кто-то прямо сейчас сдает домашку"],
+    tip:  "Глагол на -す (出す) — переходный (человек сдает / достает)."
+  },
+  {
+    ji:"止まる", jr:"とまる", ta:"止める", tr:"とめる", nk:"車", nr:"くるま",
+    pres: ["машина останавливается", "останавливать машину"],
+    past: ["машина остановилась", "остановил машину"],
+    te:   ["машина стоит", "кто-то прямо сейчас останавливает машину"],
+    tip:  "-aru (止まる) = остановилась сама, -eru (止める) = припарковал."
+  },
+  {
+    ji:"始まる", jr:"はじまる", ta:"始める", tr:"はじめる", nk:"授業", nr:"じゅぎょう",
+    pres: ["урок начинается", "начинать урок"],
+    past: ["урок начался", "начал урок"],
+    te:   ["урок уже идет", "кто-то прямо сейчас начинает урок"],
+    tip:  "-aru (始まる) = начался сам, -e- (始める) = учитель начал."
+  },
+  {
+    ji:"終わる", jr:"おわる", ta:"終える", tr:"おえる", nk:"仕事", nr:"しごと",
+    pres: ["работа заканчивается", "заканчивать работу"],
+    past: ["работа закончилась", "закончил работу"],
+    te:   ["работа завершена", "кто-то прямо сейчас заканчивает работу"],
+    tip:  "終える = целенаправленно завершить начатое дело."
+  },
+
+  // --- N4 ---
+  {
+    ji:"壊れる", jr:"こわれる", ta:"壊す", tr:"こわす", nk:"時計", nr:"とけい",
+    pres: ["часы ломаются", "ломать часы"],
+    past: ["часы сломались", "сломал часы"],
+    te:   ["часы сломаны", "кто-то прямо сейчас ломает часы"],
+    tip:  "-reru (壊れる) = сломался сам; на -す (壊す) = кто-то сломал."
+  },
+  {
+    ji:"割れる", jr:"われる", ta:"割る", tr:"わる", nk:"コップ", nr:"こっぷ",
+    pres: ["стакан разбивается", "разбивать стакан"],
+    past: ["стакан разбился", "разбил стакан"],
+    te:   ["стакан разбит", "кто-то прямо сейчас разбивает стакан"],
+    tip:  "-reru (割れる) = разбился сам; 割る = кто-то разбил."
+  },
+  {
+    ji:"折れる", jr:"おれる", ta:"折る", tr:"おる", nk:"枝", nr:"えだ",
+    pres: ["ветка ломается", "ломать ветку"],
+    past: ["ветка сломалась", "сломал ветку"],
+    te:   ["ветка сломана", "кто-то прямо сейчас ломает ветку"],
+    tip:  "-reru (折れる) = сломалась сама; 折る = намеренно сломал."
+  },
+  {
+    ji:"破れる", jr:"やぶれる", ta:"破る", tr:"やぶる", nk:"紙", nr:"かみ",
+    pres: ["бумага рвется", "рвать бумагу"],
+    past: ["бумага порвалась", "порвал бумагу"],
+    te:   ["бумага порвана", "кто-то прямо сейчас рвет бумагу"],
+    tip:  "-reru (破れる) = порвалась сама; 破る = разорвать."
+  },
+  {
+    ji:"汚れる", jr:"よごれる", ta:"汚す", tr:"よごす", nk:"服", nr:"ふく",
+    pres: ["одежда пачкается", "пачкать одежду"],
+    past: ["одежда испачкалась", "испачкал одежду"],
+    te:   ["одежда испачкана", "кто-то прямо сейчас пачкает одежду"],
+    tip:  "на -す (汚す) = испачкал; -reru (汚れる) = испачкалась сама."
+  },
+  {
+    ji:"落ちる", jr:"おちる", ta:"落とす", tr:"おとす", nk:"財布", nr:"さいふ",
+    pres: ["кошелек падает", "ронять кошелек"],
+    past: ["кошелек упал", "уронил кошелек"],
+    te:   ["кошелек лежит на земле", "кто-то прямо сейчас роняет кошелек"],
+    tip:  "на -す (落とす) = уронил; -iru (落ちる) = упал сам."
+  },
+  {
+    ji:"外れる", jr:"はずれる", ta:"外す", tr:"はずす", nk:"ボタン", nr:"ぼたん",
+    pres: ["пуговица отстегивается", "расстегивать пуговицу"],
+    past: ["пуговица отстегнулась", "расстегнул пуговицу"],
+    te:   ["пуговица расстегнута", "кто-то прямо сейчас расстегивает пуговицу"],
+    tip:  "на -す (外す) = отстегнул человек; -reru = отвалилась сама."
+  },
+  {
+    ji:"付く", jr:"つく", ta:"付ける", tr:"つける", nk:"ポケット", nr:"ぽけっと",
+    pres: ["карман прикрепляется", "прикреплять карман"],
+    past: ["карман прикрепился", "прикрепил карман"],
+    te:   ["карман прикреплен", "кто-то прямо сейчас прикрепляет карман"],
+    tip:  "-e- (付ける) = прикрепил человек; 付く = прикреплен."
+  },
+  {
+    ji:"倒れる", jr:"たおれる", ta:"倒す", tr:"たおす", nk:"木", nr:"き",
+    pres: ["дерево падает", "валить дерево"],
+    past: ["дерево упало", "повалил дерево"],
+    te:   ["дерево лежит поваленным", "кто-то прямо сейчас валит дерево"],
+    tip:  "на -す (倒す) = повалил/опрокинул; 倒れる = упало само."
+  },
+  {
+    ji:"並ぶ", jr:"ならぶ", ta:"並べる", tr:"ならべる", nk:"本", nr:"ほん",
+    pres: ["книги стоят в ряд", "расставлять книги"],
+    past: ["книги встали в ряд", "расставил книги"],
+    te:   ["книги расставлены в ряд", "кто-то прямо сейчас расставляет книги"],
+    tip:  "-e- (並べる) = расставить; 並ぶ = выстроиться в ряд."
+  },
+  {
+    ji:"戻る", jr:"もどる", ta:"戻す", tr:"もどす", nk:"道具", nr:"どうぐ",
+    pres: ["инструменты возвращаются на место", "возвращать инструменты на место"],
+    past: ["инструменты вернулись на место", "вернул инструменты на место"],
+    te:   ["инструменты на своем месте", "кто-то прямо сейчас возвращает инструменты"],
+    tip:  "на -す (戻す) = положить на место; 戻る = вернуться."
+  },
+  {
+    ji:"見つかる", jr:"みつかる", ta:"見つける", tr:"みつける", nk:"鍵", nr:"かぎ",
+    pres: ["ключ находится", "находить ключ"],
+    past: ["ключ нашелся", "нашел ключ"],
+    te:   ["ключ найден", "кто-то прямо сейчас ищет ключ"],
+    tip:  "みつかる = нашелся сам! みつける = я его отыскал."
+  },
+  {
+    ji:"続く", jr:"つづく", ta:"続ける", tr:"つづける", nk:"雨", nr:"あめ",
+    pres: ["дождь продолжается", "продолжать дело"],
+    past: ["дождь продолжился", "продолжил дело"],
+    te:   ["дождь все еще идет", "кто-то прямо сейчас продолжает начатое"],
+    tip:  "続く (длится само); 続ける (продолжать усилием воли)."
+  },
+  {
+    ji:"直る", jr:"なおる", ta:"直す", tr:"なおす", nk:"時計", nr:"とけい",
+    pres: ["часы чинятся", "чинить часы"],
+    past: ["часы починились", "починил часы"],
+    te:   ["часы исправны", "кто-то прямо сейчас чинит часы"],
+    tip:  "на -す (直す) = мастер починил; 直る = заработало само."
+  },
+  {
+    ji:"変わる", jr:"かわる", ta:"変える", tr:"かえる", nk:"予定", nr:"よてい",
+    pres: ["планы меняются", "менять планы"],
+    past: ["планы изменились", "изменил планы"],
+    te:   ["планы изменены", "кто-то прямо сейчас меняет планы"],
+    tip:  "変わる = изменилось само; 変える = я изменил."
+  },
+  {
+    ji:"煮える", jr:"にえる", ta:"煮る", tr:"にる", nk:"野菜", nr:"やさい",
+    pres: ["овощи варятся", "варить овощи"],
+    past: ["овощи сварились", "сварил овощи"],
+    te:   ["овощи сварены", "кто-то прямо сейчас варит овощи"],
+    tip:  "煮える = доходит до готовности; 煮る = варить/тушить."
+  },
+  {
+    ji:"増える", jr:"ふえる", ta:"増やす", tr:"ふやす", nk:"貯金", nr:"ちょきん",
+    pres: ["сбережения растут", "увеличивать сбережения"],
+    past: ["сбережения выросли", "увеличил сбережения"],
+    te:   ["сбережения увеличились", "кто-то прямо сейчас увеличивает сбережения"],
+    tip:  "на -す (増やす) = приумножать; 増える = растет само."
+  },
+  {
+    ji:"減る", jr:"へる", ta:"減らす", tr:"へらす", nk:"体重", nr:"たいじゅう",
+    pres: ["вес снижается", "снижать вес"],
+    past: ["вес снизился", "снизил вес"],
+    te:   ["вес снижен", "кто-то прямо сейчас снижает вес"],
+    tip:  "на -す (減らす) = я сокращаю; 減る = уменьшается само."
+  },
+  {
+    ji:"上がる", jr:"あがる", ta:"上げる", tr:"あげる", nk:"物価", nr:"ぶっか",
+    pres: ["цены растут", "поднимать цены"],
+    past: ["цены выросли", "поднял цены"],
+    te:   ["цены поднялись", "кто-то прямо сейчас поднимает цены"],
+    tip:  "上がる (поднимается само); 上げる (поднимает человек)."
+  },
+  {
+    ji:"下がる", jr:"さがる", ta:"下げる", tr:"さげる", nk:"気温", nr:"きおん",
+    pres: ["температура падает", "опускать цену"],
+    past: ["температура упала", "опустил цену"],
+    te:   ["температура понизилась", "кто-то прямо сейчас опускает цену"],
+    tip:  "下がる (опускается само); 下げる (опускает человек)."
+  },
+  {
+    ji:"切れる", jr:"きれる", ta:"切る", tr:"きる", nk:"糸", nr:"いと",
+    pres: ["нитка рвется", "резать нитку"],
+    past: ["нитка порвалась", "разрезал нитку"],
+    te:   ["нитка разорвана", "кто-то прямо сейчас режет нитку"],
+    tip:  "-reru (切れる) = оборвалась сама; 切る = разрезать ножом."
+  },
+  {
+    ji:"取れる", jr:"とれる", ta:"取る", tr:"とる", nk:"ボタン", nr:"ぼたん",
+    pres: ["пуговица отрывается", "отрывать пуговицу / брать"],
+    past: ["пуговица оторвалась", "оторвал пуговицу / взял"],
+    te:   ["пуговица оторвана", "кто-то прямо сейчас отрывает пуговицу"],
+    tip:  "-reru (取れる) = отвалилась сама; 取る = брать рукой."
+  },
+  {
+    ji:"乾く", jr:"かわく", ta:"乾かす", tr:"かわかす", nk:"洗濯物", nr:"せんたくもの",
+    pres: ["белье сохнет", "сушить белье"],
+    past: ["белье высохло", "высушил белье"],
+    te:   ["белье сухое", "кто-то прямо сейчас сушит белье"],
+    tip:  "на -す (乾かす) = сушить феном; 乾く = сохнет само."
+  },
+  {
+    ji:"濡れる", jr:"ぬれる", ta:"濡らす", tr:"ぬらす", nk:"タオル", nr:"たおる",
+    pres: ["полотенце мокнет", "мочить полотенце"],
+    past: ["полотенце промокло", "намочил полотенце"],
+    te:   ["полотенце мокрое", "кто-то прямо сейчас мочит полотенце"],
+    tip:  "на -す (濡らす) = намочить водой; 濡れる = намокло само."
+  },
+  {
+    ji:"集まる", jr:"あつまる", ta:"集める", tr:"あつめる", nk:"人", nr:"ひと",
+    pres: ["люди собираются", "собирать людей"],
+    past: ["люди собрались", "собрал людей"],
+    te:   ["люди собрались вместе", "кто-то прямо сейчас собирает людей"],
+    tip:  "集まる (люди пришли сами); 集める (я собираю/коллекционирую)."
+  },
+  {
+    ji:"動く", jr:"うごく", ta:"動かす", tr:"うごかす", nk:"机", nr:"つくえ",
+    pres: ["стол двигается", "двигать стол"],
+    past: ["стол сдвинулся", "сдвинул стол"],
+    te:   ["стол сдвинут", "кто-то прямо сейчас двигает стол"],
+    tip:  "на -す (動かす) = передвигать руками; 動く = двигается само."
+  },
+  {
+    ji:"沸く", jr:"わく", ta:"沸かす", tr:"わかす", nk:"お湯", nr:"おゆ",
+    pres: ["вода закипает", "кипятить воду"],
+    past: ["вода закипела", "вскипятил воду"],
+    te:   ["вода закипела", "кто-то прямо сейчас кипятит воду"],
+    tip:  "на -す (沸かす) = чайник поставил человек; 沸く = бурлит сама."
+  },
+  {
+    ji:"片付く", jr:"かたづく", ta:"片付ける", tr:"かたづける", nk:"部屋", nr:"へや",
+    pres: ["комната убирается", "убирать комнату"],
+    past: ["комната убрана", "убрал комнату"],
+    te:   ["комната прибрана", "кто-то прямо сейчас убирает комнату"],
+    tip:  "-e- (片付ける) = прибирает человек; 片付く = в порядке сама."
+  },
+  {
+    ji:"残る", jr:"のこる", ta:"残す", tr:"のこす", nk:"料理", nr:"りょうり",
+    pres: ["еда остается", "оставлять еду"],
+    past: ["еда осталась", "оставил еду"],
+    te:   ["еда осталась на столе", "кто-то прямо сейчас оставляет еду"],
+    tip:  "на -す (残す) = не доел человек; 残る = осталось само."
+  },
+  {
+    ji:"起きる", jr:"おきる", ta:"起こす", tr:"おこす", nk:"子供", nr:"こども",
+    pres: ["ребенок просыпается", "будить ребенка"],
+    past: ["ребенок проснулся", "разбудил ребенка"],
+    te:   ["ребенок уже проснулся", "кто-то прямо сейчас будит ребенка"],
+    tip:  "на -す (起こす) = разбудила мама; 起きる = проснулся сам."
+  },
+  {
+    ji:"冷える", jr:"ひえる", ta:"冷やす", tr:"ひやす", nk:"ビール", nr:"びーる",
+    pres: ["пиво остывает", "охлаждать пиво"],
+    past: ["пиво остыло", "охладил пиво"],
+    te:   ["пиво охлаждено", "кто-то прямо сейчас охлаждает пиво"],
+    tip:  "на -す (冷やす) = положил в холодильник; 冷える = остыло само."
+  }
+];
+
+/* ==========================================================================
+   ФОРМЫ ГЛАГОЛОВ
+   ========================================================================== */
+function getVerbForms(k, r) {
+  var presK = k, presR = r;
+  var pastK = "", pastR = "";
+  var teK = "", teR = "";
+
+  if (r.endsWith("く")) {
+    pastK = k.slice(0, -1) + "いた"; pastR = r.slice(0, -1) + "いた";
+    teK = k.slice(0, -1) + "いている"; teR = r.slice(0, -1) + "いている";
+  } else if (r.endsWith("す")) {
+    pastK = k.slice(0, -1) + "した"; pastR = r.slice(0, -1) + "した";
+    teK = k.slice(0, -1) + "している"; teR = r.slice(0, -1) + "している";
+  } else if (r.endsWith("む") || r.endsWith("ぶ") || r.endsWith("ぬ")) {
+    pastK = k.slice(0, -1) + "んだ"; pastR = r.slice(0, -1) + "んだ";
+    teK = k.slice(0, -1) + "んでいる"; teR = r.slice(0, -1) + "んでいる";
+  } else if (r.endsWith("る")) {
+    var isIchidan = (r.endsWith("える") || r.endsWith("いる") || r.endsWith("れる") || r.endsWith("ねる") || r.endsWith("せる") || r.endsWith("める") || r.endsWith("ける")) && k !== "入る" && k !== "切る" && k !== "減る";
+    if (isIchidan) {
+      pastK = k.slice(0, -1) + "た"; pastR = r.slice(0, -1) + "た";
+      teK = k.slice(0, -1) + "ている"; teR = r.slice(0, -1) + "ている";
+    } else {
+      pastK = k.slice(0, -1) + "った"; pastR = r.slice(0, -1) + "った";
+      teK = k.slice(0, -1) + "っている"; teR = r.slice(0, -1) + "っている";
+    }
+  }
+
+  return { presK: presK, presR: presR, pastK: pastK, pastR: pastR, teK: teK, teR: teR };
+}
+
+/* ==========================================================================
+   ОЗВУЧКА
+   ========================================================================== */
+var jaVoice = null;
+function initVoices() {
+  if (!('speechSynthesis' in window)) return;
+  var voices = window.speechSynthesis.getVoices();
+  jaVoice = voices.find(function(v) { 
+    return (v.lang === 'ja-JP' || v.lang === 'ja_JP' || v.lang.indexOf('ja') === 0) && 
+           (v.name.toLowerCase().indexOf('kyoko') !== -1 || v.name.indexOf('Google 日本語') !== -1 || v.name.indexOf('Siri') !== -1);
+  }) || voices.find(function(v) { 
+    return v.lang === 'ja-JP' || v.lang === 'ja_JP' || v.lang.indexOf('ja') === 0; 
+  }) || null;
+}
+if ('speechSynthesis' in window) {
+  window.speechSynthesis.onvoiceschanged = initVoices;
+  initVoices();
+}
+function speak(text) {
+  if (!('speechSynthesis' in window) || !text) return;
+  try {
+    window.speechSynthesis.cancel();
+    var msg = new SpeechSynthesisUtterance(text);
+    msg.lang = 'ja-JP';
+    msg.rate = 0.88;
+    if (jaVoice) msg.voice = jaVoice;
+    window.speechSynthesis.speak(msg);
+  } catch (e) {}
+}
+
+function shuffleArray(arr) {
+  var copy = arr.slice();
+  for (var i = copy.length - 1; i > 0; i--) {
+    var j = Math.floor(Math.random() * (i + 1));
+    var temp = copy[i];
+    copy[i] = copy[j];
+    copy[j] = temp;
+  }
+  return copy;
+}
+
+/* ==========================================================================
+   ГЕНЕРАТОР ЗАДАНИЙ (Матча 🍵 и Клубника 🍓)
+   ========================================================================== */
+function generateLevelDeck(level) {
+  var deck = [];
+
+  PAIRS_RAW.forEach(function(item) {
+    var jForms = getVerbForms(item.ji, item.jr);
+    var tForms = getVerbForms(item.ta, item.tr);
+
+    function makeTask(isJi, formType, isParticleChoice) {
+      var part = isJi ? "が" : "を";
+      var correctForms = isJi ? jForms : tForms;
+      var wrongForms   = isJi ? tForms : jForms;
+
+      var targetK = "", targetR = "", wrongK = "", wrongR = "";
+      var ruContext = "";
+
+      if (formType === "past") {
+        targetK = correctForms.pastK; targetR = correctForms.pastR;
+        wrongK  = wrongForms.pastK;   wrongR  = wrongForms.pastR;
+        ruContext = isJi ? item.past[0] : item.past[1];
+      } else if (formType === "pres") {
+        targetK = correctForms.presK; targetR = correctForms.presR;
+        wrongK  = wrongForms.presK;   wrongR  = wrongForms.presR;
+        ruContext = isJi ? item.pres[0] : item.pres[1];
+      } else { // te-iru
+        targetK = correctForms.teK; targetR = correctForms.teR;
+        wrongK  = wrongForms.teK;   wrongR  = wrongForms.teR;
+        ruContext = isJi ? item.te[0] : item.te[1];
+      }
+
+      var ruleHtml = `
+        <div class="fb-step-line"><b>Частица:</b> <code>${part}</code> указывает на <b>${isJi ? "自動詞 (непереходный — происходит само)" : "他動詞 (переходный — действие человека)"}</b>.</div>
+        <div class="fb-step-line"><b>Лайфхак:</b> ${item.tip}</div>
+        <div class="fb-step-line" style="margin-top: 6px; padding-top: 6px; border-top: 1.5px dashed var(--line);">
+          🍵 <b>${item.nk}が ${item.ji}</b> — ${item.pres[0]} (само)<br>
+          🍓 <b>${item.nk}を ${item.ta}</b> — ${item.pres[1]} (человек)
+        </div>
+      `;
+
+      if (isParticleChoice) {
+        return {
+          rawId: `${item.ji}_${part}_particle`,
+          voiceText: `${item.nr}${part} ${targetR}`,
+          phraseHtml: `${item.nk}<span class="target-blank">＿</span> ${targetK}`,
+          readingText: `${item.nr}＿ ${targetR}`,
+          ru: ruContext,
+          choices: [
+            { main: "が", sub: "" },
+            { main: "を", sub: "" }
+          ],
+          correct: part,
+          full: `${item.nk}${part} ${targetK}`,
+          kana: `${item.nr}${part}${targetR}`,
+          rule: ruleHtml,
+          typeTag: isJi ? "自動詞 (непереходный)" : "他動詞 (переходный)"
+        };
+      }
+
+      return {
+        rawId: `${item.ji}_${part}_${formType}`,
+        voiceText: `${item.nr}${part} ${targetR}`,
+        phraseHtml: `${item.nk}<span class="target-particle">${part}</span> <span class="target-blank">＿＿</span>`,
+        readingText: `${item.nr}${part} ＿＿`,
+        ru: ruContext,
+        choices: shuffleArray([
+          { main: targetK, sub: targetR },
+          { main: wrongK, sub: wrongR }
+        ]),
+        correct: targetK,
+        full: `${item.nk}${part} ${targetK}`,
+        kana: `${item.nr}${part}${targetR}`,
+        rule: ruleHtml,
+        typeTag: isJi ? "自動詞 (непереходный)" : "他動詞 (переходный)"
+      };
+    }
+
+    if (level === 1) {
+      deck.push(makeTask(true, "past", false));
+      deck.push(makeTask(false, "past", false));
+    } else if (level === 2) {
+      deck.push(makeTask(true, "pres", false));
+      deck.push(makeTask(false, "pres", false));
+    } else if (level === 3) {
+      deck.push(makeTask(true, "te", false));
+      deck.push(makeTask(false, "te", false));
+    } else if (level === 4) {
+      var f = ["past", "pres", "te"][Math.floor(Math.random() * 3)];
+      deck.push(makeTask(true, f, false));
+      deck.push(makeTask(false, f, false));
+    } else if (level === 5) {
+      deck.push(makeTask(true, "past", true));
+      deck.push(makeTask(false, "past", true));
+    }
+  });
+
+  return shuffleArray(deck);
+}
+
+/* ==========================================================================
+   УПРАВЛЕНИЕ ИГРОЙ
+   ========================================================================== */
+var currentLevel = 1;
+var currentIndex = 0;
+var currentList = [];
+var errorList = [];
+var isAnswered = false;
+
+function initLevel() {
+  if (currentLevel === 'errors') {
+    currentList = errorList.slice();
+  } else {
+    currentList = generateLevelDeck(currentLevel);
+  }
+  currentIndex = 0;
+  renderCard();
+}
+
+function renderCard() {
+  isAnswered = false;
+  document.getElementById('feedbackBox').style.display = 'none';
+  document.getElementById('emptyScreen').style.display = 'none';
+  document.getElementById('gamePanel').style.display = 'flex';
+
+  if (currentList.length === 0 || currentIndex >= currentList.length) {
+    showEmpty();
+    return;
+  }
+
+  var currentTask = currentList[currentIndex];
+
+  document.getElementById('qPhrase').innerHTML = currentTask.phraseHtml;
+  document.getElementById('qReading').textContent = currentTask.readingText;
+  document.getElementById('qRu').textContent = currentTask.ru;
+
+  var grid = document.getElementById('choicesGrid');
+  grid.innerHTML = '';
+
+  currentTask.choices.forEach(function(ch) {
+    var btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'choice-btn';
+    btn.innerHTML = `<span class="choice-main">${ch.main}</span>${ch.sub ? `<span class="choice-sub">${ch.sub}</span>` : ''}`;
+    btn.onclick = function() { handleAnswer(ch.main); };
+    grid.appendChild(btn);
+  });
+
+  var currentNum = currentIndex + 1;
+  var total = currentList.length;
+  var pct = Math.round((currentIndex / total) * 100);
+
+  document.getElementById('progCountLabel').textContent = "Вопрос " + currentNum + " из " + total;
+  document.getElementById('progPctLabel').textContent = pct + "%";
+  document.getElementById('progressBar').style.width = pct + '%';
+
+  speak(currentTask.voiceText);
+}
+
+function replayQuestionAudio() {
+  if (currentList.length === 0 || currentIndex >= currentList.length) return;
+  speak(currentList[currentIndex].voiceText);
+}
+
+function replayAnswerAudio() {
+  if (currentList.length === 0 || currentIndex >= currentList.length) return;
+  speak(currentList[currentIndex].kana);
+}
+
+function handleAnswer(chosen) {
+  if (isAnswered) return;
+  isAnswered = true;
+
+  var currentTask = currentList[currentIndex];
+  var isCorrect = (chosen === currentTask.correct);
+  var fbBox = document.getElementById('feedbackBox');
+
+  fbBox.style.display = 'flex';
+
+  if (isCorrect) {
+    fbBox.className = 'feedback-box correct';
+    document.getElementById('fbVerdict').textContent = 'Правильно! ✨';
+    if (currentLevel === 'errors') {
+      errorList = errorList.filter(function(e) { return e.rawId !== currentTask.rawId; });
+    }
+  } else {
+    fbBox.className = 'feedback-box wrong';
+    document.getElementById('fbVerdict').textContent = 'Ошибка ✕';
+    var exists = errorList.some(function(e) { return e.rawId === currentTask.rawId; });
+    if (!exists) {
+      errorList.push(currentTask);
+    }
+  }
+
+  document.getElementById('fbTypeTag').textContent = currentTask.typeTag;
+  document.getElementById('fbFull').textContent = currentTask.full;
+  document.getElementById('fbKana').textContent = currentTask.kana;
+  document.getElementById('fbRule').innerHTML = currentTask.rule;
+
+  speak(currentTask.kana);
+  updateUI();
+}
+
+function nextQuestion() {
+  currentIndex++;
+  renderCard();
+}
+
+function showEmpty() {
+  document.getElementById('gamePanel').style.display = 'none';
+  document.getElementById('emptyScreen').style.display = 'flex';
+  document.getElementById('progCountLabel').textContent = "Завершено";
+  document.getElementById('progPctLabel').textContent = "100%";
+  document.getElementById('progressBar').style.width = '100%';
+
+  if (currentLevel === 'errors') {
+    document.getElementById('emptyTitle').textContent = errorList.length === 0 ? 'Ошибок нет!' : 'Круг ошибок завершен';
+    document.getElementById('emptyDesc').textContent = errorList.length === 0 ? 'Все проблемные пары отработаны!' : 'Осталось ошибок: ' + errorList.length;
+  } else {
+    document.getElementById('emptyTitle').textContent = 'Уровень ' + currentLevel + ' завершён!';
+    document.getElementById('emptyDesc').textContent = 'Отличная скорость и точность!';
+  }
+}
+
+function restartLevel() {
+  initLevel();
+}
+
+function switchLevel(lvl) {
+  currentLevel = lvl;
+  updateUI();
+  initLevel();
+}
+
+function updateUI() {
+  for (var i = 1; i <= 5; i++) {
+    var btn = document.getElementById('lvlBtn' + i);
+    if (btn) btn.className = (currentLevel === i) ? 'lvl-btn active' : 'lvl-btn';
+  }
+  var errBtn = document.getElementById('lvlBtnErr');
+  if (errBtn) {
+    errBtn.className = (currentLevel === 'errors') ? 'lvl-btn errors-btn active' : 'lvl-btn errors-btn';
+    errBtn.textContent = 'Ошибки (' + errorList.length + ')';
+  }
+}
+
+/* ==========================================================================
+   ТЕОРИЯ
+   ========================================================================== */
+function openTheory() {
+  var modal = document.getElementById('theoryModal');
+  var mTitle = document.getElementById('modalTitle');
+  var mBody = document.getElementById('modalBody');
+
+  mTitle.textContent = "Секреты пар 自動詞 / 他動詞";
+  mBody.innerHTML = `
+    <p>В тестах JLPT N4 парные глаголы встречаются постоянно. Чтобы не зубрить их вслепую, запомните <strong>5 золотых правил</strong>:</p><br>
+
+    <p><strong>1. Правило «〜す»: Всегда переходный (他動詞)</strong><br>
+    Если в паре один глагол оканчивается на <code>す</code>, он <strong>100% требует частицу を</strong> (действие человека):<br>
+    • 消える (гаснет сам) ➔ <strong>消す</strong> (выключаю)<br>
+    • 壊れる (ломается само) ➔ <strong>壊す</strong> (ломаю)<br>
+    • 落ちる (падает само) ➔ <strong>落とす</strong> (роняю)<br>
+    • 倒れる (падает само) ➔ <strong>倒す</strong> (опрокидываю)</p><br>
+
+    <p><strong>2. Правило «-e- против -u-»: Переходный на -e-</strong><br>
+    В парах без -す глагол с гласным звуком <code>e</code> (一段) почти всегда переходный:<br>
+    • 開く (あく - открывается) ➔ <strong>開ける</strong> (あける - открывать)<br>
+    • 付く (つく - прикреплен) ➔ <strong>付ける</strong> (つける - прикреплять)<br>
+    • 閉まる (しまる - закрывается) ➔ <strong>閉める</strong> (しめる - закрывать)<br>
+    • 並ぶ (ならぶ - стоят в ряд) ➔ <strong>並べる</strong> (ならべる - расставлять)</p><br>
+
+    <p><strong>3. Суффикс «〜れる»: Всегда непереходный (自動詞)</strong><br>
+    Если глагол оканчивается на <code>れる</code>, он обозначает спонтанный процесс, который произошёл сам:<br>
+    • <strong>折れる</strong> (ветка переломилась сама)<br>
+    • <strong>割れる</strong> (стакан разбился сам)<br>
+    • <strong>破れる</strong> (бумага порвалась сама)<br>
+    • <strong>汚れる</strong> (одежда испачкалась)</p><br>
+
+    <p><strong>4. Мега-ловушка N4: 〜ている</strong><br>
+    • <strong>自動詞 + ている</strong> = <em>состояние результата</em> (действие уже произошло само, и мы видим итог):<br>
+    <code>ドアが開いている</code> — дверь открыта (стоит открытая).<br>
+    • <strong>他動詞 + ている</strong> = <em>процесс прямо сейчас</em>:<br>
+    <code>ドアを開けている</code> — кто-то прямо сейчас открывает дверь.</p>
+  `;
+
+  modal.classList.add('show');
+}
+
+function closeTheory() {
+  document.getElementById('theoryModal').classList.remove('show');
+}
+
+/* ==========================================================================
+   ГОРЯЧИЕ КЛАВИШИ
+   ========================================================================== */
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Escape') {
+    closeTheory();
+  } else if (e.key === '1' || e.key === '2') {
+    var idx = parseInt(e.key) - 1;
+    var btns = document.querySelectorAll('.choice-btn');
+    if (btns && btns[idx] && document.getElementById('feedbackBox').style.display !== 'flex') {
+      btns[idx].click();
+    }
+  } else if (e.key === 'Enter') {
+    var nextBtn = document.getElementById('btnNext');
+    if (document.getElementById('feedbackBox').style.display === 'flex') {
+      nextBtn.click();
+    }
+  }
+});
+
+// Старт
+updateUI();
+initLevel();
+</script>
+</body>
+</html>
