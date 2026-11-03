@@ -36,7 +36,7 @@
     }
   </script>
 
-  <style>
+<style>
     :root {
       --cream: #fbf8ee;
       --paper: #ffffff;
@@ -244,12 +244,13 @@
       align-items: center;
     }
 
+    /* ПРОСТОРНАЯ КАРТОЧКА ДЛЯ 16:9 И SPLIT-SCREEN */
     .presentation-card {
-      width: 95%;
-      max-width: 1220px;
+      width: 96%;
+      max-width: 1480px;
       height: 100%;
       max-height: calc(100vh - 175px);
-      aspect-ratio: 4 / 3;
+      aspect-ratio: 16 / 10;
       background: var(--paper);
       border: 2.5px solid var(--line);
       border-radius: var(--radius-xl);
@@ -265,9 +266,10 @@
       transition: border-color 0.2s ease, box-shadow 0.2s ease;
     }
 
-    .presentation-card.ambient-glow {
-      border-color: var(--peach-deep);
-      box-shadow: 0 0 35px rgba(240, 160, 108, 0.25);
+    @media (max-aspect-ratio: 4/3) {
+      .presentation-card {
+        aspect-ratio: auto;
+      }
     }
 
     .card-top {
@@ -284,13 +286,31 @@
     .card-top * { pointer-events: auto; }
 
     .deck-badge {
-      font-size: 0.85rem;
+      font-size: 0.88rem;
       font-weight: 800;
       color: var(--ink-soft);
       background: var(--cream);
       border: 1.5px solid var(--line);
       padding: 5px 14px;
       border-radius: 99px;
+    }
+
+    /* НЕЙТРАЛЬНАЯ КНОПКА ШЕСТЕРЁНКИ ФОНА (НЕ БЬЁТ ПО ГЛАЗАМ) */
+    .ambient-indicator {
+      display: none;
+      font-size: 0.95rem;
+      color: var(--ink-soft);
+      background: var(--cream);
+      border: 1.5px solid var(--line);
+      padding: 4px 10px;
+      border-radius: 99px;
+      margin-left: 8px;
+      cursor: pointer;
+      line-height: 1;
+      transition: all 0.12s ease;
+    }
+    .ambient-indicator:active {
+      transform: translateY(1px);
     }
 
     .lesson-tag-badge {
@@ -301,18 +321,6 @@
       background: var(--matcha);
       border: 1.5px solid var(--matcha-deep);
       padding: 4px 12px;
-      border-radius: 99px;
-      margin-left: 8px;
-    }
-
-    .ambient-indicator {
-      display: none;
-      font-size: 0.82rem;
-      font-weight: 800;
-      color: var(--peach-deep);
-      background: var(--apricot);
-      border: 1.5px solid var(--peach-deep);
-      padding: 5px 14px;
       border-radius: 99px;
       margin-left: 8px;
     }
@@ -353,14 +361,13 @@
       color: var(--matcha-deep);
       box-shadow: 0 3px 0 var(--matcha-deep);
     }
-    .action-circle-btn.btn-esc {
+    .action-circle-btn.btn-fullscreen-exit {
       display: none;
-      font-weight: 800;
-      border-color: var(--strawberry-deep);
-      color: var(--strawberry-deep);
+      border-color: var(--peach-deep);
+      color: var(--peach-deep);
     }
 
-    /* ШРИФТЫ */
+    /* КРУПНЫЙ, МОЩНЫЙ ШРИФТ ДЛЯ ЭКРАНА 16:9 */
     .card-center {
       display: flex;
       flex-direction: column;
@@ -369,38 +376,38 @@
       text-align: center;
       width: 100%;
       height: 100%;
-      padding: 0 10px;
+      padding: 0 16px;
     }
 
     .kanji-display {
-      font-size: clamp(5.6rem, 15vw, 12rem);
+      font-size: clamp(6.5rem, 16vw, 15.5rem);
       font-weight: 500 !important;
       color: var(--ink);
-      line-height: 1.08;
+      line-height: 1.05;
       letter-spacing: 0;
-      margin-bottom: 12px;
-      white-space: nowrap;
-      max-width: 95%;
-    }
-
-    .reading-display {
-      font-size: clamp(2.5rem, 6vw, 4.6rem);
-      font-weight: 500 !important;
-      color: var(--ink-soft);
-      line-height: 1.15;
       margin-bottom: 16px;
       white-space: nowrap;
       max-width: 95%;
     }
 
+    .reading-display {
+      font-size: clamp(3.0rem, 7vw, 5.5rem);
+      font-weight: 500 !important;
+      color: var(--ink-soft);
+      line-height: 1.15;
+      margin-bottom: 18px;
+      white-space: nowrap;
+      max-width: 95%;
+    }
+
     .meaning-display {
-      font-size: clamp(1.4rem, 3.6vw, 2.5rem);
+      font-size: clamp(1.8rem, 4.5vw, 3.4rem);
       color: var(--strawberry-deep);
       font-weight: 800;
       line-height: 1.25;
       padding: 4px 16px;
       transition: filter 0.2s ease, opacity 0.2s ease;
-      max-width: 90%;
+      max-width: 92%;
     }
 
     .meaning-display.hidden-answer {
@@ -408,10 +415,10 @@
       opacity: 0.12;
     }
 
-    .kanji-display.len-4 { font-size: clamp(4.4rem, 11vw, 9.2rem); }
-    .kanji-display.len-5 { font-size: clamp(3.6rem, 9vw, 7.8rem); }
-    .kanji-display.len-long { font-size: clamp(2.6rem, 6.5vw, 5.5rem); white-space: normal; }
-    .reading-display.len-long { font-size: clamp(1.8rem, 4.5vw, 3.4rem); }
+    /* Мягкая адаптация для средних и длинных слов (без урезания вдвое) */
+    .kanji-display.len-medium { font-size: clamp(5.2rem, 12.5vw, 11.5rem); }
+    .kanji-display.len-long { font-size: clamp(3.2rem, 8vw, 7.5rem); white-space: normal; }
+    .reading-display.len-long { font-size: clamp(2.2rem, 5vw, 4.2rem); }
 
     /* НИЖНЯЯ ПАНЕЛЬ */
     .bottom-bar {
@@ -475,7 +482,70 @@
       box-shadow: 0 4px 0 var(--peach-deep);
     }
 
-   /* ПОЛНОЭКРАННЫЙ РЕЖИМ */
+    /* ПОЛЗУНОК ГРОМКОСТИ ПО НАВЕДЕНИЮ */
+    .volume-hover-wrap {
+      position: relative;
+      display: inline-flex;
+    }
+
+    .volume-popup {
+      position: absolute;
+      bottom: calc(100% + 12px);
+      left: 50%;
+      transform: translateX(-50%) translateY(6px);
+      background: var(--paper);
+      border: 2px solid var(--line);
+      border-radius: var(--radius-md);
+      padding: 10px 14px;
+      box-shadow: 0 8px 24px rgba(74, 58, 54, 0.15);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.15s ease, transform 0.15s ease;
+      z-index: 50;
+    }
+
+    .volume-hover-wrap:hover .volume-popup,
+    .volume-hover-wrap:focus-within .volume-popup {
+      opacity: 1;
+      pointer-events: auto;
+      transform: translateX(-50%) translateY(0);
+    }
+
+    .volume-slider {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 88px;
+      height: 6px;
+      background: var(--line);
+      border-radius: 99px;
+      outline: none;
+      cursor: pointer;
+    }
+    .volume-slider::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      background: var(--peach-deep);
+      border: 2px solid var(--paper);
+      box-shadow: 0 2px 4px rgba(74, 58, 54, 0.2);
+      cursor: pointer;
+    }
+    .volume-slider::-moz-range-thumb {
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      background: var(--peach-deep);
+      border: 2px solid var(--paper);
+      box-shadow: 0 2px 4px rgba(74, 58, 54, 0.2);
+      cursor: pointer;
+    }
+
+    /* ПОЛНОЭКРАННЫЙ РЕЖИМ */
     :fullscreen, body.app-fullscreen {
       background-color: var(--cream) !important;
       background-image: 
@@ -484,7 +554,6 @@
       background-attachment: fixed !important;
     }
 
-    /* В тёмной теме фон в полноэкранном режиме точно такой же, как в малоэкранном */
     [data-theme="dark"]:fullscreen,
     [data-theme="dark"] :fullscreen,
     [data-theme="dark"] body.app-fullscreen,
@@ -521,11 +590,11 @@
       background: transparent !important;
       box-shadow: none !important;
     }
-    body.app-fullscreen .action-circle-btn.btn-esc {
+    body.app-fullscreen .action-circle-btn.btn-fullscreen-exit {
       display: flex !important;
     }
-    body.app-fullscreen .kanji-display { font-size: clamp(7.5rem, 20vw, 18rem); }
-    body.app-fullscreen .reading-display { font-size: clamp(3.5rem, 9vw, 7.5rem); }
+    body.app-fullscreen .kanji-display { font-size: clamp(8.5rem, 22vw, 20rem); }
+    body.app-fullscreen .reading-display { font-size: clamp(4.0rem, 10vw, 8.5rem); }
 
     /* МОДАЛЬНЫЕ ОКНА */
     .modal-backdrop {
@@ -562,7 +631,14 @@
       color: var(--ink);
     }
 
+    .modal-row-btn-group {
+      display: flex;
+      gap: 6px;
+      align-items: stretch;
+    }
+
     .modal-choice-btn {
+      flex: 1;
       padding: 14px 18px;
       border-radius: var(--radius-lg);
       border: 2px solid var(--line);
@@ -594,6 +670,24 @@
       box-shadow: 0 4px 0 var(--peach-deep);
     }
 
+    .btn-settings-gear {
+      width: 52px;
+      border-radius: var(--radius-lg);
+      border: 2px solid var(--line);
+      background: var(--paper);
+      font-size: 1.25rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 4px 0 var(--line);
+      transition: all 0.12s ease;
+    }
+    .btn-settings-gear:active {
+      transform: translateY(3px);
+      box-shadow: 0 1px 0 var(--line);
+    }
+
     .custom-row {
       display: flex;
       justify-content: space-between;
@@ -618,7 +712,7 @@
       cursor: pointer;
     }
 
-    /* БЛОК МУЛЬТИ-ВЫБОРА УРОКОВ ДЛЯ КАСТОМНОГО РЕЖИМА */
+    /* МУЛЬТИ-ВЫБОР УРОКОВ */
     .lesson-picker-container {
       display: none;
       flex-direction: column;
@@ -788,18 +882,20 @@
     <div id="tab-presentation" class="tab-view active">
       <div class="presentation-card" id="mainCard" onclick="toggleHideAnswer()">
         
-        <div class="card-top">
+      <div class="card-top">
           <div style="display:flex; align-items:center;">
             <div class="deck-badge" id="deckIndicator">Слово 1 из 20</div>
+            <!-- Шестерёнка зафиксирована сразу после счётчика и не прыгает -->
+            <button class="ambient-indicator" id="ambientIndicator" onclick="event.stopPropagation(); openModal('ambientSettingsModal')" title="Настройки режима Фон">⚙️</button>
+            <!-- Метка урока загорается правее всех только для новых слов -->
             <div class="lesson-tag-badge" id="lessonBadge">Урок 1</div>
-            <div class="ambient-indicator" id="ambientIndicator">🌸 Фон</div>
           </div>
 
           <div class="corner-actions">
+            <button class="action-circle-btn btn-fullscreen-exit" onclick="event.stopPropagation(); exitFullScreenExplicit()" title="Свернуть экран">⤢</button>
             <button class="action-circle-btn" id="starActionBtn" onclick="event.stopPropagation(); toggleCurrentFavorite()" title="В избранное">⭐</button>
             <button class="action-circle-btn" onclick="event.stopPropagation(); playCurrentAudioManual()" title="Озвучить карточку">🔊</button>
             <button class="action-circle-btn" id="learnActionBtn" onclick="event.stopPropagation(); markCurrentAsLearned()" title="Знаю слово">✔️</button>
-            <button class="action-circle-btn btn-esc" onclick="event.stopPropagation(); toggleFullScreen()" title="Выйти">✕</button>
           </div>
         </div>
 
@@ -876,7 +972,14 @@
     <button class="ctrl-3d-btn primary" id="playBtn" onclick="togglePlay()">⏸ Пауза</button>
     <button class="ctrl-3d-btn" onclick="nextSlide()">▶</button>
     
-    <button class="ctrl-3d-btn active-toggle" id="autoVoiceBtn" onclick="toggleAutoVoice()">🔊 Звук: ВКЛ</button>
+    <!-- КНОПКА ЗВУКА С ПЛАВНЫМ ПОЛЗУНКОМ ПО НАВЕДЕНИЮ -->
+    <div class="volume-hover-wrap">
+      <div class="volume-popup">
+        <input type="range" class="volume-slider" id="volumeSlider" min="0" max="1" step="0.05" oninput="changeVolume(this.value)">
+      </div>
+      <button class="ctrl-3d-btn active-toggle" id="autoVoiceBtn" onclick="toggleAutoVoice()">🔊 Звук: ВКЛ</button>
+    </div>
+
     <button class="ctrl-3d-btn" id="eyeBtn" onclick="toggleHideAnswer()">👁 Скрыть</button>
     <button class="ctrl-3d-btn" onclick="shuffleDeck()">🔀 Микс</button>
     <button class="ctrl-3d-btn" onclick="toggleFullScreen()">⛶ Экран</button>
@@ -887,10 +990,13 @@
     <div class="modal-card">
       <h3>Режимы</h3>
 
-      <button class="modal-choice-btn" id="modeBtnAmbient" onclick="startAmbientModeInfinite()">
-        🌸 Фон
-        <small>Бесконечный конвейер (4 слабых + 1 новое) • 30 сек • двойной звук</small>
-      </button>
+      <div class="modal-row-btn-group">
+        <button class="modal-choice-btn" id="modeBtnAmbient" onclick="startAmbientModeInfinite()">
+          🌸 Фон
+          <small>Бесконечный конвейер (4 слабых + 1 новое) • продолжение прогресса</small>
+        </button>
+        <button class="btn-settings-gear" onclick="openModal('ambientSettingsModal')" title="Настроить режим Фон">⚙️</button>
+      </div>
 
       <button class="modal-choice-btn" id="modeBtnSrs" onclick="startSrsReview()">
         🍵 Умный повтор
@@ -909,6 +1015,36 @@
     </div>
   </div>
 
+<!-- МОДАЛКА: НАСТРОЙКИ РЕЖИМА «ФОН» -->
+  <div class="modal-backdrop" id="ambientSettingsModal" onclick="closeModalOnBackdrop(event, 'ambientSettingsModal')">
+    <div class="modal-card">
+      <h3>⚙️ Настройки режима «Фон»</h3>
+
+      <div class="custom-row">
+        <span>Кругов на порцию (5 слов):</span>
+        <select class="select-pill" id="ambientRoundsSelect" onchange="saveAmbientSettings()">
+          <option value="1">1 круг</option>
+          <option value="2" selected>2 круга</option>
+          <option value="3">3 круга</option>
+          <option value="4">4 круга</option>
+          <option value="5">5 кругов</option>
+        </select>
+      </div>
+
+      <div class="custom-row">
+        <span>Повтор звука в середине слайда:</span>
+        <select class="select-pill" id="ambientDoubleVoiceSelect" onchange="saveAmbientSettings()">
+          <option value="no" selected>Выкл (1 раз на старте)</option>
+          <option value="yes">Вкл (повтор на 15с)</option>
+        </select>
+      </div>
+
+      <button class="modal-choice-btn primary" style="text-align:center;" onclick="closeAllModals(); startAmbientModeInfinite();">
+        Сохранить и запустить «Фон»
+      </button>
+    </div>
+  </div>
+
   <!-- МОДАЛКА: СЛОВА -->
   <div class="modal-backdrop" id="wordsModal" onclick="closeModalOnBackdrop(event, 'wordsModal')">
     <div class="modal-card">
@@ -920,12 +1056,11 @@
     </div>
   </div>
 
-  <!-- МОДАЛКА: СВОЙ РЕЖИМ (ГИБКАЯ НАСТРОЙКА) -->
+  <!-- МОДАЛКА: СВОЙ РЕЖИМ -->
   <div class="modal-backdrop" id="customModal" onclick="closeModalOnBackdrop(event, 'customModal')">
     <div class="modal-card">
       <h3>🍑 Настройка своего режима</h3>
       
-      <!-- Категория слов -->
       <div class="custom-row">
         <span>Категория слов:</span>
         <select class="select-pill" id="customCategory" onchange="onCustomCategoryChange()">
@@ -937,7 +1072,6 @@
         </select>
       </div>
 
-      <!-- Контейнер мульти-выбора уроков -->
       <div class="lesson-picker-container" id="customLessonPickerWrap">
         <div style="display:flex; justify-content:space-between; align-items:center;">
           <span style="font-size:0.8rem; font-weight:800; color:var(--ink-soft);">Выберите урок(и):</span>
@@ -951,7 +1085,6 @@
         <div class="lessons-chips-grid" id="customLessonsChips"></div>
       </div>
 
-      <!-- Интервал слайда -->
       <div class="custom-row">
         <span>Время на слово:</span>
         <select class="select-pill" id="customTime">
@@ -971,16 +1104,14 @@
         </select>
       </div>
 
-      <!-- Двойная озвучка -->
       <div class="custom-row">
         <span>Двойная озвучка:</span>
         <select class="select-pill" id="customDoubleAudio">
-          <option value="yes" selected>Да (на 0с и в середине)</option>
-          <option value="no">Нет (только на старте)</option>
+          <option value="no" selected>Нет (только на старте)</option>
+          <option value="yes">Да (на 0с и в середине)</option>
         </select>
       </div>
 
-      <!-- Размер порции -->
       <div class="custom-row">
         <span>Размер порции:</span>
         <select class="select-pill" id="customBatchSize">
@@ -997,7 +1128,6 @@
         </select>
       </div>
 
-      <!-- Количество кругов -->
       <div class="custom-row">
         <span>Кругов на порцию:</span>
         <select class="select-pill" id="customRounds">
@@ -1007,16 +1137,11 @@
           <option value="4" selected>4 круга</option>
           <option value="5">5 кругов</option>
           <option value="6">6 кругов</option>
-          <option value="7">7 кругов</option>
           <option value="8">8 кругов</option>
           <option value="10">10 кругов</option>
-          <option value="12">12 кругов</option>
-          <option value="15">15 кругов</option>
-          <option value="20">20 кругов</option>
         </select>
       </div>
 
-      <!-- Ускорение -->
       <div class="custom-row">
         <span>Ускорять к финалу кругов:</span>
         <select class="select-pill" id="customAccelerate">
@@ -2658,842 +2783,1092 @@
     });
   });
 
-    // =========================================================================
-    // 2. WAKE LOCK: ЗАЩИТА ЭКРАНА ОТ СНА
-    // =========================================================================
-    let wakeLockSentinel = null;
+  // =========================================================================
+  // 2. WAKE LOCK: ЗАЩИТА ЭКРАНА ОТ СНА
+  // =========================================================================
+  let wakeLockSentinel = null;
 
-    async function acquireWakeLock() {
-      if ('wakeLock' in navigator) {
-        try {
-          wakeLockSentinel = await navigator.wakeLock.request('screen');
-        } catch (e) {}
+  async function acquireWakeLock() {
+    if ('wakeLock' in navigator) {
+      try {
+        wakeLockSentinel = await navigator.wakeLock.request('screen');
+      } catch (e) {}
+    }
+  }
+
+  function releaseWakeLock() {
+    if (wakeLockSentinel) {
+      wakeLockSentinel.release().catch(() => {});
+      wakeLockSentinel = null;
+    }
+  }
+
+  document.addEventListener('visibilitychange', async () => {
+    if (document.visibilityState === 'visible' && isPlaying) {
+      await acquireWakeLock();
+    }
+  });
+
+  // =========================================================================
+  // 3. ОБЛАКО ТЕЛЕГРАМА V2 (ИДЕНТИЧНО ANKI)
+  // =========================================================================
+  const CARD_STATE = { NEW: 0, LEARNING: 1, REVIEW: 2, RELEARNING: 3 };
+  const ANKI_CONFIG = {
+    learningSteps: [1, 10],
+    graduatingInterval: 1,
+    easyInterval: 4,
+    startingEase: 2.50,
+    minEase: 1.30,
+    easyBonus: 1.30,
+    hardIntervalFactor: 1.20
+  };
+
+  const CHUNK_SIZE = 120;
+  const BASE_EPOCH = 1735689600000;
+  const lastSyncedChunks = new Map();
+
+  const CloudStorage = {
+    setItem(key, value) {
+      return new Promise((resolve, reject) => {
+        if (!window.Telegram?.WebApp?.CloudStorage) return resolve(false);
+        window.Telegram.WebApp.CloudStorage.setItem(key, value, (err, success) => {
+          if (err || !success) reject(err || new Error('Write failed'));
+          else resolve(true);
+        });
+      });
+    },
+    getItems(keys) {
+      return new Promise((resolve, reject) => {
+        if (!window.Telegram?.WebApp?.CloudStorage) return resolve({});
+        window.Telegram.WebApp.CloudStorage.getItems(keys, (err, res) => {
+          if (err) reject(err);
+          else resolve(res || {});
+        });
+      });
+    }
+  };
+
+  function serializeCard(id, p) {
+    const r = p.reps || 0;
+    const i = p.interval || 0;
+    const e = Math.round((p.easeFactor || ANKI_CONFIG.startingEase) * 100);
+    const dueDays = p.dueDate ? Math.max(0, Math.floor((p.dueDate - BASE_EPOCH) / 86400000)) : 0;
+    const lapses = p.lapses || 0;
+    const state = p.state !== undefined ? p.state : (p.stacked ? CARD_STATE.REVIEW : CARD_STATE.NEW);
+    const step = p.step || 0;
+    const flags = (p.stacked ? 1 : 0) | (p.ankiMastered ? 2 : 0);
+
+    return `${id}:${r}:${i}:${e}:${dueDays}:${lapses}:${state}:${step}:${flags}`;
+  }
+
+  function deserializeCard(str) {
+    if (!str || typeof str !== 'string') return null;
+    const parts = str.split(':');
+    if (parts.length < 9) return null;
+
+    const [id, r, i, e, dueDays, lapses, state, step, flags] = parts.map(Number);
+    if (!Number.isFinite(id) || id <= 0) return null;
+
+    return {
+      id,
+      reps: r || 0,
+      interval: i || 0,
+      easeFactor: e ? e / 100 : ANKI_CONFIG.startingEase,
+      dueDate: dueDays ? BASE_EPOCH + (dueDays * 86400000) : 0,
+      lapses: lapses || 0,
+      state: state !== undefined ? state : CARD_STATE.NEW,
+      step: step || 0,
+      stacked: Boolean(flags & 1),
+      ankiMastered: Boolean(flags & 2)
+    };
+  }
+
+  let userProgress = {};
+  let saveDebounceTimer = null;
+
+  function saveState() {
+    try {
+      localStorage.setItem('japandi_backup_data', JSON.stringify(userProgress));
+      localStorage.setItem('slideshow_favs_ids', JSON.stringify([...starredSet]));
+    } catch (e) {}
+
+    clearTimeout(saveDebounceTimer);
+    saveDebounceTimer = setTimeout(syncToCloudStorage, 1500);
+  }
+
+  async function syncToCloudStorage() {
+    if (!window.Telegram?.WebApp?.CloudStorage) return;
+
+    try {
+      const dirtyCards = [];
+      for (const [idStr, p] of Object.entries(userProgress)) {
+        const id = Number(idStr);
+        if (p.stacked || p.ankiMastered || p.reps > 0 || p.interval > 0 || (p.state && p.state > 0)) {
+          dirtyCards.push(serializeCard(id, p));
+        }
       }
+
+      const chunks = [];
+      for (let i = 0; i < dirtyCards.length; i += CHUNK_SIZE) {
+        chunks.push(dirtyCards.slice(i, i + CHUNK_SIZE).join(';'));
+      }
+
+      const writePromises = [];
+      let modifiedChunksCount = 0;
+
+      chunks.forEach((chunkStr, idx) => {
+        const key = `tg_v2_c${idx}`;
+        if (lastSyncedChunks.get(key) !== chunkStr) {
+          writePromises.push(
+            CloudStorage.setItem(key, chunkStr).then(() => {
+              lastSyncedChunks.set(key, chunkStr);
+            })
+          );
+          modifiedChunksCount++;
+        }
+      });
+
+      if (modifiedChunksCount > 0 || !lastSyncedChunks.has('tg_v2_meta')) {
+        const metaStr = JSON.stringify({
+          v: 2,
+          chunks: chunks.length,
+          total: dirtyCards.length,
+          updatedAt: Date.now()
+        });
+        writePromises.push(
+          CloudStorage.setItem('tg_v2_meta', metaStr).then(() => {
+            lastSyncedChunks.set('tg_v2_meta', metaStr);
+          })
+        );
+      }
+
+      if (writePromises.length > 0) {
+        await Promise.all(writePromises);
+      }
+    } catch (err) {
+      console.error('[CloudStorage] Sync error:', err);
+    }
+  }
+
+  async function loadState(callback) {
+    try {
+      const local = localStorage.getItem('japandi_backup_data');
+      if (local) userProgress = JSON.parse(local);
+    } catch (e) {
+      userProgress = {};
     }
 
-    function releaseWakeLock() {
-      if (wakeLockSentinel) {
-        wakeLockSentinel.release().catch(() => {});
-        wakeLockSentinel = null;
-      }
+    if (!window.Telegram?.WebApp?.CloudStorage) {
+      if (callback) callback();
+      return;
     }
 
-    document.addEventListener('visibilitychange', async () => {
-      if (document.visibilityState === 'visible' && isPlaying) {
-        await acquireWakeLock();
+    try {
+      const metaRes = await CloudStorage.getItems(['tg_v2_meta']);
+      if (metaRes.tg_v2_meta) {
+        const meta = JSON.parse(metaRes.tg_v2_meta);
+        if (meta.chunks > 0) {
+          const chunkKeys = Array.from({ length: meta.chunks }, (_, i) => `tg_v2_c${i}`);
+          const chunksData = await CloudStorage.getItems(chunkKeys);
+
+          for (const key of chunkKeys) {
+            const raw = chunksData[key];
+            if (raw) {
+              lastSyncedChunks.set(key, raw);
+              raw.split(';').forEach(cardStr => {
+                const card = deserializeCard(cardStr);
+                if (card) {
+                  const existing = userProgress[card.id];
+                  if (!existing || (card.reps >= (existing.reps || 0))) {
+                    userProgress[card.id] = card;
+                  }
+                }
+              });
+            }
+          }
+        }
       }
+    } catch (err) {
+      console.error('[CloudStorage] Load error:', err);
+    } finally {
+      if (callback) callback();
+    }
+  }
+
+  function getWordData(wordId) {
+    if (!userProgress[wordId]) {
+      userProgress[wordId] = {
+        id: wordId,
+        reps: 0,
+        interval: 0,
+        easeFactor: ANKI_CONFIG.startingEase,
+        dueDate: 0,
+        lapses: 0,
+        state: CARD_STATE.NEW,
+        step: 0,
+        stacked: false,
+        ankiMastered: false
+      };
+    }
+    return userProgress[wordId];
+  }
+
+  function isLearned(wId) {
+    const p = userProgress[wId];
+    if (!p) return false;
+    return Boolean(p.ankiMastered || (p.reps && p.reps >= 1) || (p.interval && p.interval >= 1) || p.stacked);
+  }
+
+  let starredSet = new Set(JSON.parse(localStorage.getItem('slideshow_favs_ids') || '[]'));
+
+  function graduateWordInCloud(wordId) {
+    const p = getWordData(wordId);
+    p.reps = (p.reps || 0) + 1;
+    p.state = CARD_STATE.REVIEW;
+    p.interval = Math.max(p.interval || 0, 1);
+    p.dueDate = Date.now() + 86400000;
+    p.ankiMastered = true;
+    saveState();
+  }
+
+  // =========================================================================
+  // 4. АУДИОДВИЖОК
+  // =========================================================================
+  let isAutoVoice = true;
+  let activeAudio = null;
+  let audioTicket = 0;
+  let ambientSecondAudioTimer = null;
+  let appVolume = parseFloat(localStorage.getItem('app_sound_volume') ?? '0.8');
+
+  function initVolumeControl() {
+    const slider = document.getElementById('volumeSlider');
+    if (slider) slider.value = appVolume;
+  }
+
+  function changeVolume(val) {
+    appVolume = parseFloat(val);
+    localStorage.setItem('app_sound_volume', appVolume);
+    if (activeAudio) activeAudio.volume = appVolume;
+  }
+
+  function stopAudio() {
+    if (activeAudio) {
+      activeAudio.pause();
+      activeAudio.currentTime = 0;
+      activeAudio = null;
+    }
+    if ('speechSynthesis' in window) {
+      window.speechSynthesis.cancel();
+    }
+    if (ambientSecondAudioTimer) {
+      clearTimeout(ambientSecondAudioTimer);
+      ambientSecondAudioTimer = null;
+    }
+  }
+
+  function playWordAudio(id, ticket = null) {
+    if (!isAutoVoice && ticket !== null) return;
+    if (ticket !== null && ticket !== audioTicket) return;
+
+    stopAudio();
+
+    const aud = new Audio(`audio/${id}.mp3`);
+    aud.volume = appVolume;
+    activeAudio = aud;
+
+    aud.onerror = () => {
+      if (ticket === null || ticket === audioTicket) speakFallback(id);
+    };
+
+    const p = aud.play();
+    if (p !== undefined) {
+      p.catch(() => {
+        if (ticket === null || ticket === audioTicket) speakFallback(id);
+      });
+    }
+  }
+
+  function speakFallback(id) {
+    if (!('speechSynthesis' in window)) return;
+    const w = RAW_VOCABULARY.find(x => x.id === id);
+    if (!w) return;
+    window.speechSynthesis.cancel();
+    const text = (w.kanji && w.kanji !== '—') ? w.kanji : w.reading;
+    const ut = new SpeechSynthesisUtterance(text);
+    ut.lang = 'ja-JP';
+    ut.rate = 0.9;
+    ut.volume = appVolume;
+    window.speechSynthesis.speak(ut);
+  }
+
+  function toggleAutoVoice() {
+    isAutoVoice = !isAutoVoice;
+    const btn = document.getElementById('autoVoiceBtn');
+    btn.classList.toggle('active-toggle', isAutoVoice);
+    btn.textContent = isAutoVoice ? '🔊 Звук: ВКЛ' : '🔇 Звук: ВЫКЛ';
+    if (isAutoVoice) playCurrentAudioManual();
+    else stopAudio();
+  }
+
+  function playCurrentAudioManual() {
+    if (currentPlaylist.length === 0) return;
+    playWordAudio(currentPlaylist[currentIndex].word.id, null);
+  }
+
+  // =========================================================================
+  // 5. ДВИЖОК ПРЕЗЕНТАЦИИ И РЕЖИМЫ
+  // =========================================================================
+  let currentPlaylist = [];
+  let currentIndex = 0;
+  let isPlaying = false;
+  let slideTimer = null;
+  let progressTimer = null;
+  let currentInterval = 5000;
+  let isAnswerHidden = false;
+
+  let activeModeType = 'srs';
+  let srsRevealTimer = null;
+
+  let ambientWeakIndex = parseInt(localStorage.getItem('ambient_weak_idx') || '0', 10);
+  let ambientNewIndex = parseInt(localStorage.getItem('ambient_new_idx') || '0', 10);
+  let ambientRounds = parseInt(localStorage.getItem('ambient_rounds') || '2', 10);
+  let ambientDoubleVoice = (localStorage.getItem('ambient_double_voice') || 'no') === 'yes';
+
+  function initAmbientSettingsUI() {
+    const rSelect = document.getElementById('ambientRoundsSelect');
+    const vSelect = document.getElementById('ambientDoubleVoiceSelect');
+
+    if (rSelect) rSelect.value = String(ambientRounds);
+    if (vSelect) vSelect.value = ambientDoubleVoice ? 'yes' : 'no';
+  }
+
+  function saveAmbientSettings() {
+    ambientRounds = parseInt(document.getElementById('ambientRoundsSelect').value, 10);
+    ambientDoubleVoice = document.getElementById('ambientDoubleVoiceSelect').value === 'yes';
+
+    localStorage.setItem('ambient_rounds', ambientRounds);
+    localStorage.setItem('ambient_double_voice', ambientDoubleVoice ? 'yes' : 'no');
+  }
+
+  // БЕСКОНЕЧНЫЙ ФОН: 4 слабых + 1 новое
+  function appendNextAmbientCluster() {
+    const learned = RAW_VOCABULARY.filter(w => isLearned(w.id));
+    const unlearnedPool = RAW_VOCABULARY.filter(w => !isLearned(w.id));
+
+    const sortedWeak = [...learned].sort((a, b) => {
+      const pA = getWordData(a.id);
+      const pB = getWordData(b.id);
+      return (pA.interval || 0) - (pB.interval || 0);
     });
 
-    // =========================================================================
-    // 3. ХРАНИЛИЩЕ И ПРОГРЕСС
-    // =========================================================================
-    let starredSet = new Set(JSON.parse(localStorage.getItem('slideshow_favs_ids') || '[]'));
-    let userProgress = {};
-    try {
-      userProgress = JSON.parse(localStorage.getItem('japandi_backup_data') || '{}');
-    } catch(e) { userProgress = {}; }
+    const cluster = [];
 
-    function isLearned(id) {
-      const p = userProgress[id];
-      return Boolean(p && (p.ankiMastered || p.stacked || (p.interval && p.interval >= 1)));
-    }
-
-    function saveState() {
-      localStorage.setItem('slideshow_favs_ids', JSON.stringify([...starredSet]));
-      localStorage.setItem('japandi_backup_data', JSON.stringify(userProgress));
-    }
-
-    // =========================================================================
-    // 4. НАДЕЖНЫЙ АУДИОДВИЖОК С СИСТЕМОЙ БИЛЕТОВ (AUDIO TICKETS)
-    // =========================================================================
-    let isAutoVoice = true;
-    let activeAudio = null;
-    let audioTicket = 0;
-    let ambientSecondAudioTimer = null;
-
-    function stopAudio() {
-      if (activeAudio) {
-        activeAudio.pause();
-        activeAudio.currentTime = 0;
-        activeAudio = null;
+    if (sortedWeak.length > 0) {
+      for (let i = 0; i < 4; i++) {
+        cluster.push(sortedWeak[(ambientWeakIndex + i) % sortedWeak.length]);
       }
-      if ('speechSynthesis' in window) {
-        window.speechSynthesis.cancel();
-      }
-      if (ambientSecondAudioTimer) {
-        clearTimeout(ambientSecondAudioTimer);
-        ambientSecondAudioTimer = null;
+      ambientWeakIndex = (ambientWeakIndex + 4) % sortedWeak.length;
+    } else {
+      for (let i = 0; i < 4; i++) {
+        cluster.push(RAW_VOCABULARY[i % RAW_VOCABULARY.length]);
       }
     }
 
-    function playWordAudio(id, ticket = null) {
-      if (!isAutoVoice && ticket !== null) return;
-      if (ticket !== null && ticket !== audioTicket) return;
+    let newWordToAdd = null;
+    if (unlearnedPool.length > 0) {
+      newWordToAdd = unlearnedPool[ambientNewIndex % unlearnedPool.length];
+      cluster.push(newWordToAdd);
+      ambientNewIndex = (ambientNewIndex + 1) % unlearnedPool.length;
+    } else if (RAW_VOCABULARY.length > 0) {
+      cluster.push(RAW_VOCABULARY[ambientWeakIndex % RAW_VOCABULARY.length]);
+    }
 
-      stopAudio();
+    localStorage.setItem('ambient_weak_idx', ambientWeakIndex);
+    localStorage.setItem('ambient_new_idx', ambientNewIndex);
 
-      const aud = new Audio(`audio/${id}.mp3`);
-      activeAudio = aud;
+    const rounds = ambientRounds || 2;
+    for (let r = 1; r <= rounds; r++) {
+      const roundShuffled = [...cluster].sort(() => Math.random() - 0.5);
+      roundShuffled.forEach(w => {
+        const wordNum = cluster.indexOf(w) + 1;
+        const isFinalCardOfNewWord = (r === rounds && newWordToAdd && w.id === newWordToAdd.id);
 
-      aud.onerror = () => {
-        if (ticket === null || ticket === audioTicket) speakFallback(id);
-      };
-
-      const p = aud.play();
-      if (p !== undefined) {
-        p.catch(() => {
-          if (ticket === null || ticket === audioTicket) speakFallback(id);
+        currentPlaylist.push({
+          word: w,
+          duration: 30000,
+          doubleAudio: ambientDoubleVoice,
+          wordNum: wordNum,
+          totalWords: cluster.length,
+          ambientTag: `🌸 Фон • Круг ${r}/${rounds}`,
+          onCompleted: isFinalCardOfNewWord ? () => graduateWordInCloud(w.id) : null
         });
-      }
-    }
-
-    function speakFallback(id) {
-      if (!('speechSynthesis' in window)) return;
-      const w = RAW_VOCABULARY.find(x => x.id === id);
-      if (!w) return;
-      window.speechSynthesis.cancel();
-      const text = (w.kanji && w.kanji !== '—') ? w.kanji : w.reading;
-      const ut = new SpeechSynthesisUtterance(text);
-      ut.lang = 'ja-JP';
-      ut.rate = 0.9;
-      window.speechSynthesis.speak(ut);
-    }
-
-    function toggleAutoVoice() {
-      isAutoVoice = !isAutoVoice;
-      const btn = document.getElementById('autoVoiceBtn');
-      btn.classList.toggle('active-toggle', isAutoVoice);
-      btn.textContent = isAutoVoice ? '🔊 Звук: ВКЛ' : '🔇 Звук: ВЫКЛ';
-      if (isAutoVoice) playCurrentAudioManual();
-      else stopAudio();
-    }
-
-    function playCurrentAudioManual() {
-      if (currentPlaylist.length === 0) return;
-      playWordAudio(currentPlaylist[currentIndex].word.id, null);
-    }
-
-    // =========================================================================
-    // 5. ДВИЖОК ПРЕЗЕНТАЦИИ И РЕЖИМЫ
-    // =========================================================================
-    let currentPlaylist = [];
-    let currentIndex = 0;
-    let isPlaying = false;
-    let slideTimer = null;
-    let progressTimer = null;
-    let currentInterval = 5000;
-    let isAnswerHidden = false;
-
-    let activeModeType = 'srs';
-    let ambientWeakIndex = 0;
-    let ambientNewIndex = 0;
-    let srsRevealTimer = null;
-
-    // Сет выбранных уроков для кастомного режима
-    const customSelectedLessons = new Set([1]);
-
-    function initCustomLessonPicker() {
-      const grid = document.getElementById('customLessonsChips');
-      grid.innerHTML = '';
-      for (let lvl = 1; lvl <= 73; lvl++) {
-        const btn = document.createElement('button');
-        btn.type = 'button';
-        btn.className = `lesson-chip ${customSelectedLessons.has(lvl) ? 'selected' : ''}`;
-        btn.textContent = lvl;
-        btn.onclick = () => {
-          if (customSelectedLessons.has(lvl)) {
-            if (customSelectedLessons.size > 1) customSelectedLessons.delete(lvl);
-          } else {
-            customSelectedLessons.add(lvl);
-          }
-          btn.classList.toggle('selected', customSelectedLessons.has(lvl));
-          updateLessonCountBadge();
-        };
-        grid.appendChild(btn);
-      }
-      updateLessonCountBadge();
-    }
-
-    function updateLessonCountBadge() {
-      document.getElementById('customLessonCountText').textContent = `${customSelectedLessons.size} выбрано`;
-    }
-
-    function selectLessonsPreset(type) {
-      if (type === 'n5') {
-        for (let i = 1; i <= 42; i++) customSelectedLessons.add(i);
-      } else if (type === 'n4') {
-        for (let i = 43; i <= 73; i++) customSelectedLessons.add(i);
-      } else if (type === 'clear') {
-        customSelectedLessons.clear();
-        customSelectedLessons.add(1);
-      }
-      initCustomLessonPicker();
-    }
-
-    function onCustomCategoryChange() {
-      const val = document.getElementById('customCategory').value;
-      const wrap = document.getElementById('customLessonPickerWrap');
-      wrap.style.display = (val === 'lessons') ? 'flex' : 'none';
-      if (val === 'lessons') initCustomLessonPicker();
-    }
-
-    // ОБНОВЛЕНИЕ ПОДСВЕТКИ АКТИВНОГО РЕЖИМА В МОДАЛКЕ
-    function updateActiveModeHighlight() {
-      const modeMap = {
-        'ambient': 'modeBtnAmbient',
-        'srs': 'modeBtnSrs',
-        'lesson': 'modeBtnLesson',
-        'custom': 'modeBtnCustom'
-      };
-      ['modeBtnAmbient', 'modeBtnSrs', 'modeBtnLesson', 'modeBtnCustom'].forEach(id => {
-        const el = document.getElementById(id);
-        if (el) el.classList.remove('primary');
       });
-      const activeId = modeMap[activeModeType];
-      if (activeId && document.getElementById(activeId)) {
-        document.getElementById(activeId).classList.add('primary');
-      }
+    }
+  }
+
+  function startAmbientModeInfinite() {
+    closeAllModals();
+    activeModeType = 'ambient';
+    updateActiveModeHighlight();
+    currentPlaylist = [];
+
+    appendNextAmbientCluster();
+    appendNextAmbientCluster();
+
+    document.getElementById('mainCard').classList.remove('ambient-glow');
+    document.getElementById('ambientIndicator').style.display = 'inline-block';
+
+    launchDeck(currentPlaylist, 0);
+  }
+
+  // УМНЫЙ ПОВТОР (SRS)
+  function startSrsReview() {
+    closeAllModals();
+    activeModeType = 'srs';
+    updateActiveModeHighlight();
+    document.getElementById('mainCard').classList.remove('ambient-glow');
+    document.getElementById('ambientIndicator').style.display = 'none';
+
+    const learned = RAW_VOCABULARY.filter(w => isLearned(w.id));
+
+    if (learned.length === 0) {
+      launchDeck(RAW_VOCABULARY.slice(0, 20).map((w, idx) => ({ 
+        word: w, 
+        duration: 5000, 
+        wordNum: idx + 1, 
+        totalWords: 20 
+      })), 0);
+      return;
     }
 
-// =========================================================================
-    // 1. УМНЫЙ ПОВТОР (SRS): Все 830 слов пачками по 20 со схлёстом
-    // =========================================================================
-    function startSrsReview() {
-      closeAllModals();
-      activeModeType = 'srs';
-      updateActiveModeHighlight();
-      document.getElementById('mainCard').classList.remove('ambient-glow');
-      document.getElementById('ambientIndicator').style.display = 'none';
+    const sortedLearned = [...learned].sort((a, b) => {
+      const intA = userProgress[a.id]?.interval ?? 1;
+      const intB = userProgress[b.id]?.interval ?? 1;
+      return intA - intB;
+    });
 
-      const learned = RAW_VOCABULARY.filter(w => isLearned(w.id));
+    const totalWordsCount = sortedLearned.length;
+    const batchSize = 20;
+    const list = [];
 
-      if (learned.length === 0) {
-        launchDeck(RAW_VOCABULARY.slice(0, 20).map((w, idx) => ({ 
-          word: w, 
-          duration: 5000, 
-          wordNum: idx + 1, 
-          totalWords: 20 
-        })), 0);
-        return;
-      }
+    for (let i = 0; i < totalWordsCount; i += batchSize) {
+      const batchWords = sortedLearned.slice(i, i + batchSize);
 
-      // Сортируем: сначала самые слабые (интервал 1, 2...), в конце — намертво выученные
-      const sortedLearned = [...learned].sort((a, b) => {
-        const intA = userProgress[a.id]?.interval ?? 1;
-        const intB = userProgress[b.id]?.interval ?? 1;
-        return intA - intB;
+      batchWords.forEach((w, bIdx) => {
+        list.push({
+          word: w,
+          duration: 5000,
+          wordNum: i + bIdx + 1,
+          totalWords: totalWordsCount
+        });
       });
 
-      const totalWordsCount = sortedLearned.length; // Ровно 830 слов
-      const batchSize = 20;
-      const list = [];
-
-      // Разбиваем все 830 слов на порции по 20
-      for (let i = 0; i < totalWordsCount; i += batchSize) {
-        const batchWords = sortedLearned.slice(i, i + batchSize);
-
-        // Круг 1: по порядку пачки (5 сек, размытие перевода 2.5 сек)
-        batchWords.forEach((w, bIdx) => {
-          list.push({
-            word: w,
-            duration: 5000,
-            wordNum: i + bIdx + 1,       // Показывает, например, Слово 5 из 830
-            totalWords: totalWordsCount
-          });
+      const round2 = [...batchWords].sort(() => Math.random() - 0.5);
+      round2.forEach((w) => {
+        const originalIdx = batchWords.indexOf(w);
+        list.push({
+          word: w,
+          duration: 4000,
+          wordNum: i + originalIdx + 1,
+          totalWords: totalWordsCount
         });
+      });
 
-        // Круг 2: та же пачка вперемешку для закрепления (4 сек)
-        const round2 = [...batchWords].sort(() => Math.random() - 0.5);
-        round2.forEach((w) => {
+      const weakInBatch = batchWords.filter(w => (userProgress[w.id]?.interval || 1) < 3);
+      if (weakInBatch.length > 0) {
+        weakInBatch.sort(() => Math.random() - 0.5).forEach(w => {
           const originalIdx = batchWords.indexOf(w);
           list.push({
             word: w,
-            duration: 4000,
-            wordNum: i + originalIdx + 1, // Тот же правильный номер слова
+            duration: 3500,
+            wordNum: i + originalIdx + 1,
             totalWords: totalWordsCount
           });
         });
-
-        // Круг 3: контрольный только для проблемных слов этой пачки (у кого interval < 3)
-        const weakInBatch = batchWords.filter(w => (userProgress[w.id]?.interval || 1) < 3);
-        if (weakInBatch.length > 0) {
-          weakInBatch.sort(() => Math.random() - 0.5).forEach(w => {
-            const originalIdx = batchWords.indexOf(w);
-            list.push({
-              word: w,
-              duration: 3500,
-              wordNum: i + originalIdx + 1,
-              totalWords: totalWordsCount
-            });
-          });
-        }
       }
-
-      launchDeck(list, 0);
     }
 
-    // =========================================================================
-    // 2. НОВЫЙ УРОК: Полный мощный алгоритм (115 шагов), но счётчик "1 из 20"
-    // =========================================================================
-    function startNextIncompleteLesson() {
-      closeAllModals();
-      activeModeType = 'lesson';
-      updateActiveModeHighlight();
-      document.getElementById('mainCard').classList.remove('ambient-glow');
-      document.getElementById('ambientIndicator').style.display = 'none';
+    launchDeck(list, 0);
+  }
 
-      const lessonLevels = [...new Set(RAW_VOCABULARY.map(w => w.level_id))].sort((a,b) => a - b);
-      let targetLvl = lessonLevels[0] || 1;
+  // НОВЫЙ УРОК
+  function startNextIncompleteLesson() {
+    closeAllModals();
+    activeModeType = 'lesson';
+    updateActiveModeHighlight();
+    document.getElementById('mainCard').classList.remove('ambient-glow');
+    document.getElementById('ambientIndicator').style.display = 'none';
 
-      // Находим текущий незавершённый урок
-      for (let lvl of lessonLevels) {
-        const words = RAW_VOCABULARY.filter(w => w.level_id === lvl);
-        const done = words.filter(w => isLearned(w.id)).length;
-        if (done < words.length) {
-          targetLvl = lvl;
-          break;
-        }
+    const lessonLevels = [...new Set(RAW_VOCABULARY.map(w => w.level_id))].sort((a,b) => a - b);
+    let targetLvl = lessonLevels[0] || 1;
+
+    for (let lvl of lessonLevels) {
+      const words = RAW_VOCABULARY.filter(w => w.level_id === lvl);
+      const done = words.filter(w => isLearned(w.id)).length;
+      if (done < words.length) {
+        targetLvl = lvl;
+        break;
       }
+    }
 
-      const allLessonWords = RAW_VOCABULARY.filter(w => w.level_id === targetLvl);
+    const allLessonWords = RAW_VOCABULARY.filter(w => w.level_id === targetLvl);
+    let wordsToLearn = allLessonWords.filter(w => !isLearned(w.id));
+    if (wordsToLearn.length === 0) wordsToLearn = allLessonWords;
 
-      // Берём только те слова урока, которые еще НЕ изучены в Анки
-      let wordsToLearn = allLessonWords.filter(w => !isLearned(w.id));
-      if (wordsToLearn.length === 0) wordsToLearn = allLessonWords;
+    const totalWordsCount = wordsToLearn.length;
+    const list = [];
 
-      const totalWordsCount = wordsToLearn.length; // Ровно 20 (или меньше, если часть уже пройдена)
-      const list = [];
+    const pushCard = (w, duration, doubleAudio = false) => {
+      const wordNum = wordsToLearn.indexOf(w) + 1;
+      list.push({
+        word: w,
+        duration,
+        doubleAudio,
+        wordNum,
+        totalWords: totalWordsCount
+      });
+    };
 
-      // Вспомогательная функция для добавления карточки с сохранением номера слова (1..20)
-      const pushCard = (w, duration, doubleAudio = false) => {
-        const wordNum = wordsToLearn.indexOf(w) + 1;
-        list.push({
-          word: w,
-          duration,
-          doubleAudio,
-          wordNum,
-          totalWords: totalWordsCount
-        });
+    for (let i = 0; i < wordsToLearn.length; i += 3) {
+      const batch = wordsToLearn.slice(i, i + 3);
+
+      batch.forEach(w => pushCard(w, 6000, true));
+      batch.forEach(w => pushCard(w, 4000));
+      batch.forEach(w => pushCard(w, 2500));
+
+      if (i > 0) {
+        const prev = wordsToLearn.slice(i - 3, i);
+        const combo = [...prev, ...batch].sort(() => Math.random() - 0.5);
+        combo.forEach(w => pushCard(w, 3500));
+      }
+    }
+
+    const finalMix = [...wordsToLearn].sort(() => Math.random() - 0.5);
+    finalMix.forEach(w => pushCard(w, 3500));
+
+    launchDeck(list, 0);
+  }
+
+  // КАСТОМНЫЙ РЕЖИМ (С ИСПРАВЛЕННЫМ СЧЁТЧИКОМ СЛОВ)
+  const customSelectedLessons = new Set([1]);
+
+  function initCustomLessonPicker() {
+    const grid = document.getElementById('customLessonsChips');
+    grid.innerHTML = '';
+    for (let lvl = 1; lvl <= 73; lvl++) {
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = `lesson-chip ${customSelectedLessons.has(lvl) ? 'selected' : ''}`;
+      btn.textContent = lvl;
+      btn.onclick = () => {
+        if (customSelectedLessons.has(lvl)) {
+          if (customSelectedLessons.size > 1) customSelectedLessons.delete(lvl);
+        } else {
+          customSelectedLessons.add(lvl);
+        }
+        btn.classList.toggle('selected', customSelectedLessons.has(lvl));
+        updateLessonCountBadge();
       };
+      grid.appendChild(btn);
+    }
+    updateLessonCountBadge();
+  }
 
-      // ПОЛНЫЙ АЛГОРИТМ ЗУБРЁЖКИ:
-      // Вбивание тройками: 6с (двойной звук) ➔ 4с ➔ 2.5с + схлёст с предыдущей тройкой + финал
-      for (let i = 0; i < wordsToLearn.length; i += 3) {
-        const batch = wordsToLearn.slice(i, i + 3);
+  function updateLessonCountBadge() {
+    document.getElementById('customLessonCountText').textContent = `${customSelectedLessons.size} выбрано`;
+  }
 
-        batch.forEach(w => pushCard(w, 6000, true));
-        batch.forEach(w => pushCard(w, 4000));
-        batch.forEach(w => pushCard(w, 2500));
+  function selectLessonsPreset(type) {
+    if (type === 'n5') {
+      for (let i = 1; i <= 42; i++) customSelectedLessons.add(i);
+    } else if (type === 'n4') {
+      for (let i = 43; i <= 73; i++) customSelectedLessons.add(i);
+    } else if (type === 'clear') {
+      customSelectedLessons.clear();
+      customSelectedLessons.add(1);
+    }
+    initCustomLessonPicker();
+  }
 
-        if (i > 0) {
-          const prev = wordsToLearn.slice(i - 3, i);
-          const combo = [...prev, ...batch].sort(() => Math.random() - 0.5);
-          combo.forEach(w => pushCard(w, 3500));
-        }
-      }
+  function onCustomCategoryChange() {
+    const val = document.getElementById('customCategory').value;
+    const wrap = document.getElementById('customLessonPickerWrap');
+    wrap.style.display = (val === 'lessons') ? 'flex' : 'none';
+    if (val === 'lessons') initCustomLessonPicker();
+  }
 
-      // Финальный закрепляющий микс всех слов урока
-      const finalMix = [...wordsToLearn].sort(() => Math.random() - 0.5);
-      finalMix.forEach(w => pushCard(w, 3500));
+  function openCustomSettings() {
+    closeAllModals();
+    onCustomCategoryChange();
+    openModal('customModal');
+  }
 
-      launchDeck(list, 0);
+  function applyCustomRoutine() {
+    const category = document.getElementById('customCategory').value;
+    let pool = [];
+
+    if (category === 'learned') {
+      pool = RAW_VOCABULARY.filter(w => isLearned(w.id));
+    } else if (category === 'unlearned') {
+      pool = RAW_VOCABULARY.filter(w => !isLearned(w.id));
+    } else if (category === 'lessons') {
+      pool = RAW_VOCABULARY.filter(w => customSelectedLessons.has(w.level_id));
+    } else if (category === 'favorites') {
+      pool = RAW_VOCABULARY.filter(w => starredSet.has(w.id));
+    } else {
+      pool = [...RAW_VOCABULARY];
     }
 
-    // =========================================================================
-    // БЕСКОНЕЧНЫЙ ФОН: 4 слабых + 1 новое (автономный надёжный конвейер)
-    // =========================================================================
-    function appendNextAmbientCluster() {
-      const learned = RAW_VOCABULARY.filter(w => isLearned(w.id));
-      const unlearnedPool = RAW_VOCABULARY.filter(w => !isLearned(w.id));
+    if (pool.length === 0) {
+      alert('В выбранной категории нет слов!');
+      return;
+    }
 
-      // Сортируем изученные слова от слабых (интервал 1, 2...) к сильным
-      const sortedWeak = [...learned].sort((a, b) => {
-        const intA = userProgress[a.id]?.interval ?? 1;
-        const intB = userProgress[b.id]?.interval ?? 1;
-        return intA - intB;
-      });
+    closeAllModals();
+    activeModeType = 'custom';
+    updateActiveModeHighlight();
+    document.getElementById('mainCard').classList.remove('ambient-glow');
+    document.getElementById('ambientIndicator').style.display = 'none';
 
-      const cluster = [];
+    const batchSize = parseInt(document.getElementById('customBatchSize').value);
+    const rounds = parseInt(document.getElementById('customRounds').value);
+    const startMs = parseInt(document.getElementById('customTime').value);
+    const isDoubleAudio = document.getElementById('customDoubleAudio').value === 'yes';
+    const accelerate = document.getElementById('customAccelerate').value === 'yes';
 
-      // 1. Берём 4 слабых слова со сдвигом индекса
-      if (sortedWeak.length > 0) {
-        for (let i = 0; i < 4; i++) {
-          cluster.push(sortedWeak[(ambientWeakIndex + i) % sortedWeak.length]);
-        }
-        ambientWeakIndex = (ambientWeakIndex + 4) % sortedWeak.length;
-      } else {
-        // Фоллбэк, если изученных слов нет
-        for (let i = 0; i < 4; i++) {
-          cluster.push(RAW_VOCABULARY[i % RAW_VOCABULARY.length]);
-        }
-      }
+    const list = [];
+    const actualBatchSize = Math.min(batchSize, pool.length);
+    const totalWordsCount = pool.length; // Ровное число слов (например 1441)
 
-      // 2. Берём 1 новое слово строго по порядку неизученных (из N4)
-      if (unlearnedPool.length > 0) {
-        cluster.push(unlearnedPool[ambientNewIndex % unlearnedPool.length]);
-        ambientNewIndex = (ambientNewIndex + 1) % unlearnedPool.length;
-      } else if (RAW_VOCABULARY.length > 0) {
-        cluster.push(RAW_VOCABULARY[ambientWeakIndex % RAW_VOCABULARY.length]);
-      }
-
-      // 3. Формируем 4 круга вперемешку по 30 сек с двойным звуком
-      const rounds = 4;
-      for (let r = 1; r <= rounds; r++) {
-        const roundShuffled = [...cluster].sort(() => Math.random() - 0.5);
-        roundShuffled.forEach(w => {
-          const wordNum = cluster.indexOf(w) + 1;
-          currentPlaylist.push({
-            word: w,
-            duration: 30000,
-            doubleAudio: true,
-            wordNum: wordNum,
-            totalWords: cluster.length, // 5 слов
-            ambientTag: `🌸 Фон • Круг ${r}/${rounds}`
-          });
-        });
+    for (let i = 0; i < pool.length; i += actualBatchSize) {
+      const batch = pool.slice(i, i + actualBatchSize);
+      for (let r = 0; r < rounds; r++) {
+        const ratio = rounds > 1 ? r / (rounds - 1) : 0;
+        const dur = accelerate ? Math.round(startMs - (startMs * 0.45 * ratio)) : startMs;
+        batch.forEach((w, bIdx) => list.push({
+          word: w,
+          duration: dur,
+          doubleAudio: isDoubleAudio,
+          wordNum: i + bIdx + 1,       // Показывает "Слово 1 из 1441", а не карточки!
+          totalWords: totalWordsCount
+        }));
       }
     }
 
-    function startAmbientModeInfinite() {
-      closeAllModals();
-      activeModeType = 'ambient';
-      updateActiveModeHighlight();
-      ambientWeakIndex = 0;
-      ambientNewIndex = 0;
-      currentPlaylist = [];
-      
-      // Генерируем первые два кластера (40 слайдов)
+    launchDeck(list, 0);
+  }
+
+  // =========================================================================
+  // УПРАВЛЕНИЕ КАРТОЧКАМИ И ПЛЕЕРОМ
+  // =========================================================================
+  function launchDeck(playlist, startIdx = 0) {
+    currentPlaylist = playlist;
+    currentIndex = startIdx;
+    switchMainView('presentation');
+    updateCard();
+    startPresentation();
+  }
+
+  function updateCard() {
+    if (currentPlaylist.length === 0) return;
+
+    audioTicket++;
+    const thisTicket = audioTicket;
+
+    clearTimeout(slideTimer);
+    clearTimeout(srsRevealTimer);
+    stopAudio();
+
+    if (activeModeType === 'ambient' && currentIndex >= currentPlaylist.length - 4) {
       appendNextAmbientCluster();
-      appendNextAmbientCluster();
-
-      document.getElementById('mainCard').classList.add('ambient-glow');
-      document.getElementById('ambientIndicator').style.display = 'block';
-
-      launchDeck(currentPlaylist, 0);
     }
 
-    // СВОЙ РЕЖИМ (ГИБКИЙ КОНСТРУКТОР)
-    function openCustomSettings() {
-      closeAllModals();
-      onCustomCategoryChange();
-      openModal('customModal');
+    const item = currentPlaylist[currentIndex];
+    const w = item.word;
+
+    if (typeof item.onCompleted === 'function') {
+      item.onCompleted();
+      item.onCompleted = null;
     }
 
-    function applyCustomRoutine() {
-      const category = document.getElementById('customCategory').value;
-      let pool = [];
+    const kEl = document.getElementById('dispKanji');
+    const rEl = document.getElementById('dispReading');
+    const mEl = document.getElementById('dispMeaning');
+    const lessonBadge = document.getElementById('lessonBadge');
 
-      if (category === 'learned') {
-        pool = RAW_VOCABULARY.filter(w => isLearned(w.id));
-      } else if (category === 'unlearned') {
-        pool = RAW_VOCABULARY.filter(w => !isLearned(w.id));
-      } else if (category === 'lessons') {
-        pool = RAW_VOCABULARY.filter(w => customSelectedLessons.has(w.level_id));
-      } else if (category === 'favorites') {
-        pool = RAW_VOCABULARY.filter(w => starredSet.has(w.id));
-      } else {
-        pool = [...RAW_VOCABULARY];
-      }
+    const hasKanji = w.kanji && w.kanji !== '—' && w.kanji !== w.reading;
+    if (hasKanji) {
+      kEl.textContent = w.kanji;
+      rEl.textContent = w.reading;
+      rEl.style.display = 'block';
+    } else {
+      kEl.textContent = w.reading;
+      rEl.textContent = '';
+      rEl.style.display = 'none';
+    }
 
-      if (pool.length === 0) {
-        alert('В выбранной категории нет слов!');
-        return;
-      }
+    mEl.textContent = w.translation;
 
-      closeAllModals();
-      activeModeType = 'custom';
-      updateActiveModeHighlight();
-      document.getElementById('mainCard').classList.remove('ambient-glow');
-      document.getElementById('ambientIndicator').style.display = 'none';
+    // Плавное умное масштабирование текста (слова до 8 букв больше не сжимаются)
+    kEl.className = 'kanji-display';
+    const kLen = kEl.textContent.length;
+    if (kLen >= 6 && kLen <= 8) {
+      kEl.classList.add('len-medium');
+    } else if (kLen > 8) {
+      kEl.classList.add('len-long');
+    }
 
-      const batchSize = parseInt(document.getElementById('customBatchSize').value);
-      const rounds = parseInt(document.getElementById('customRounds').value);
-      const startMs = parseInt(document.getElementById('customTime').value);
-      const isDoubleAudio = document.getElementById('customDoubleAudio').value === 'yes';
-      const accelerate = document.getElementById('customAccelerate').value === 'yes';
+    // Честный счётчик реальных слов
+    if (item.wordNum && item.totalWords) {
+      document.getElementById('deckIndicator').textContent = `Слово ${item.wordNum} из ${item.totalWords}`;
+    } else {
+      document.getElementById('deckIndicator').textContent = `Слово ${currentIndex + 1} из ${currentPlaylist.length}`;
+    }
 
-      const list = [];
-      const actualBatchSize = Math.min(batchSize, pool.length);
+    const isWordNew = !isLearned(w.id);
+    if (isWordNew && w.level_id) {
+      lessonBadge.style.display = 'inline-block';
+      lessonBadge.textContent = `Урок ${w.level_id}`;
+    } else {
+      lessonBadge.style.display = 'none';
+    }
 
-      for (let i = 0; i < pool.length; i += actualBatchSize) {
-        const batch = pool.slice(i, i + actualBatchSize);
-        for (let r = 0; r < rounds; r++) {
-          const ratio = rounds > 1 ? r / (rounds - 1) : 0;
-          const dur = accelerate ? Math.round(startMs - (startMs * 0.45 * ratio)) : startMs;
-          batch.forEach(w => list.push({
-            word: w,
-            duration: dur,
-            doubleAudio: isDoubleAudio
-          }));
+    document.getElementById('starActionBtn').classList.toggle('starred', starredSet.has(w.id));
+    document.getElementById('learnActionBtn').classList.toggle('learned', isLearned(w.id));
+
+    playWordAudio(w.id, thisTicket);
+
+    if (item.doubleAudio) {
+      const halfTime = item.duration / 2;
+      ambientSecondAudioTimer = setTimeout(() => {
+        if (thisTicket === audioTicket && isPlaying) {
+          playWordAudio(w.id, thisTicket);
         }
-      }
-
-      launchDeck(list, 0);
+      }, halfTime);
     }
 
-    function launchDeck(playlist, startIdx = 0) {
-      currentPlaylist = playlist;
-      currentIndex = startIdx;
-      switchMainView('presentation');
-      updateCard();
-      startPresentation();
+    if (activeModeType === 'srs') {
+      mEl.classList.add('hidden-answer');
+      srsRevealTimer = setTimeout(() => {
+        if (thisTicket === audioTicket) mEl.classList.remove('hidden-answer');
+      }, 2500);
+    } else if (!isAnswerHidden) {
+      mEl.classList.remove('hidden-answer');
     }
 
-    function updateCard() {
-      if (currentPlaylist.length === 0) return;
+    currentInterval = item.duration || 5000;
+    resetProgress();
+  }
 
-      audioTicket++;
-      const thisTicket = audioTicket;
+  function nextSlide() {
+    if (currentPlaylist.length === 0) return;
+    currentIndex = (currentIndex + 1) % currentPlaylist.length;
+    updateCard();
+  }
 
-      clearTimeout(slideTimer);
-      clearTimeout(srsRevealTimer);
-      stopAudio();
+  function prevSlide() {
+    if (currentPlaylist.length === 0) return;
+    currentIndex = (currentIndex - 1 + currentPlaylist.length) % currentPlaylist.length;
+    updateCard();
+  }
 
-      if (activeModeType === 'ambient' && currentIndex >= currentPlaylist.length - 6) {
-        appendNextAmbientCluster();
-      }
+  function togglePlay() {
+    if (isPlaying) pausePresentation();
+    else startPresentation();
+  }
 
-      const item = currentPlaylist[currentIndex];
-      const w = item.word;
+  function startPresentation() {
+    isPlaying = true;
+    acquireWakeLock();
+    document.getElementById('playBtn').textContent = '⏸ Пауза';
+    document.getElementById('playBtn').classList.add('primary');
+    resetProgress();
+  }
 
-      const kEl = document.getElementById('dispKanji');
-      const rEl = document.getElementById('dispReading');
-      const mEl = document.getElementById('dispMeaning');
-      const lessonBadge = document.getElementById('lessonBadge');
+  function pausePresentation() {
+    isPlaying = false;
+    releaseWakeLock();
+    document.getElementById('playBtn').textContent = '▶ Старт';
+    document.getElementById('playBtn').classList.remove('primary');
+    clearTimeout(slideTimer);
+    clearInterval(progressTimer);
+    clearTimeout(srsRevealTimer);
+    stopAudio();
+    document.getElementById('progressLine').style.width = '0%';
+  }
 
-      // ИСПРАВЛЕНИЕ ДУБЛИРОВАНИЯ КАТАКАНЫ:
-      const hasKanji = w.kanji && w.kanji !== '—' && w.kanji !== w.reading;
-      if (hasKanji) {
-        kEl.textContent = w.kanji;
-        rEl.textContent = w.reading;
-        rEl.style.display = 'block';
-      } else {
-        kEl.textContent = w.reading;
-        rEl.textContent = '';
-        rEl.style.display = 'none';
-      }
+  function resetProgress() {
+    clearTimeout(slideTimer);
+    clearInterval(progressTimer);
+    const pLine = document.getElementById('progressLine');
+    pLine.style.width = '0%';
 
-      mEl.textContent = w.translation;
+    if (!isPlaying) return;
 
-      // Масштабирование длинных слов
-      kEl.className = 'kanji-display';
-      const kLen = kEl.textContent.length;
-      if (kLen === 4) kEl.classList.add('len-4');
-      else if (kLen === 5) kEl.classList.add('len-5');
-      else if (kLen >= 6) kEl.classList.add('len-long');
+    const start = performance.now();
+    progressTimer = setInterval(() => {
+      const elapsed = performance.now() - start;
+      const p = Math.min((elapsed / currentInterval) * 100, 100);
+      pLine.style.width = p + '%';
+    }, 50);
 
-     // Умный счётчик: показывает номер реального слова, а не количество карточек в алгоритме
-if (item.wordNum && item.totalWords) {
-  document.getElementById('deckIndicator').textContent = `Слово ${item.wordNum} из ${item.totalWords}`;
-} else {
-  document.getElementById('deckIndicator').textContent = `Слово ${currentIndex + 1} из ${currentPlaylist.length}`;
-}
+    slideTimer = setTimeout(() => {
+      nextSlide();
+    }, currentInterval);
+  }
 
-      // ПОДПИСЬ УРОКА ДЛЯ НОВОГО СЛОВА
-      const isWordNew = !isLearned(w.id);
-      if (isWordNew && w.level_id) {
-        lessonBadge.style.display = 'inline-block';
-        lessonBadge.textContent = `Урок ${w.level_id}`;
-      } else {
-        lessonBadge.style.display = 'none';
-      }
+  function toggleHideAnswer() {
+    isAnswerHidden = !isAnswerHidden;
+    document.getElementById('dispMeaning').classList.toggle('hidden-answer', isAnswerHidden);
+    document.getElementById('eyeBtn').classList.toggle('active-toggle', isAnswerHidden);
+  }
 
-      document.getElementById('starActionBtn').classList.toggle('starred', starredSet.has(w.id));
-      document.getElementById('learnActionBtn').classList.toggle('learned', isLearned(w.id));
+  function shuffleDeck() {
+    if (currentPlaylist.length <= 1) return;
+    currentPlaylist.sort(() => Math.random() - 0.5);
+    currentIndex = 0;
+    updateCard();
+  }
 
-      // Первый такт звука (на 0 секунде)
-      playWordAudio(w.id, thisTicket);
+  function toggleCurrentFavorite() {
+    if (currentPlaylist.length === 0) return;
+    const id = currentPlaylist[currentIndex].word.id;
+    if (starredSet.has(id)) starredSet.delete(id);
+    else starredSet.add(id);
+    saveState();
+    updateCard();
+  }
 
-      // Второй такт звука (на половине интервала, если включена двойная озвучка)
-      if (item.doubleAudio) {
-        const halfTime = item.duration / 2;
-        ambientSecondAudioTimer = setTimeout(() => {
-          if (thisTicket === audioTicket && isPlaying) {
-            playWordAudio(w.id, thisTicket);
-          }
-        }, halfTime);
-      }
+  function markCurrentAsLearned() {
+    if (currentPlaylist.length === 0) return;
+    const id = currentPlaylist[currentIndex].word.id;
+    const p = getWordData(id);
+    p.reps = (p.reps || 0) + 1;
+    p.interval = Math.max(p.interval || 0, 1);
+    p.state = CARD_STATE.REVIEW;
+    p.dueDate = Date.now() + 86400000;
+    p.ankiMastered = true;
+    saveState();
+    updateCard();
+  }
 
-      // Умный повтор: проверка памяти (2.5с размытие)
-      if (activeModeType === 'srs') {
-        mEl.classList.add('hidden-answer');
-        srsRevealTimer = setTimeout(() => {
-          if (thisTicket === audioTicket) mEl.classList.remove('hidden-answer');
-        }, 2500);
-      } else if (!isAnswerHidden) {
-        mEl.classList.remove('hidden-answer');
-      }
-
-      currentInterval = item.duration || 5000;
-      resetProgress();
+  // =========================================================================
+  // БЕЗОПАСНЫЙ ПОЛНОЭКРАННЫЙ РЕЖИМ
+  // =========================================================================
+  function toggleFullScreen() {
+    if (document.body.classList.contains('app-fullscreen')) {
+      exitFullScreenExplicit();
+    } else {
+      enterFullScreenExplicit();
     }
+  }
 
-    function nextSlide() {
-      if (currentPlaylist.length === 0) return;
-      currentIndex = (currentIndex + 1) % currentPlaylist.length;
-      updateCard();
+  function enterFullScreenExplicit() {
+    document.body.classList.add('app-fullscreen');
+    if (!document.fullscreenElement) {
+      document.documentElement.requestFullscreen?.().catch(() => {});
     }
+  }
 
-    function prevSlide() {
-      if (currentPlaylist.length === 0) return;
-      currentIndex = (currentIndex - 1 + currentPlaylist.length) % currentPlaylist.length;
-      updateCard();
+  function exitFullScreenExplicit() {
+    document.body.classList.remove('app-fullscreen');
+    if (document.fullscreenElement) {
+      document.exitFullscreen?.().catch(() => {});
     }
+  }
 
-    function togglePlay() {
-      if (isPlaying) pausePresentation();
-      else startPresentation();
-    }
-
-    function startPresentation() {
-      isPlaying = true;
-      acquireWakeLock();
-      document.getElementById('playBtn').textContent = '⏸ Пауза';
-      document.getElementById('playBtn').classList.add('primary');
-      resetProgress();
-    }
-
-    function pausePresentation() {
-      isPlaying = false;
-      releaseWakeLock();
-      document.getElementById('playBtn').textContent = '▶ Старт';
-      document.getElementById('playBtn').classList.remove('primary');
-      clearTimeout(slideTimer);
-      clearInterval(progressTimer);
-      clearTimeout(srsRevealTimer);
-      stopAudio();
-      document.getElementById('progressLine').style.width = '0%';
-    }
-
-    function resetProgress() {
-      clearTimeout(slideTimer);
-      clearInterval(progressTimer);
-      const pLine = document.getElementById('progressLine');
-      pLine.style.width = '0%';
-
-      if (!isPlaying) return;
-
-      const start = performance.now();
-      progressTimer = setInterval(() => {
-        const elapsed = performance.now() - start;
-        const p = Math.min((elapsed / currentInterval) * 100, 100);
-        pLine.style.width = p + '%';
-      }, 50);
-
-      slideTimer = setTimeout(() => {
-        nextSlide();
-      }, currentInterval);
-    }
-
-    function toggleHideAnswer() {
-      isAnswerHidden = !isAnswerHidden;
-      document.getElementById('dispMeaning').classList.toggle('hidden-answer', isAnswerHidden);
-      document.getElementById('eyeBtn').classList.toggle('active-toggle', isAnswerHidden);
-    }
-
-    function shuffleDeck() {
-      if (currentPlaylist.length <= 1) return;
-      currentPlaylist.sort(() => Math.random() - 0.5);
-      currentIndex = 0;
-      updateCard();
-    }
-
-    function toggleCurrentFavorite() {
-      if (currentPlaylist.length === 0) return;
-      const id = currentPlaylist[currentIndex].word.id;
-      if (starredSet.has(id)) starredSet.delete(id);
-      else starredSet.add(id);
-      saveState();
-      updateCard();
-    }
-
-    function markCurrentAsLearned() {
-      if (currentPlaylist.length === 0) return;
-      const id = currentPlaylist[currentIndex].word.id;
-      if (!userProgress[id]) userProgress[id] = { id, reps: 1, interval: 1, ankiMastered: true };
-      else userProgress[id].ankiMastered = true;
-      saveState();
-      updateCard();
-    }
-
-    // =========================================================================
-    // 6. НАВИГАЦИЯ, МОДАЛКИ И СПИСКИ УРОКОВ
-    // =========================================================================
-    function openModal(id) {
-      if (id === 'modesModal') updateActiveModeHighlight();
-      document.getElementById(id).classList.add('open');
-    }
-
-    function closeAllModals() {
-      document.querySelectorAll('.modal-backdrop').forEach(m => m.classList.remove('open'));
-    }
-
-    function closeModalOnBackdrop(e, id) {
-      if (e.target.id === id) closeAllModals();
-    }
-
-    function switchMainView(view) {
-      document.querySelectorAll('.tab-view').forEach(v => v.classList.remove('active'));
-      const target = document.getElementById('tab-' + view);
-      if (target) target.classList.add('active');
-
-      document.getElementById('btnTabPresentation').classList.toggle('active', view === 'presentation');
-    }
-
-    function switchListView(type) {
-      closeAllModals();
-      switchMainView(type);
-
-      if (type === 'lessons') renderLessons();
-      else if (type === 'favorites') renderFavList();
-      else if (type === 'learned') renderLearnedList();
-      else if (type === 'all') renderAllList();
-    }
-
-    function renderLessons() {
-      const grid = document.getElementById('lessonsGrid');
-      grid.innerHTML = '';
-
-      let renderedN4Header = false;
-
-      // Заголовок JLPT N5
-      const n5Div = document.createElement('div');
-      n5Div.className = 'lesson-section-divider';
-      n5Div.innerHTML = `<span>JLPT N5</span><hr>`;
-      grid.appendChild(n5Div);
-
-      for (let lvl = 1; lvl <= 73; lvl++) {
-        // Разделитель перед Уроком 43 (JLPT N4)
-        if (lvl === 43 && !renderedN4Header) {
-          const n4Div = document.createElement('div');
-          n4Div.className = 'lesson-section-divider';
-          n4Div.innerHTML = `<span>JLPT N4</span><hr>`;
-          grid.appendChild(n4Div);
-          renderedN4Header = true;
-        }
-
-        const words = RAW_VOCABULARY.filter(w => w.level_id === lvl);
-        const learnedNum = words.filter(w => isLearned(w.id)).length;
-        const total = words.length > 0 ? words.length : 20;
-
-        const div = document.createElement('div');
-        div.className = 'lesson-box';
-        div.innerHTML = `
-          <div class="title">Урок ${lvl}</div>
-          <div class="info">${learnedNum}/${total}</div>
-        `;
-        div.onclick = () => {
-          if (words.length === 0) {
-            alert(`В уроке ${lvl} пока нет слов в RAW_VOCABULARY.`);
-            return;
-          }
-          activeModeType = 'lesson';
-          updateActiveModeHighlight();
-          document.getElementById('mainCard').classList.remove('ambient-glow');
-          document.getElementById('ambientIndicator').style.display = 'none';
-          launchDeck(words.map(w => ({ word: w, duration: 4500 })));
-        };
-        grid.appendChild(div);
-      }
-    }
-
-    function renderFavList() {
-      const grid = document.getElementById('favoritesGrid');
-      grid.innerHTML = '';
-      const list = RAW_VOCABULARY.filter(w => starredSet.has(w.id));
-      if (list.length === 0) {
-        grid.innerHTML = '<div style="color:var(--ink-soft); padding:20px;">В избранном пока нет слов.</div>';
-        return;
-      }
-      list.forEach(w => grid.appendChild(createWordItem(w)));
-    }
-
-    function renderLearnedList() {
-      const grid = document.getElementById('learnedGrid');
-      grid.innerHTML = '';
-      const list = RAW_VOCABULARY.filter(w => isLearned(w.id));
-      if (list.length === 0) {
-        grid.innerHTML = '<div style="color:var(--ink-soft); padding:20px;">Изученных слов пока нет.</div>';
-        return;
-      }
-      list.forEach(w => grid.appendChild(createWordItem(w)));
-    }
-
-    function renderAllList(q = '') {
-      const grid = document.getElementById('allWordsGrid');
-      grid.innerHTML = '';
-      const query = q.toLowerCase().trim();
-      const list = RAW_VOCABULARY.filter(w => {
-        if (!query) return true;
-        return w.kanji.toLowerCase().includes(query) || w.reading.toLowerCase().includes(query) || w.translation.toLowerCase().includes(query);
-      });
-      list.slice(0, 150).forEach(w => grid.appendChild(createWordItem(w)));
-    }
-
-    function filterAllList() {
-      renderAllList(document.getElementById('searchInput').value);
-    }
-
-    function createWordItem(w) {
-      const div = document.createElement('div');
-      div.className = 'word-item';
-      const hasKanji = w.kanji && w.kanji !== '—' && w.kanji !== w.reading;
-      div.innerHTML = `
-        <div>
-          <div><span class="w-kanji">${hasKanji ? w.kanji : w.reading}</span>${hasKanji ? `<span class="w-reading">${w.reading}</span>` : ''}</div>
-          <div class="w-meaning">${w.translation}</div>
-        </div>
-        <button class="action-circle-btn" style="width:36px;height:36px;" onclick="playWordAudio(${w.id}, null)">🔊</button>
-      `;
-      return div;
-    }
-
-    function runFavoritesDeck() {
-      const list = RAW_VOCABULARY.filter(w => starredSet.has(w.id));
-      if (list.length === 0) return alert('Избранное пусто!');
-      activeModeType = 'custom';
-      updateActiveModeHighlight();
-      launchDeck(list.map(w => ({ word: w, duration: 4500 })));
-    }
-
-    function resetLearned() {
-      if (confirm('Сбросить прогресс изученных слов?')) {
-        userProgress = {};
-        saveState();
-        renderLearnedList();
-      }
-    }
-
-    function toggleFullScreen() {
-      const isFull = document.body.classList.toggle('app-fullscreen');
-      if (window.Telegram?.WebApp?.requestFullscreen) {
-        try {
-          if (isFull) window.Telegram.WebApp.requestFullscreen();
-          else window.Telegram.WebApp.exitFullscreen();
-        } catch(e) {}
-      }
-      if (!document.fullscreenElement) {
-        document.documentElement.requestFullscreen?.().catch(() => {});
-      } else {
-        document.exitFullscreen?.().catch(() => {});
-      }
-    }
-
-    // Горячие клавиши
-    window.addEventListener('keydown', (e) => {
-      if (e.target.tagName === 'INPUT') return;
-      if (e.code === 'Space') { e.preventDefault(); togglePlay(); }
-      else if (e.code === 'ArrowRight') nextSlide();
-      else if (e.code === 'ArrowLeft') prevSlide();
-      else if (e.code === 'KeyF') toggleFullScreen();
-      else if (e.code === 'KeyS') toggleCurrentFavorite();
-      else if (e.code === 'KeyV') playCurrentAudioManual();
+  // =========================================================================
+  // НАВИГАЦИЯ, МОДАЛКИ И СПИСКИ
+  // =========================================================================
+  function updateActiveModeHighlight() {
+    const modeMap = {
+      'ambient': 'modeBtnAmbient',
+      'srs': 'modeBtnSrs',
+      'lesson': 'modeBtnLesson',
+      'custom': 'modeBtnCustom'
+    };
+    ['modeBtnAmbient', 'modeBtnSrs', 'modeBtnLesson', 'modeBtnCustom'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.classList.remove('primary');
     });
+    const activeId = modeMap[activeModeType];
+    if (activeId && document.getElementById(activeId)) {
+      document.getElementById(activeId).classList.add('primary');
+    }
+  }
 
-    // =========================================================================
-    // 7. СТАРТ: АВТОЗАПУСК С «УМНОГО ПОВТОРЕНИЯ»
-    // =========================================================================
+  function openModal(id) {
+    if (id === 'modesModal') updateActiveModeHighlight();
+    if (id === 'ambientSettingsModal') initAmbientSettingsUI();
+    document.getElementById(id).classList.add('open');
+  }
+
+  function closeAllModals() {
+    document.querySelectorAll('.modal-backdrop').forEach(m => m.classList.remove('open'));
+  }
+
+  function closeModalOnBackdrop(e, id) {
+    if (e.target.id === id) closeAllModals();
+  }
+
+  function switchMainView(view) {
+    document.querySelectorAll('.tab-view').forEach(v => v.classList.remove('active'));
+    const target = document.getElementById('tab-' + view);
+    if (target) target.classList.add('active');
+
+    document.getElementById('btnTabPresentation').classList.toggle('active', view === 'presentation');
+  }
+
+  function switchListView(type) {
+    closeAllModals();
+    switchMainView(type);
+
+    if (type === 'lessons') renderLessons();
+    else if (type === 'favorites') renderFavList();
+    else if (type === 'learned') renderLearnedList();
+    else if (type === 'all') renderAllList();
+  }
+
+  function renderLessons() {
+    const grid = document.getElementById('lessonsGrid');
+    grid.innerHTML = '';
+    let renderedN4Header = false;
+
+    const n5Div = document.createElement('div');
+    n5Div.className = 'lesson-section-divider';
+    n5Div.innerHTML = `<span>JLPT N5 (Уроки 1–42)</span><hr>`;
+    grid.appendChild(n5Div);
+
+    for (let lvl = 1; lvl <= 73; lvl++) {
+      if (lvl === 43 && !renderedN4Header) {
+        const n4Div = document.createElement('div');
+        n4Div.className = 'lesson-section-divider';
+        n4Div.innerHTML = `<span>JLPT N4 (Уроки 43–73)</span><hr>`;
+        grid.appendChild(n4Div);
+        renderedN4Header = true;
+      }
+
+      const words = RAW_VOCABULARY.filter(w => w.level_id === lvl);
+      const learnedNum = words.filter(w => isLearned(w.id)).length;
+      const total = words.length > 0 ? words.length : 20;
+
+      const div = document.createElement('div');
+      div.className = 'lesson-box';
+      div.innerHTML = `
+        <div class="title">Урок ${lvl}</div>
+        <div class="info">${learnedNum}/${total}</div>
+      `;
+      div.onclick = () => {
+        if (words.length === 0) return;
+        activeModeType = 'lesson';
+        updateActiveModeHighlight();
+        document.getElementById('mainCard').classList.remove('ambient-glow');
+        document.getElementById('ambientIndicator').style.display = 'none';
+        launchDeck(words.map((w, idx) => ({ 
+          word: w, 
+          duration: 4500,
+          wordNum: idx + 1,
+          totalWords: words.length
+        })));
+      };
+      grid.appendChild(div);
+    }
+  }
+
+  function renderFavList() {
+    const grid = document.getElementById('favoritesGrid');
+    grid.innerHTML = '';
+    const list = RAW_VOCABULARY.filter(w => starredSet.has(w.id));
+    if (list.length === 0) {
+      grid.innerHTML = '<div style="color:var(--ink-soft); padding:20px;">В избранном пока нет слов.</div>';
+      return;
+    }
+    list.forEach(w => grid.appendChild(createWordItem(w)));
+  }
+
+  function renderLearnedList() {
+    const grid = document.getElementById('learnedGrid');
+    grid.innerHTML = '';
+    const list = RAW_VOCABULARY.filter(w => isLearned(w.id));
+    if (list.length === 0) {
+      grid.innerHTML = '<div style="color:var(--ink-soft); padding:20px;">Изученных слов пока нет.</div>';
+      return;
+    }
+    list.forEach(w => grid.appendChild(createWordItem(w)));
+  }
+
+  function renderAllList(q = '') {
+    const grid = document.getElementById('allWordsGrid');
+    grid.innerHTML = '';
+    const query = q.toLowerCase().trim();
+    const list = RAW_VOCABULARY.filter(w => {
+      if (!query) return true;
+      return w.kanji.toLowerCase().includes(query) || w.reading.toLowerCase().includes(query) || w.translation.toLowerCase().includes(query);
+    });
+    list.slice(0, 150).forEach(w => grid.appendChild(createWordItem(w)));
+  }
+
+  function filterAllList() {
+    renderAllList(document.getElementById('searchInput').value);
+  }
+
+  function createWordItem(w) {
+    const div = document.createElement('div');
+    div.className = 'word-item';
+    const hasKanji = w.kanji && w.kanji !== '—' && w.kanji !== w.reading;
+    div.innerHTML = `
+      <div>
+        <div><span class="w-kanji">${hasKanji ? w.kanji : w.reading}</span>${hasKanji ? `<span class="w-reading">${w.reading}</span>` : ''}</div>
+        <div class="w-meaning">${w.translation}</div>
+      </div>
+      <button class="action-circle-btn" style="width:36px;height:36px;" onclick="playWordAudio(${w.id}, null)">🔊</button>
+    `;
+    return div;
+  }
+
+  function runFavoritesDeck() {
+    const list = RAW_VOCABULARY.filter(w => starredSet.has(w.id));
+    if (list.length === 0) return alert('Избранное пусто!');
+    activeModeType = 'custom';
+    updateActiveModeHighlight();
+    launchDeck(list.map((w, idx) => ({ 
+      word: w, 
+      duration: 4500,
+      wordNum: idx + 1,
+      totalWords: list.length
+    })));
+  }
+
+  function resetLearned() {
+    if (confirm('Сбросить прогресс всех изученных слов?')) {
+      userProgress = {};
+      saveState();
+      renderLearnedList();
+    }
+  }
+
+  // Горячие клавиши
+  window.addEventListener('keydown', (e) => {
+    if (e.target.tagName === 'INPUT' || e.target.tagName === 'SELECT') return;
+    if (e.code === 'Space') { e.preventDefault(); togglePlay(); }
+    else if (e.code === 'ArrowRight') nextSlide();
+    else if (e.code === 'ArrowLeft') prevSlide();
+    else if (e.code === 'KeyF') toggleFullScreen();
+    else if (e.code === 'Escape') exitFullScreenExplicit();
+    else if (e.code === 'KeyS') toggleCurrentFavorite();
+    else if (e.code === 'KeyV') playCurrentAudioManual();
+  });
+
+  // =========================================================================
+  // СТАРТ ПРИЛОЖЕНИЯ
+  // =========================================================================
+  initVolumeControl();
+  initAmbientSettingsUI();
+
+  // Загружаем прогресс из облака Телеграма и запускаем сессию
+  loadState(() => {
     startSrsReview();
+  });
   </script>
 </body>
 </html>
