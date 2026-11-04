@@ -13,7 +13,7 @@
   <!-- Telegram WebApp SDK -->
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
 
-  <script>
+<script>
     const savedTheme = localStorage.getItem('app_theme') || 'light';
     document.documentElement.setAttribute('data-theme', savedTheme);
 
@@ -21,7 +21,6 @@
       const tg = window.Telegram.WebApp;
       tg.ready();
       tg.expand();
-      if (tg.requestFullscreen) tg.requestFullscreen();
       if (tg.disableVerticalSwipes) tg.disableVerticalSwipes();
 
       const themeBg = savedTheme === 'dark' ? '#181517' : '#fbf8ee';
@@ -415,8 +414,9 @@
       opacity: 0.12;
     }
 
-    /* Мягкая адаптация для средних и длинных слов (без урезания вдвое) */
-    .kanji-display.len-medium { font-size: clamp(5.2rem, 12.5vw, 11.5rem); }
+/* Мягкая адаптация для слов разной длины */
+    .kanji-display.len-medium { font-size: clamp(5.5rem, 13vw, 12rem); }
+    .kanji-display.len-semi-long { font-size: clamp(4.5rem, 10.5vw, 9.5rem); }
     .kanji-display.len-long { font-size: clamp(3.2rem, 8vw, 7.5rem); white-space: normal; }
     .reading-display.len-long { font-size: clamp(2.2rem, 5vw, 4.2rem); }
 
@@ -3509,11 +3509,13 @@
 
     mEl.textContent = w.translation;
 
-    // Плавное умное масштабирование текста (слова до 8 букв больше не сжимаются)
+// Плавное умное масштабирование текста (учитываем слова от 5 символов)
     kEl.className = 'kanji-display';
     const kLen = kEl.textContent.length;
-    if (kLen >= 6 && kLen <= 8) {
+    if (kLen === 5) {
       kEl.classList.add('len-medium');
+    } else if (kLen >= 6 && kLen <= 8) {
+      kEl.classList.add('len-semi-long');
     } else if (kLen > 8) {
       kEl.classList.add('len-long');
     }
@@ -3655,7 +3657,7 @@
   // =========================================================================
   // БЕЗОПАСНЫЙ ПОЛНОЭКРАННЫЙ РЕЖИМ
   // =========================================================================
-  function toggleFullScreen() {
+function toggleFullScreen() {
     if (document.body.classList.contains('app-fullscreen')) {
       exitFullScreenExplicit();
     } else {
@@ -3665,16 +3667,10 @@
 
   function enterFullScreenExplicit() {
     document.body.classList.add('app-fullscreen');
-    if (!document.fullscreenElement) {
-      document.documentElement.requestFullscreen?.().catch(() => {});
-    }
   }
 
   function exitFullScreenExplicit() {
     document.body.classList.remove('app-fullscreen');
-    if (document.fullscreenElement) {
-      document.exitFullscreen?.().catch(() => {});
-    }
   }
 
   // =========================================================================

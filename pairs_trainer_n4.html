@@ -200,11 +200,12 @@
       box-shadow: 0 1px 0 var(--line);
     }
 
-    /* Навигация по Уровням */
+    /* Навигация по Уровням (1, 2, 3, 4, 5 + Ошибки) */
     .level-nav {
       display: grid;
-      grid-template-columns: repeat(5, 1fr) 1.25fr;
-      gap: 6px;
+      grid-template-columns: repeat(5, 1fr) 2.2fr;
+      gap: 5px;
+      width: 100%;
     }
 
     .lvl-btn {
@@ -213,7 +214,7 @@
       border: 2px solid var(--line);
       background: var(--paper);
       color: var(--ink-soft);
-      font-size: 11px;
+      font-size: 12px;
       font-weight: 800;
       cursor: pointer;
       text-align: center;
@@ -221,6 +222,7 @@
       white-space: nowrap;
       box-shadow: 0 3px 0 var(--line);
       font-family: inherit;
+      min-width: 0;
     }
     .lvl-btn:active {
       transform: translateY(2px);
@@ -237,6 +239,7 @@
       color: var(--strawberry-deep);
       border-color: var(--strawberry);
       box-shadow: 0 3px 0 var(--strawberry);
+      padding: 9px 4px;
     }
     .lvl-btn.errors-btn.active {
       background: var(--strawberry-deep);
@@ -290,7 +293,7 @@
       padding: 1px;
     }
 
-    /* Карамельная полоса (Светлая тема) */
+    /* Карамельная полоса */
     .progress-fill {
       height: 100%;
       width: 0%;
@@ -298,8 +301,6 @@
       transition: width 0.25s ease;
       background: repeating-linear-gradient(135deg, var(--strawberry-deep) 0 10px, var(--strawberry) 10px 20px);
     }
-
-    /* Карамельная полоса (Тёмная тема) */
     [data-theme="dark"] .progress-fill {
       background: repeating-linear-gradient(135deg, var(--strawberry-deep) 0 10px, #3d1c25 10px 20px);
     }
@@ -334,7 +335,7 @@
       padding: 0 36px;
     }
 
-    /* Кандзи строго font-weight: 500 */
+    /* Кандзи в вопросе: строго 500 */
     .target-phrase {
       font-size: 28px;
       font-weight: 500;
@@ -392,7 +393,7 @@
       box-shadow: 0 0 0 var(--line);
     }
 
-    /* Сетка кнопок ответа */
+    /* Сетка вариантов ответа */
     .buttons-grid {
       display: grid;
       grid-template-columns: 1fr 1fr;
@@ -422,7 +423,7 @@
       border-color: var(--peach-deep);
     }
 
-    /* Кандзи в вариантах выбора: строго 500 */
+    /* Кандзи в кнопках: 500 */
     .choice-main {
       font-size: 19px;
       font-weight: 500;
@@ -474,7 +475,7 @@
       gap: 10px;
     }
 
-    /* Кандзи в ответе: строго 500 */
+    /* Кандзи в ответе: 500 */
     .fb-full {
       font-size: 24px;
       font-weight: 500;
@@ -485,7 +486,9 @@
       font-size: 14px;
       color: var(--ink-soft);
       font-weight: 500;
-/* Блок пояснения — обычный шрифт (400) */
+    }
+
+    /* Блок пояснения — обычный шрифт (400) + персиковые акценты */
     .fb-rule {
       font-size: 13.5px;
       color: var(--ink);
@@ -494,15 +497,12 @@
       padding: 12px 14px;
       border-radius: var(--radius-md);
       border: 1.5px solid var(--line);
-      font-weight: 400; /* <-- ОБЫЧНАЯ ТОЛЩИНА */
+      font-weight: 400;
     }
-
-    /* Чтобы заголовки в пояснении (Частица, Лайфхак) были выделены, 
-       но сами японские фразы внутри пояснения не раздувало жирным */
     .fb-rule b,
     .fb-rule strong {
-      font-weight: 600; /* Аккуратный полужирный для акцентов */
-    }
+      color: var(--peach-deep);
+      font-weight: 700;
     }
     .fb-step-line {
       margin-bottom: 6px;
@@ -586,29 +586,24 @@
       color: var(--ink);
       margin: 0;
     }
-/* Тело модалки "Секреты пар" */
+
+    /* Тело модалки "Секреты пар" */
     .modal-body {
       font-size: 14px;
       line-height: 1.65;
       color: var(--ink);
       font-weight: 400;
     }
-
-    /* Обычные выделения и кандзи внутри текста (消す, 割る) — чёткие, тёмные и тонкие */
     .modal-body strong {
       font-weight: 600;
       color: var(--ink);
     }
-
-    /* Подтемы правил («1. Правило...», «2. Правило...») — персиковые и заметные */
     .modal-body p > strong:first-child {
       color: var(--peach-deep);
       font-weight: 700;
       display: inline-block;
       margin-bottom: 3px;
     }
-
-    /* Подсвеченные плашки с кодом (〜す, を) */
     .modal-body code {
       background: var(--cream);
       padding: 1px 5px;
@@ -617,13 +612,6 @@
       color: var(--strawberry-deep);
       font-weight: 500;
       border: 1px solid var(--line);
-    }
-
-    /* Заодно в карточке пояснения (после ответа) делаем «Частица:» и «Лайфхак:» тоже персиковыми */
-    .fb-rule b, 
-    .fb-rule strong {
-      color: var(--peach-deep);
-      font-weight: 700;
     }
 
     .modal-close-btn {
@@ -687,13 +675,13 @@
     <a href="index.html" class="nav-btn">← Меню</a>
   </div>
 
-  <!-- 1. Навигация по Уровням -->
+  <!-- 1. Навигация по Уровням (1, 2, 3, 4, 5 + Ошибки) -->
   <div class="level-nav">
-    <button type="button" class="lvl-btn active" id="lvlBtn1" onclick="switchLevel(1)">Прошедшее</button>
-    <button type="button" class="lvl-btn" id="lvlBtn2" onclick="switchLevel(2)">Настоящее</button>
-    <button type="button" class="lvl-btn" id="lvlBtn3" onclick="switchLevel(3)">〜ている</button>
-    <button type="button" class="lvl-btn" id="lvlBtn4" onclick="switchLevel(4)">Микс</button>
-    <button type="button" class="lvl-btn" id="lvlBtn5" onclick="switchLevel(5)">が или を?</button>
+    <button type="button" class="lvl-btn active" id="lvlBtn1" onclick="switchLevel(1)" title="Прошедшее">1</button>
+    <button type="button" class="lvl-btn" id="lvlBtn2" onclick="switchLevel(2)" title="Настоящее">2</button>
+    <button type="button" class="lvl-btn" id="lvlBtn3" onclick="switchLevel(3)" title="〜ている">3</button>
+    <button type="button" class="lvl-btn" id="lvlBtn4" onclick="switchLevel(4)" title="Микс">4</button>
+    <button type="button" class="lvl-btn" id="lvlBtn5" onclick="switchLevel(5)" title="が или を?">5</button>
     <button type="button" class="lvl-btn errors-btn" id="lvlBtnErr" onclick="switchLevel('errors')">Ошибки (0)</button>
   </div>
 
@@ -772,6 +760,7 @@
 </div>
 
 <script>
+
 /* ==========================================================================
    ПОЛНАЯ БАЗА: 40 ПАР ГЛАГОЛОВ С ТОЧНЫМИ ПЕРЕВОДАМИ ВО ВСЕХ ФОРМАХ
    ========================================================================== */
@@ -1177,6 +1166,7 @@ function generateLevelDeck(level) {
       if (isParticleChoice) {
         return {
           rawId: `${item.ji}_${part}_particle`,
+          promptVoice: `${item.nr}`,
           voiceText: `${item.nr}${part} ${targetR}`,
           phraseHtml: `${item.nk}<span class="target-blank">＿</span> ${targetK}`,
           readingText: `${item.nr}＿ ${targetR}`,
@@ -1195,6 +1185,7 @@ function generateLevelDeck(level) {
 
       return {
         rawId: `${item.ji}_${part}_${formType}`,
+        promptVoice: `${item.nr}${part}`,
         voiceText: `${item.nr}${part} ${targetR}`,
         phraseHtml: `${item.nk}<span class="target-particle">${part}</span> <span class="target-blank">＿＿</span>`,
         readingText: `${item.nr}${part} ＿＿`,
@@ -1289,12 +1280,17 @@ function renderCard() {
   document.getElementById('progPctLabel').textContent = pct + "%";
   document.getElementById('progressBar').style.width = pct + '%';
 
-  speak(currentTask.voiceText);
+  // Автоозвучка при открытии вопроса удалена
 }
 
 function replayQuestionAudio() {
   if (currentList.length === 0 || currentIndex >= currentList.length) return;
-  speak(currentList[currentIndex].voiceText);
+  // До ответа озвучивает только начало фразы, после ответа — всю фразу
+  if (isAnswered) {
+    speak(currentList[currentIndex].kana);
+  } else {
+    speak(currentList[currentIndex].promptVoice);
+  }
 }
 
 function replayAnswerAudio() {
@@ -1332,6 +1328,7 @@ function handleAnswer(chosen) {
   document.getElementById('fbKana').textContent = currentTask.kana;
   document.getElementById('fbRule').innerHTML = currentTask.rule;
 
+  // Озвучиваем правильный ответ только после выбора
   speak(currentTask.kana);
   updateUI();
 }
@@ -1403,7 +1400,7 @@ function openTheory() {
     • 開く (あく - открывается) ➔ <strong>開ける</strong> (あける - открывать)<br>
     • 付く (つく - прикреплен) ➔ <strong>付ける</strong> (つける - прикреплять)<br>
     • 閉まる (しまる - закрывается) ➔ <strong>閉める</strong> (しめる - закрывать)<br>
-    • 並ぶ (ならぶ - стоят в ряд) ➔ <strong>並べる</strong> (ならべる - расставлять)</p><br>
+    • 並ぶ (ならぶ - стоят в ряд) ➔ <strong>並べる</strong> (нараべる - расставлять)</p><br>
 
     <p><strong>3. Суффикс «〜れる»: Всегда непереходный (自動詞)</strong><br>
     Если глагол оканчивается на <code>れる</code>, он обозначает спонтанный процесс, который произошёл сам:<br>
